@@ -63,7 +63,7 @@
 <%
 /* SQL runs but prints nothing */
 
-String db = "valdiviamendoza";
+String db = "team1";
 String user = "root";
 String password = "Mendoza_101!";
 
@@ -73,16 +73,16 @@ java.sql.Connection con;
 Class.forName("com.mysql.jdbc.Driver");
 
 con = DriverManager.getConnection(
-"jdbc:mysql://localhost:3306/valdiviamendoza?autoReconnect=true&useSSL=false",
+"jdbc:mysql://localhost:3306/team1?autoReconnect=true&useSSL=false",
 user,
 password
 );
 
 Statement stmt = con.createStatement();
-ResultSet rs = stmt.executeQuery("SELECT * FROM valdiviamendoza.Student");
+ResultSet rs = stmt.executeQuery("SELECT * FROM team1.listings");
 
 while(rs.next()){
-    // intentionally empty
+	System.out.println(rs.getInt(1)+" "+rs.getInt(2)+" "+rs.getInt(3) +" "+ rs.getString(4));
 }
 
 rs.close();
