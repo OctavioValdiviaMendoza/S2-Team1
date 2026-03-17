@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.6.3">
   <diagram name="Page-1" id="lClBZfP5BXgAy1RYNo0t">
-    <mxGraphModel dx="2668" dy="2172" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" background="none" math="0" shadow="0">
+    <mxGraphModel dx="2670" dy="2160" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -23,7 +23,7 @@
           <mxGeometry height="60" width="120" x="-315" y="430" as="geometry" />
         </mxCell>
         <mxCell id="xis8FLv0ou0MJi22VhUU-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="ListingImages" vertex="1">
-          <mxGeometry height="60" width="120" x="-197.5" y="-185" as="geometry" />
+          <mxGeometry height="60" width="120" x="-230" y="-173" as="geometry" />
         </mxCell>
         <mxCell id="xis8FLv0ou0MJi22VhUU-19" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Bookings" vertex="1">
           <mxGeometry height="60" width="120" x="158.5" y="-267" as="geometry" />
@@ -149,10 +149,10 @@
           <mxGeometry height="60" width="100" x="-172.5" y="410" as="geometry" />
         </mxCell>
         <mxCell id="ZTul85aUJ2SQ9mMgbwQZ-6" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="&lt;u&gt;image_ID&lt;/u&gt;" vertex="1">
-          <mxGeometry height="60" width="100" x="-222.5" y="-260" as="geometry" />
+          <mxGeometry height="60" width="100" x="-236" y="-260" as="geometry" />
         </mxCell>
         <mxCell id="ZTul85aUJ2SQ9mMgbwQZ-7" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="listing_ID" vertex="1">
-          <mxGeometry height="60" width="100" x="-90" y="-245" as="geometry" />
+          <mxGeometry height="60" width="100" x="-122.5" y="-242" as="geometry" />
         </mxCell>
         <mxCell id="ZTul85aUJ2SQ9mMgbwQZ-11" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="&lt;u&gt;booking_ID&lt;/u&gt;" vertex="1">
           <mxGeometry height="60" width="100" x="308.5" y="-242" as="geometry" />
@@ -723,6 +723,15 @@
         </mxCell>
         <mxCell id="ZTul85aUJ2SQ9mMgbwQZ-149" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Is" vertex="1">
           <mxGeometry height="60" width="95" x="-474" y="-233" as="geometry" />
+        </mxCell>
+        <mxCell id="nWJ8PWQ6OqP_brrre-te-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="image_url" vertex="1">
+          <mxGeometry height="60" width="100" x="-69" y="-182" as="geometry" />
+        </mxCell>
+        <mxCell id="nWJ8PWQ6OqP_brrre-te-2" edge="1" parent="1" source="xis8FLv0ou0MJi22VhUU-18" style="endArrow=none;html=1;rounded=0;" target="nWJ8PWQ6OqP_brrre-te-1" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="-95" y="-123" as="sourcePoint" />
+            <mxPoint x="-72" y="-139" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
