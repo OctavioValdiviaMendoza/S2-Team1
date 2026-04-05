@@ -18,7 +18,9 @@
     	<a href = "../views/Login.jsp">
        		<button class="login" onclick="../Login.jsp">Log in</button>
         </a>
+        <a href = "SignUp.jsp">
         <button class="signup">Sign up</button>
+        </a>
     </div>
 </div>
 
