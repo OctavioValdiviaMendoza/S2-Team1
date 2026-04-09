@@ -1,1 +1,4 @@
 /build/
+*.class
+# Optional: Uncomment to ignore JAR dependencies (not recommended for simple projects)
+# src/main/webapp/WEB-INF/lib/
