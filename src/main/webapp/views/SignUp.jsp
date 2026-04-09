@@ -12,7 +12,7 @@
 	<h2>Create Account</h2> 
 	<p>Join Lendr today</p> 
 	
-	<form action="SignupServlet" method="post"> 
+	<form action="${pageContext.request.contextPath}/SignupServlet" method="post"> 
 		<input type="text" name="firstName" placeholder="First Name" required> 
 		<input type="text" name="lastName" placeholder="Last Name" required> 
 		<input type="email" name="email" placeholder="Email Address" required> 
