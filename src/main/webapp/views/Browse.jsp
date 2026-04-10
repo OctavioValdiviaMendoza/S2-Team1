@@ -36,16 +36,19 @@
             <h3>Filters</h3>
             
             <div class="filter-group">
-                <labe% 
+                <label for="category">Category</label>
+                <select id="category">
+                    <option value="">All Categories</option>
+                    <%
                         List<Category> categories = (List<Category>) request.getAttribute("categories");
-                        if(categories != null) {
-                            for(Category category : categories) {
+                        if (categories != null) {
+                            for (Category category : categories) {
                     %>
                     <option value="<%= category.getCategoryId() %>"><%= category.getCategoryName() %></option>
-                    <% 
+                    <%
                             }
                         }
-                    %
+                    %>
                     <option value="kitchen">Kitchen & Home</option>
                     <option value="clothing">Clothing & Accessories</option>
                     <option value="toys">Toys & Games</option>
@@ -92,10 +95,10 @@
 
             <!-- LISTINGS GRID -->
             <div class="listings-grid">
-                <% 
+                <%
                     List<Listing> listings = (List<Listing>) request.getAttribute("listings");
-                    if(listings != null && !listings.isEmpty()) {
-                        for(Listing listing : listings) {
+                    if (listings != null && !listings.isEmpty()) {
+                        for (Listing listing : listings) {
                 %>
                 
                 <!-- LISTING CARD -->
@@ -114,14 +117,14 @@
                     </div>
                 </div>
 
-                <% 
+                <%
                         }
                     } else {
                 %>
                 <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
                     <p>No listings found. Try adjusting your filters.</p>
                 </div>
-                <% 
+                <%
                     }
                 %>
 
@@ -150,7 +153,7 @@
         const priceRange = document.getElementById('price-range');
         const priceDisplay = document.querySelector('.price-display');
         priceRange.addEventListener('input', function() {
-            priceDisplay.textContent = `$0 - $${this.value}`;
+        		priceDisplay.textContent = '$0 - $' + this.value;
         });
 
         // Navigation buttons
