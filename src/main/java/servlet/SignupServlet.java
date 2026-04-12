@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import service.UserService;
+
 
 
 import model.User;
@@ -14,6 +16,8 @@ import model.User;
 @WebServlet("/SignupServlet")
 public class SignupServlet extends HttpServlet{
 	private static final long serialVersionUID = 1L;
+	
+	private UserService userService = new UserService();
 	
 	public SignupServlet() {
 		super();
@@ -35,6 +39,8 @@ public class SignupServlet extends HttpServlet{
             request.getRequestDispatcher("/views/SignUp.jsp").forward(request, response);
             return;
         }
+        
+        String hashedPassword = userService.hashPassword(password);
 		
         User user = new User();
         user.setFirstName(firstName);
@@ -42,8 +48,9 @@ public class SignupServlet extends HttpServlet{
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setGovId(govId);
-        //NEED TO HASH
-        user.setPasswordHash(password);
+        
+        user.setPasswordHash(hashedPassword);
+        System.out.println(hashedPassword);
         
         //NEED TO CALL DAO
         
