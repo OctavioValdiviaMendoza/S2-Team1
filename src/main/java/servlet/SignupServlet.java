@@ -8,16 +8,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import service.UserService;
-
-
-
 import model.User;
+import dao.UserDAO;
 
 @WebServlet("/SignupServlet")
 public class SignupServlet extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 	
 	private UserService userService = new UserService();
+	private UserDAO userDAO = new UserDAO();
 	
 	public SignupServlet() {
 		super();
@@ -48,11 +47,14 @@ public class SignupServlet extends HttpServlet{
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setGovId(govId);
+        //need to set up verification
+        user.setVerificationToken("");
+        user.setVerifiedStatus(false);
         
         user.setPasswordHash(hashedPassword);
         System.out.println(hashedPassword);
         
-        //NEED TO CALL DAO
+        userDAO.insertUser(user);
         
         response.sendRedirect(request.getContextPath() + "/views/Login.jsp");        
 	} 
