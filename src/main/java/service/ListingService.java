@@ -8,86 +8,84 @@ import java.util.List;
 
 public class ListingService {
 
-    public static List<Listing> getAllListings() {
-        List<Listing> listings = new ArrayList<>();
+    private static final String URL =
+    "jdbc:mysql://127.0.0.1:3306/team1?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private static final String USER = "team1_app";
+    private static final String PASS = "team1pass";
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/valdiviamendoza?autoReconnect=true&useSSL=false",
-                "root", "Mendoza_101!");
+public static List<Listing> getAllListings() {
+    List<Listing> listings = new ArrayList<>();
 
-            String sql = "SELECT l.*, c.Category_Name, " +
-                        "(SELECT image_url FROM ListingImages WHERE Listing_ID = l.Listing_ID LIMIT 1) as image_url, " +
-                        "(SELECT CONCAT(City, ', ', State) FROM Addresses WHERE User_ID = l.User_ID AND Is_Default = true LIMIT 1) as location " +
-                        "FROM Listings l " +
-                        "LEFT JOIN Categories c ON l.Category_ID = c.Category_ID " +
-                        "WHERE l.Availability = true " +
-                        "ORDER BY l.Created_At DESC";
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection con = DriverManager.getConnection(URL, USER, PASS);
 
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
+        String sql = "SELECT listing_id, user_id, category_id, title, description, price, created_at, availability " +
+                     "FROM listings";
 
-            while(rs.next()) {
-                Listing listing = new Listing(
-                    rs.getInt("Listing_ID"),
-                    rs.getInt("User_ID"),
-                    rs.getInt("Category_ID"),
-                    rs.getString("Title"),
-                    rs.getString("Description"),
-                    rs.getDouble("Price"),
-                    rs.getTimestamp("Created_At"),
-                    rs.getBoolean("Availability")
-                );
-                listing.setCategoryName(rs.getString("Category_Name"));
-                listing.setImageUrl(rs.getString("image_url"));
-                listing.setLocation(rs.getString("location"));
-                listings.add(listing);
-            }
+        Statement stmt = con.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
 
-            rs.close();
-            stmt.close();
-            con.close();
-        } catch(Exception e) {
-            System.out.println("Error fetching listings: " + e);
+        while (rs.next()) {
+            Listing listing = new Listing(
+                rs.getInt("listing_id"),
+                rs.getInt("user_id"),
+                rs.getInt("category_id"),
+                rs.getString("title"),
+                rs.getString("description"),
+                rs.getDouble("price"),
+                rs.getTimestamp("created_at"),
+                rs.getBoolean("availability")
+            );
+
+            listing.setCategoryName("Test");
+            listing.setImageUrl(null);
+            listing.setLocation("Test Location");
+
+            listings.add(listing);
         }
 
-        return listings;
+        rs.close();
+        stmt.close();
+        con.close();
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+
+    return listings;
+}
 
     public static List<Listing> getListingsByCategory(int categoryId) {
         List<Listing> listings = new ArrayList<>();
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/valdiviamendoza?autoReconnect=true&useSSL=false",
-                "root", "Mendoza_101!");
+            Connection con = DriverManager.getConnection(URL, USER, PASS);
 
-            String sql = "SELECT l.*, c.Category_Name, " +
-                        "(SELECT image_url FROM ListingImages WHERE Listing_ID = l.Listing_ID LIMIT 1) as image_url, " +
-                        "(SELECT CONCAT(City, ', ', State) FROM Addresses WHERE User_ID = l.User_ID AND Is_Default = true LIMIT 1) as location " +
-                        "FROM Listings l " +
-                        "LEFT JOIN Categories c ON l.Category_ID = c.Category_ID " +
-                        "WHERE l.Category_ID = ? AND l.Availability = true " +
-                        "ORDER BY l.Created_At DESC";
+            String sql = "SELECT l.*, c.category_name, " +
+                    "(SELECT image_url FROM listing_images WHERE listing_id = l.listing_id LIMIT 1) AS image_url, " +
+                    "(SELECT CONCAT(city, ', ', state) FROM addresses WHERE user_id = l.user_id AND is_default = 1 LIMIT 1) AS location " +
+                    "FROM listings l " +
+                    "LEFT JOIN categories c ON l.category_id = c.category_id " +
+                    "WHERE l.category_id = ? AND l.availability = 1 " +
+                    "ORDER BY l.created_at DESC";
 
             PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setInt(1, categoryId);
             ResultSet rs = pstmt.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 Listing listing = new Listing(
-                    rs.getInt("Listing_ID"),
-                    rs.getInt("User_ID"),
-                    rs.getInt("Category_ID"),
-                    rs.getString("Title"),
-                    rs.getString("Description"),
-                    rs.getDouble("Price"),
-                    rs.getTimestamp("Created_At"),
-                    rs.getBoolean("Availability")
+                        rs.getInt("listing_id"),
+                        rs.getInt("user_id"),
+                        rs.getInt("category_id"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getTimestamp("created_at"),
+                        rs.getBoolean("availability")
                 );
-                listing.setCategoryName(rs.getString("Category_Name"));
+                listing.setCategoryName(rs.getString("category_name"));
                 listing.setImageUrl(rs.getString("image_url"));
                 listing.setLocation(rs.getString("location"));
                 listings.add(listing);
@@ -96,8 +94,9 @@ public class ListingService {
             rs.close();
             pstmt.close();
             con.close();
-        } catch(Exception e) {
-            System.out.println("Error fetching listings by category: " + e);
+        } catch (Exception e) {
+            System.out.println("Error fetching listings by category:");
+            e.printStackTrace();
         }
 
         return listings;
@@ -108,36 +107,34 @@ public class ListingService {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/valdiviamendoza?autoReconnect=true&useSSL=false",
-                "root", "Mendoza_101!");
+            Connection con = DriverManager.getConnection(URL, USER, PASS);
 
-            String sql = "SELECT l.*, c.Category_Name, " +
-                        "(SELECT image_url FROM ListingImages WHERE Listing_ID = l.Listing_ID LIMIT 1) as image_url, " +
-                        "(SELECT CONCAT(City, ', ', State) FROM Addresses WHERE User_ID = l.User_ID AND Is_Default = true LIMIT 1) as location " +
-                        "FROM Listings l " +
-                        "LEFT JOIN Categories c ON l.Category_ID = c.Category_ID " +
-                        "WHERE (l.Title LIKE ? OR l.Description LIKE ?) AND l.Availability = true " +
-                        "ORDER BY l.Created_At DESC";
+            String sql = "SELECT l.*, c.category_name, " +
+                    "(SELECT image_url FROM listing_images WHERE listing_id = l.listing_id LIMIT 1) AS image_url, " +
+                    "(SELECT CONCAT(city, ', ', state) FROM addresses WHERE user_id = l.user_id AND is_default = 1 LIMIT 1) AS location " +
+                    "FROM listings l " +
+                    "LEFT JOIN categories c ON l.category_id = c.category_id " +
+                    "WHERE (l.title LIKE ? OR l.description LIKE ?) AND l.availability = 1 " +
+                    "ORDER BY l.created_at DESC";
 
             PreparedStatement pstmt = con.prepareStatement(sql);
-            String searchPattern = "%" + searchTerm + "%";
-            pstmt.setString(1, searchPattern);
-            pstmt.setString(2, searchPattern);
+            String pattern = "%" + searchTerm + "%";
+            pstmt.setString(1, pattern);
+            pstmt.setString(2, pattern);
             ResultSet rs = pstmt.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 Listing listing = new Listing(
-                    rs.getInt("Listing_ID"),
-                    rs.getInt("User_ID"),
-                    rs.getInt("Category_ID"),
-                    rs.getString("Title"),
-                    rs.getString("Description"),
-                    rs.getDouble("Price"),
-                    rs.getTimestamp("Created_At"),
-                    rs.getBoolean("Availability")
+                        rs.getInt("listing_id"),
+                        rs.getInt("user_id"),
+                        rs.getInt("category_id"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getTimestamp("created_at"),
+                        rs.getBoolean("availability")
                 );
-                listing.setCategoryName(rs.getString("Category_Name"));
+                listing.setCategoryName(rs.getString("category_name"));
                 listing.setImageUrl(rs.getString("image_url"));
                 listing.setLocation(rs.getString("location"));
                 listings.add(listing);
@@ -146,8 +143,9 @@ public class ListingService {
             rs.close();
             pstmt.close();
             con.close();
-        } catch(Exception e) {
-            System.out.println("Error searching listings: " + e);
+        } catch (Exception e) {
+            System.out.println("Error searching listings:");
+            e.printStackTrace();
         }
 
         return listings;
@@ -158,33 +156,31 @@ public class ListingService {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/valdiviamendoza?autoReconnect=true&useSSL=false",
-                "root", "Mendoza_101!");
+            Connection con = DriverManager.getConnection(URL, USER, PASS);
 
-            String sql = "SELECT l.*, c.Category_Name, " +
-                        "(SELECT image_url FROM ListingImages WHERE Listing_ID = l.Listing_ID LIMIT 1) as image_url, " +
-                        "(SELECT CONCAT(City, ', ', State) FROM Addresses WHERE User_ID = l.User_ID AND Is_Default = true LIMIT 1) as location " +
-                        "FROM Listings l " +
-                        "LEFT JOIN Categories c ON l.Category_ID = c.Category_ID " +
-                        "WHERE l.Listing_ID = ?";
+            String sql = "SELECT l.*, c.category_name, " +
+                    "(SELECT image_url FROM listing_images WHERE listing_id = l.listing_id LIMIT 1) AS image_url, " +
+                    "(SELECT CONCAT(city, ', ', state) FROM addresses WHERE user_id = l.user_id AND is_default = 1 LIMIT 1) AS location " +
+                    "FROM listings l " +
+                    "LEFT JOIN categories c ON l.category_id = c.category_id " +
+                    "WHERE l.listing_id = ?";
 
             PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setInt(1, listingId);
             ResultSet rs = pstmt.executeQuery();
 
-            if(rs.next()) {
+            if (rs.next()) {
                 listing = new Listing(
-                    rs.getInt("Listing_ID"),
-                    rs.getInt("User_ID"),
-                    rs.getInt("Category_ID"),
-                    rs.getString("Title"),
-                    rs.getString("Description"),
-                    rs.getDouble("Price"),
-                    rs.getTimestamp("Created_At"),
-                    rs.getBoolean("Availability")
+                        rs.getInt("listing_id"),
+                        rs.getInt("user_id"),
+                        rs.getInt("category_id"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getTimestamp("created_at"),
+                        rs.getBoolean("availability")
                 );
-                listing.setCategoryName(rs.getString("Category_Name"));
+                listing.setCategoryName(rs.getString("category_name"));
                 listing.setImageUrl(rs.getString("image_url"));
                 listing.setLocation(rs.getString("location"));
             }
@@ -192,8 +188,9 @@ public class ListingService {
             rs.close();
             pstmt.close();
             con.close();
-        } catch(Exception e) {
-            System.out.println("Error fetching listing by ID: " + e);
+        } catch (Exception e) {
+            System.out.println("Error fetching listing by ID:");
+            e.printStackTrace();
         }
 
         return listing;
@@ -204,30 +201,28 @@ public class ListingService {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/team1?autoReconnect=true&useSSL=false",
-                "root", "Mendoza_101!");
+            Connection con = DriverManager.getConnection(URL, USER, PASS);
 
             String sql = "SELECT l.*, c.category_name " +
-                        "FROM listings l " +
-                        "LEFT JOIN categories c ON l.category_id = c.category_id " +
-                        "WHERE l.user_id = ? " +
-                        "ORDER BY l.created_at DESC";
+                    "FROM listings l " +
+                    "LEFT JOIN categories c ON l.category_id = c.category_id " +
+                    "WHERE l.user_id = ? " +
+                    "ORDER BY l.created_at DESC";
 
             PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setInt(1, userId);
             ResultSet rs = pstmt.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 Listing listing = new Listing(
-                    rs.getInt("listing_id"),
-                    rs.getInt("user_id"),
-                    rs.getInt("category_id"),
-                    rs.getString("title"),
-                    rs.getString("description"),
-                    rs.getDouble("price"),
-                    rs.getTimestamp("created_at"),
-                    rs.getBoolean("availability")
+                        rs.getInt("listing_id"),
+                        rs.getInt("user_id"),
+                        rs.getInt("category_id"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getTimestamp("created_at"),
+                        rs.getBoolean("availability")
                 );
                 listing.setCategoryName(rs.getString("category_name"));
                 listings.add(listing);
@@ -236,8 +231,9 @@ public class ListingService {
             rs.close();
             pstmt.close();
             con.close();
-        } catch(Exception e) {
-            System.out.println("Error fetching listings by user ID: " + e);
+        } catch (Exception e) {
+            System.out.println("Error fetching listings by user ID:");
+            e.printStackTrace();
         }
 
         return listings;
@@ -248,18 +244,16 @@ public class ListingService {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/valdiviamendoza?autoReconnect=true&useSSL=false",
-                "root", "Mendoza_101!");
+            Connection con = DriverManager.getConnection(URL, USER, PASS);
 
-            String sql = "SELECT * FROM Categories ORDER BY Category_Name";
+            String sql = "SELECT * FROM categories ORDER BY category_name";
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
 
-            while(rs.next()) {
+            while (rs.next()) {
                 Category category = new Category(
-                    rs.getInt("Category_ID"),
-                    rs.getString("Category_Name")
+                        rs.getInt("category_id"),
+                        rs.getString("category_name")
                 );
                 categories.add(category);
             }
@@ -267,8 +261,9 @@ public class ListingService {
             rs.close();
             stmt.close();
             con.close();
-        } catch(Exception e) {
-            System.out.println("Error fetching categories: " + e);
+        } catch (Exception e) {
+            System.out.println("Error fetching categories:");
+            e.printStackTrace();
         }
 
         return categories;

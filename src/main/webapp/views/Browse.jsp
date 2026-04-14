@@ -2,6 +2,13 @@
 <%@ page import="java.util.List" %>
 <%@ page import="model.Listing" %>
 <%@ page import="model.Category" %>
+<%
+    String contextPath = request.getContextPath();
+    String selectedCategoryId = request.getParameter("categoryId");
+    String searchTerm = request.getParameter("search");
+    List<Category> categories = (List<Category>) request.getAttribute("categories");
+    List<Listing> listings = (List<Listing>) request.getAttribute("listings");
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,16 +16,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse Items - Lendr</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="../css/browse.css" rel="stylesheet">
+    <link
+        href="<%= contextPath %>/css/browse.css"
+        rel="stylesheet"
+        onerror="this.onerror=null;this.href='../css/browse.css';">
 </head>
 <body>
 
     <!-- NAVBAR -->
     <div class="navbar">
-        <a href="JDBCDemo.jsp" class="logo">Lendr</a>
+        <a href="<%= contextPath %>/views/JDBCDemo.jsp" class="logo">Lendr</a>
         <div class="nav-center">
             <div class="search-bar">
-                <input type="text" placeholder="Search items...">
+                <input type="text" placeholder="Search items..." value="<%= searchTerm != null ? searchTerm : "" %>">
                 <button class="search-btn">Search</button>
             </div>
         </div>
@@ -39,19 +49,13 @@
                 <label for="category">Category</label>
                 <select id="category">
                     <option value="">All Categories</option>
-                    <%
-                        List<Category> categories = (List<Category>) request.getAttribute("categories");
-                        if (categories != null) {
-                            for (Category category : categories) {
+                    <% if (categories != null) {
+                        for (Category category : categories) {
                     %>
-                    <option value="<%= category.getCategoryId() %>"><%= category.getCategoryName() %></option>
-                    <%
-                            }
-                        }
+                    <option value="<%= category.getCategoryId() %>" <%= String.valueOf(category.getCategoryId()).equals(selectedCategoryId) ? "selected" : "" %>><%= category.getCategoryName() %></option>
+                    <%  }
+                       }
                     %>
-                    <option value="kitchen">Kitchen & Home</option>
-                    <option value="clothing">Clothing & Accessories</option>
-                    <option value="toys">Toys & Games</option>
                 </select>
             </div>
 
@@ -93,26 +97,33 @@
                 </select>
             </div>
 
+            
             <!-- LISTINGS GRID -->
             <div class="listings-grid">
-                <%
-                    List<Listing> listings = (List<Listing>) request.getAttribute("listings");
-                    if (listings != null && !listings.isEmpty()) {
+                <% if (listings != null && !listings.isEmpty()) {
                         for (Listing listing : listings) {
+                            String title = listing.getTitle() != null ? listing.getTitle() : "Untitled Listing";
+                            String description = listing.getDescription() != null ? listing.getDescription() : "No description available.";
+                            String location = listing.getLocation() != null ? listing.getLocation() : "Location not specified";
+                            String categoryName = listing.getCategoryName() != null ? listing.getCategoryName() : "Uncategorized";
+                            String imageUrl = listing.getImageUrl();
+                            String imageSrc = (imageUrl != null && (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")))
+                                ? imageUrl
+                                : "https://via.placeholder.com/250x250?text=" + title.replaceAll(" ", "+");
                 %>
                 
                 <!-- LISTING CARD -->
                 <div class="item-card">
                     <div class="item-image">
-                        <img src="<%= listing.getImageUrl() != null ? listing.getImageUrl() : "https://via.placeholder.com/250x250?text=" + listing.getTitle().replaceAll(" ", "+") %>" alt="<%= listing.getTitle() %>">
+                        <img src="<%= imageSrc %>" alt="<%= title %>">
                         <span class="item-badge"><%= listing.isAvailability() ? "Available" : "Unavailable" %></span>
                     </div>
                     <div class="item-info">
-                        <h3 class="item-title"><%= listing.getTitle() %></h3>
+                        <h3 class="item-title"><%= title %></h3>
                         <p class="item-price">$<%= listing.getPrice() %>/day</p>
-                        <p class="item-location">📍 <%= listing.getLocation() != null ? listing.getLocation() : "Location not specified" %></p>
-                        <p class="item-category"><%= listing.getCategoryName() != null ? listing.getCategoryName() : "Uncategorized" %></p>
-                        <p class="item-description"><%= listing.getDescription().length() > 50 ? listing.getDescription().substring(0, 50) + "..." : listing.getDescription() %></p>
+                        <p class="item-location">📍 <%= location %></p>
+                        <p class="item-category"><%= categoryName %></p>
+                        <p class="item-description"><%= description.length() > 50 ? description.substring(0, 50) + "..." : description %></p>
                         <button class="view-btn" onclick="viewListingDetails(<%= listing.getListingId() %>)">View Details</button>
                     </div>
                 </div>
@@ -158,17 +169,19 @@
 
         // Navigation buttons
         document.querySelector('.login-btn').addEventListener('click', function() {
-            window.location.href = 'Login.jsp';
+            window.location.href = '<%= contextPath %>/views/Login.jsp';
         });
         document.querySelector('.signup-btn').addEventListener('click', function() {
-            window.location.href = 'SignUp.jsp';
+            window.location.href = '<%= contextPath %>/views/SignUp.jsp';
         });
 
         // Search functionality
         document.querySelector('.search-btn').addEventListener('click', function() {
             const searchTerm = document.querySelector('.search-bar input').value;
             if (searchTerm) {
-                window.location.href = 'BrowseServlet?search=' + encodeURIComponent(searchTerm);
+                window.location.href = '<%= contextPath %>/BrowseServlet?search=' + encodeURIComponent(searchTerm);
+            } else {
+                window.location.href = '<%= contextPath %>/BrowseServlet';
             }
         });
 
@@ -176,9 +189,9 @@
         document.querySelector('.filter-btn').addEventListener('click', function() {
             const categoryId = document.getElementById('category').value;
             if (categoryId) {
-                window.location.href = 'BrowseServlet?categoryId=' + encodeURIComponent(categoryId);
+                window.location.href = '<%= contextPath %>/BrowseServlet?categoryId=' + encodeURIComponent(categoryId);
             } else {
-                window.location.href = 'BrowseServlet';
+                window.location.href = '<%= contextPath %>/BrowseServlet';
             }
         });
 
@@ -189,12 +202,12 @@
             document.getElementById('location').value = '';
             document.getElementById('price-range').value = '500';
             priceDisplay.textContent = '$0 - $500';
-            window.location.href = 'BrowseServlet';
+            window.location.href = '<%= contextPath %>/BrowseServlet';
         });
 
         // View details function
         function viewListingDetails(listingId) {
-            window.location.href = 'ListingDetailServlet?listingId=' + listingId;
+            window.location.href = '<%= contextPath %>/ListingDetailServlet?listingId=' + listingId;
         }
     </script>
 
