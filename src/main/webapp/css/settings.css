@@ -1,0 +1,362 @@
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #4f46e5, #9333ea);
+    color: #ffffff;
+}
+
+.settings-shell {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 20px;
+}
+
+.settings-container {
+    background: #ffffff;
+    color: #333333;
+    border-radius: 24px;
+    padding: 36px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+}
+
+.settings-header {
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.settings-header h1 {
+    margin: 0 0 10px;
+    font-size: 32px;
+    color: #4f46e5;
+}
+
+.settings-header p {
+    margin: 0;
+    color: #6b7280;
+}
+
+.alert {
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    display: none;
+    font-size: 14px;
+}
+
+.alert-success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.alert-danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 12px 18px;
+    border: 1px solid #ddd6fe;
+    border-radius: 999px;
+    background: #f5f3ff;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: #6d28d9;
+    transition: all 0.25s ease;
+}
+
+.tab-btn:hover {
+    background: #ede9fe;
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #4f46e5, #9333ea);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.25);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-content h3,
+.tab-content h4 {
+    color: #312e81;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    background: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #9333ea;
+    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #9333ea);
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(79, 70, 229, 0.18);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 16px 30px rgba(79, 70, 229, 0.24);
+}
+
+.btn-danger {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background-color: #b91c1c;
+}
+
+.btn-secondary {
+    background-color: #64748b;
+    color: #ffffff;
+}
+
+.btn-secondary:hover {
+    background-color: #475569;
+}
+
+.btn-success {
+    background-color: #16a34a;
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background-color: #15803d;
+}
+
+.profile-info,
+.listing-card,
+.booking-card,
+.empty-state,
+.confirmation-alert {
+    border-radius: 18px;
+}
+
+.profile-info {
+    background: #f8faff;
+    border: 1px solid #e5e7eb;
+    padding: 22px;
+    margin-bottom: 24px;
+}
+
+.profile-info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-info-row:last-child {
+    border-bottom: none;
+}
+
+.profile-info-label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.profile-info-value {
+    color: #6b7280;
+    text-align: right;
+}
+
+.listing-card,
+.booking-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.listing-card h4,
+.booking-card h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #312e81;
+}
+
+.listing-meta,
+.booking-meta {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 10px;
+}
+
+.listing-actions,
+.booking-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-confirmed {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.status-denied {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.status-completed {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.confirmation-alert {
+    background-color: #fff7ed;
+    border: 1px solid #fdba74;
+    padding: 18px;
+    margin-bottom: 20px;
+    color: #9a3412;
+}
+
+.confirmation-alert p {
+    margin: 0 0 10px;
+}
+
+.confirmation-alert ul {
+    margin: 0 0 12px 18px;
+    padding: 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    background: #f8faff;
+    color: #6b7280;
+    border: 1px dashed #c4b5fd;
+}
+
+.empty-state h4 {
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    margin: 0 0 16px;
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .settings-shell {
+        padding: 24px 16px;
+    }
+
+    .settings-container {
+        padding: 24px 18px;
+        border-radius: 20px;
+    }
+
+    .settings-header h1 {
+        font-size: 28px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-info-row {
+        flex-direction: column;
+    }
+
+    .profile-info-value {
+        text-align: left;
+    }
+}
