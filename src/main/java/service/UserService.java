@@ -2,12 +2,11 @@ package service;
 
 import model.User;
 import model.Booking;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.util.Base64;
 
 public class UserService {
 
@@ -30,8 +29,8 @@ public class UserService {
             if (rs.next()) {
                 user = new User(
                     rs.getInt("user_id"),
-                    rs.getString("name").split(" ")[0], // First name
-                    rs.getString("name").contains(" ") ? rs.getString("name").substring(rs.getString("name").indexOf(" ") + 1) : "", // Last name
+                    rs.getString("first_name"),
+                    rs.getString("last_name"),
                     rs.getString("email"),
                     rs.getString("phone_number"),
                     rs.getString("password_hash"),
@@ -45,7 +44,7 @@ public class UserService {
             rs.close();
             pstmt.close();
             con.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error fetching user: " + e);
         }
 
@@ -67,8 +66,8 @@ public class UserService {
             if (rs.next()) {
                 user = new User(
                     rs.getInt("user_id"),
-                    rs.getString("name").split(" ")[0],
-                    rs.getString("name").contains(" ") ? rs.getString("name").substring(rs.getString("name").indexOf(" ") + 1) : "",
+                    rs.getString("first_name"),
+                    rs.getString("last_name"),
                     rs.getString("email"),
                     rs.getString("phone_number"),
                     rs.getString("password_hash"),
@@ -82,7 +81,7 @@ public class UserService {
             rs.close();
             pstmt.close();
             con.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error fetching user by email: " + e);
         }
 
@@ -114,7 +113,7 @@ public class UserService {
             rs.close();
             pstmt.close();
             con.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error fetching payment method: " + e);
             paymentMethod = "Not Set";
         }
@@ -128,7 +127,6 @@ public class UserService {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-            // First, verify current password
             String selectSql = "SELECT password_hash FROM users WHERE user_id = ?";
             PreparedStatement selectStmt = con.prepareStatement(selectSql);
             selectStmt.setInt(1, userId);
@@ -139,19 +137,15 @@ public class UserService {
             }
 
             String storedHash = rs.getString("password_hash");
-            String currentHash = hashPassword(currentPassword);
-
-            // Simple password verification (in production, use bcrypt or similar)
-            if (!storedHash.equals(currentHash)) {
+            if (!checkPassword(currentPassword, storedHash)) {
                 return false;
             }
 
-            // Update password
             String updateSql = "UPDATE users SET password_hash = ? WHERE user_id = ?";
             PreparedStatement updateStmt = con.prepareStatement(updateSql);
             updateStmt.setString(1, hashPassword(newPassword));
             updateStmt.setInt(2, userId);
-            
+
             int result = updateStmt.executeUpdate();
 
             rs.close();
@@ -160,7 +154,7 @@ public class UserService {
             con.close();
 
             return result > 0;
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error changing password: " + e);
             return false;
         }
@@ -172,7 +166,6 @@ public class UserService {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-            // Delete user (cascade will handle related data)
             String sql = "DELETE FROM users WHERE user_id = ?";
             PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setInt(1, userId);
@@ -183,7 +176,7 @@ public class UserService {
             con.close();
 
             return result > 0;
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error deleting account: " + e);
             return false;
         }
@@ -196,7 +189,8 @@ public class UserService {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-            String sql = "SELECT b.*, l.title as listing_title, l.price, u.name as renter_name, " +
+            String sql = "SELECT b.*, l.title as listing_title, l.price, " +
+                        "CONCAT(u.first_name, ' ', u.last_name) as renter_name, " +
                         "(SELECT payment_method FROM payments WHERE booking_id = b.booking_id LIMIT 1) as payment_method " +
                         "FROM bookings b " +
                         "JOIN listings l ON b.listing_id = l.listing_id " +
@@ -228,7 +222,7 @@ public class UserService {
             rs.close();
             pstmt.close();
             con.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error fetching pending requests: " + e);
         }
 
@@ -242,7 +236,8 @@ public class UserService {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-            String sql = "SELECT b.*, l.title as listing_title, l.price, u.name as renter_name, " +
+            String sql = "SELECT b.*, l.title as listing_title, l.price, " +
+                        "CONCAT(u.first_name, ' ', u.last_name) as renter_name, " +
                         "(SELECT payment_method FROM payments WHERE booking_id = b.booking_id LIMIT 1) as payment_method " +
                         "FROM bookings b " +
                         "JOIN listings l ON b.listing_id = l.listing_id " +
@@ -274,7 +269,7 @@ public class UserService {
             rs.close();
             pstmt.close();
             con.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error fetching processed requests: " + e);
         }
 
@@ -298,21 +293,17 @@ public class UserService {
             con.close();
 
             return result > 0;
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error updating booking status: " + e);
             return false;
         }
     }
 
-    // Helper method to hash password
-    private static String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(password.getBytes());
-            return Base64.getEncoder().encodeToString(hashedBytes);
-        } catch(Exception e) {
-            System.out.println("Error hashing password: " + e);
-            return password;
-        }
+    public static String hashPassword(String plainTextPassword) {
+        return BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
+    }
+
+    public static boolean checkPassword(String plainTextPassword, String hashedPassword) {
+        return BCrypt.checkpw(plainTextPassword, hashedPassword);
     }
 }

@@ -153,7 +153,7 @@
         const priceRange = document.getElementById('price-range');
         const priceDisplay = document.querySelector('.price-display');
         priceRange.addEventListener('input', function() {
-            priceDisplay.textContent = `$0 - $${this.value}`;
+        		priceDisplay.textContent = '$0 - $' + this.value;
         });
 
         // Navigation buttons
