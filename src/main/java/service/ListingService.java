@@ -199,6 +199,50 @@ public class ListingService {
         return listing;
     }
 
+    public static List<Listing> getListingsByUserId(int userId) {
+        List<Listing> listings = new ArrayList<>();
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/team1?autoReconnect=true&useSSL=false",
+                "root", "Mendoza_101!");
+
+            String sql = "SELECT l.*, c.category_name " +
+                        "FROM listings l " +
+                        "LEFT JOIN categories c ON l.category_id = c.category_id " +
+                        "WHERE l.user_id = ? " +
+                        "ORDER BY l.created_at DESC";
+
+            PreparedStatement pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                Listing listing = new Listing(
+                    rs.getInt("listing_id"),
+                    rs.getInt("user_id"),
+                    rs.getInt("category_id"),
+                    rs.getString("title"),
+                    rs.getString("description"),
+                    rs.getDouble("price"),
+                    rs.getTimestamp("created_at"),
+                    rs.getBoolean("availability")
+                );
+                listing.setCategoryName(rs.getString("category_name"));
+                listings.add(listing);
+            }
+
+            rs.close();
+            pstmt.close();
+            con.close();
+        } catch(Exception e) {
+            System.out.println("Error fetching listings by user ID: " + e);
+        }
+
+        return listings;
+    }
+
     public static List<Category> getAllCategories() {
         List<Category> categories = new ArrayList<>();
 
