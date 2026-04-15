@@ -5,20 +5,18 @@ import model.Category;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import util.DBConnection;
 
 public class ListingService {
 
-    private static final String URL =
-    "jdbc:mysql://127.0.0.1:3306/team1?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-    private static final String USER = "team1_app";
-    private static final String PASS = "team1pass";
+   
 
 public static List<Listing> getAllListings() {
     List<Listing> listings = new ArrayList<>();
 
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection con = DriverManager.getConnection(URL, USER, PASS);
+        Connection con = DBConnection.getConnection();
 
         String sql = "SELECT listing_id, user_id, category_id, title, description, price, created_at, availability " +
                      "FROM listings";
@@ -60,7 +58,7 @@ public static List<Listing> getAllListings() {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(URL, USER, PASS);
+            Connection con =  DBConnection.getConnection();
 
             String sql = "SELECT l.*, c.category_name, " +
                     "(SELECT image_url FROM listing_images WHERE listing_id = l.listing_id LIMIT 1) AS image_url, " +
@@ -107,7 +105,7 @@ public static List<Listing> getAllListings() {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(URL, USER, PASS);
+            Connection con =  DBConnection.getConnection();
 
             String sql = "SELECT l.*, c.category_name, " +
                     "(SELECT image_url FROM listing_images WHERE listing_id = l.listing_id LIMIT 1) AS image_url, " +
@@ -156,7 +154,7 @@ public static List<Listing> getAllListings() {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(URL, USER, PASS);
+            Connection con =  DBConnection.getConnection();
 
             String sql = "SELECT l.*, c.category_name, " +
                     "(SELECT image_url FROM listing_images WHERE listing_id = l.listing_id LIMIT 1) AS image_url, " +
@@ -201,7 +199,7 @@ public static List<Listing> getAllListings() {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(URL, USER, PASS);
+            Connection con =  DBConnection.getConnection();
 
             String sql = "SELECT l.*, c.category_name " +
                     "FROM listings l " +
@@ -244,7 +242,7 @@ public static List<Listing> getAllListings() {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(URL, USER, PASS);
+            Connection con =  DBConnection.getConnection();
 
             String sql = "SELECT * FROM categories ORDER BY category_name";
             Statement stmt = con.createStatement();

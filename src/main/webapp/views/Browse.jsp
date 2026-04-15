@@ -209,7 +209,21 @@
         function viewListingDetails(listingId) {
             window.location.href = '<%= contextPath %>/ListingDetailServlet?listingId=' + listingId;
         }
+        
+        
     </script>
+    
+    <%
+    String successMessage = (String) session.getAttribute("successMessage");
+    if (successMessage != null) {
+		%>
+		<script>
+		    alert("<%= successMessage %>");
+		</script>
+		<%
+		        session.removeAttribute("successMessage"); // prevent repeat
+    }
+	%>
 
 </body>
 </html>

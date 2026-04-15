@@ -14,7 +14,8 @@ import dao.UserDAO;
 @WebServlet("/SignupServlet")
 public class SignupServlet extends HttpServlet{
 	private static final long serialVersionUID = 1L;
-
+	
+	private UserService userService = new UserService();
 	private UserDAO userDAO = new UserDAO();
 	
 	public SignupServlet() {
@@ -38,7 +39,7 @@ public class SignupServlet extends HttpServlet{
             return;
         }
         
-        String hashedPassword = UserService.hashPassword(password);
+        String hashedPassword = userService.hashPassword(password);
 		
         User user = new User();
         user.setFirstName(firstName);
@@ -46,7 +47,8 @@ public class SignupServlet extends HttpServlet{
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setGovId(govId);
-        //need to set up verification
+        
+        //need to set up verification right now token is blank I and verification is false need to send verification email
         user.setVerificationToken("");
         user.setVerifiedStatus(false);
         

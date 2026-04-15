@@ -26,8 +26,8 @@
 		<h2>Welcome Back</h2> 
 		<p>Login to your account</p> 
 		
-		<form action="LoginServlet" method="post"> 
-			<input type="text" name="username" placeholder="Username" required> 
+		<form action="${pageContext.request.contextPath}/LoginServlet" method="post"> 
+			<input type="text" name="email" placeholder="Email" required> 
 			<input type="password" name="password" placeholder="Password" required> 
 			<button type="submit" class="auth-btn login-btn">Log In</button> 
 		</form> 

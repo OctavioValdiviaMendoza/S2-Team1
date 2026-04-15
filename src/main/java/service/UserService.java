@@ -1,25 +1,22 @@
 package service;
 
 import model.User;
+import util.DBConnection;
 import model.Booking;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import dao.UserDAO;
 
 public class UserService {
-
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/team1?autoReconnect=true&useSSL=false";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "Mendoza_101!";
-
     // Get user by ID
     public static User getUserById(int userId) {
         User user = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            Connection con = DBConnection.getConnection();
 
             String sql = "SELECT * FROM users WHERE user_id = ?";
             PreparedStatement pstmt = con.prepareStatement(sql);
@@ -56,7 +53,7 @@ public class UserService {
         User user = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            Connection con = DBConnection.getConnection();
 
             String sql = "SELECT * FROM users WHERE email = ?";
             PreparedStatement pstmt = con.prepareStatement(sql);
@@ -93,7 +90,7 @@ public class UserService {
         String paymentMethod = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            Connection con = DBConnection.getConnection();
 
             String sql = "SELECT p.payment_method FROM payments p " +
                         "JOIN bookings b ON p.booking_id = b.booking_id " +
@@ -125,7 +122,7 @@ public class UserService {
     public static boolean changePassword(int userId, String currentPassword, String newPassword) {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            Connection con = DBConnection.getConnection();
 
             String selectSql = "SELECT password_hash FROM users WHERE user_id = ?";
             PreparedStatement selectStmt = con.prepareStatement(selectSql);
@@ -164,7 +161,7 @@ public class UserService {
     public static boolean deleteAccount(int userId) {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            Connection con = DBConnection.getConnection();
 
             String sql = "DELETE FROM users WHERE user_id = ?";
             PreparedStatement pstmt = con.prepareStatement(sql);
@@ -187,7 +184,7 @@ public class UserService {
         List<Booking> requests = new ArrayList<>();
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            Connection con = DBConnection.getConnection();
 
             String sql = "SELECT b.*, l.title as listing_title, l.price, " +
                         "CONCAT(u.first_name, ' ', u.last_name) as renter_name, " +
@@ -234,7 +231,7 @@ public class UserService {
         List<Booking> requests = new ArrayList<>();
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            Connection con = DBConnection.getConnection();
 
             String sql = "SELECT b.*, l.title as listing_title, l.price, " +
                         "CONCAT(u.first_name, ' ', u.last_name) as renter_name, " +
@@ -280,7 +277,7 @@ public class UserService {
     public static boolean updateBookingStatus(int bookingId, String status) {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            Connection con = DBConnection.getConnection();
 
             String sql = "UPDATE bookings SET status = ? WHERE booking_id = ?";
             PreparedStatement pstmt = con.prepareStatement(sql);
@@ -306,4 +303,17 @@ public class UserService {
     public static boolean checkPassword(String plainTextPassword, String hashedPassword) {
         return BCrypt.checkpw(plainTextPassword, hashedPassword);
     }
+    
+
+    public static User authenticateUser(String email, String password) {
+        UserDAO userDAO = new UserDAO();
+        User user = userDAO.getUserByEmail(email);
+
+        if (user != null && user.getPasswordHash() != null && password != null && checkPassword(password,user.getPasswordHash()) ) {
+            return user;
+        }
+
+        return null;
+    }
+    
 }
