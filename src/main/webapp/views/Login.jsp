@@ -8,7 +8,7 @@
 <!-- Google Font (matches your style) -->
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="../css/auth.css" rel="stylesheet">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/auth.css">
 
 </head>
 
@@ -35,9 +35,20 @@
 		<div class="divider"></div> 
 		
 		<p class="switch-text"> Don't have an account? 
-		<a href="SignUp.jsp">Sign up here</a> </p> 
-		<a href="JDBCDemo.jsp" class="back-link">Back to Home</a> 
+		<a href="${pageContext.request.contextPath}/views/SignUp.jsp">Sign up here</a> </p> 
+		<a href="${pageContext.request.contextPath}/views/JDBCDemo.jsp" class="back-link">Back to Home</a> 
 		</div> 
 </div>
+
+<%
+String errorMessage = (String) request.getAttribute("errorMessage");
+if (errorMessage != null) {
+%>
+<script>
+    alert("<%= errorMessage %>");
+</script>
+<%
+}
+%>
 </body>
 </html>

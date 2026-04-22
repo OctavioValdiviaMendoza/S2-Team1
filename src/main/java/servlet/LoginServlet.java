@@ -51,7 +51,8 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("successMessage", "Hello " + user.getFirstName());
             response.sendRedirect(request.getContextPath() + "/BrowseServlet");
         } else {
-            request.setAttribute("errorMessage", "Invalid email or password.");
+        		request.setAttribute("errorMessage", "User Credentials Do Not Exist. Try again or Sign up.");
+        		request.getRequestDispatcher("/views/Login.jsp").forward(request, response);
         }
     }
 }
