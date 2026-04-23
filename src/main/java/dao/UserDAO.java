@@ -70,4 +70,53 @@ public class UserDAO {
 
 	        return user;
 	    }
+	    
+	    public User getUserByVerificationToken(String token) {
+	        String sql = "SELECT * FROM users WHERE verification_token = ?";
+
+	        try (Connection connection = DBConnection.getConnection();
+	             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+	        		statement.setString(1, token);
+	            ResultSet rs = statement.executeQuery();
+
+	            if (rs.next()) {
+	                User user = new User();
+	                user.setUserId(rs.getInt("user_id"));
+	                user.setFirstName(rs.getString("first_name"));
+	                user.setLastName(rs.getString("last_name"));
+	                user.setEmail(rs.getString("email"));
+	                user.setPhoneNumber(rs.getString("phone_number"));
+	                user.setPasswordHash(rs.getString("password_hash"));
+	                user.setVerificationToken(rs.getString("verification_token"));
+	                user.setVerifiedStatus(rs.getBoolean("verified"));
+	                user.setGovId(rs.getString("gov_id"));
+	                user.setCreatedAt(rs.getTimestamp("created_at"));
+	                return user;
+	            }
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+
+	        return null;
+	    }
+	    
+	    public boolean verifyUser(String token) {
+	        String sql = "UPDATE users SET verified = ?, verification_token = NULL WHERE verification_token = ?";
+
+	        try (Connection connection = DBConnection.getConnection();
+	             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+	        	statement.setBoolean(1, true);
+	        	statement.setString(2, token);
+
+	            int rows = statement.executeUpdate();
+	            return rows > 0;
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return false;
+	        }
+	    }
  }

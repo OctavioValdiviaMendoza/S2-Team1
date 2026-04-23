@@ -6,10 +6,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 import service.UserService;
 import model.User;
 import dao.UserDAO;
+import service.EmailService;
 
 @WebServlet("/SignupServlet")
 public class SignupServlet extends HttpServlet{
@@ -17,7 +19,7 @@ public class SignupServlet extends HttpServlet{
 	
 	private UserService userService = new UserService();
 	private UserDAO userDAO = new UserDAO();
-	
+	private EmailService emailService = new EmailService();
 	public SignupServlet() {
 		super();
 	}
@@ -40,6 +42,8 @@ public class SignupServlet extends HttpServlet{
         }
         
         String hashedPassword = userService.hashPassword(password);
+        
+        String verificationToken = UUID.randomUUID().toString();
 		
         User user = new User();
         user.setFirstName(firstName);
@@ -48,14 +52,39 @@ public class SignupServlet extends HttpServlet{
         user.setPhoneNumber(phoneNumber);
         user.setGovId(govId);
         
-        //need to set up verification right now token is blank I and verification is false need to send verification email
-        user.setVerificationToken("");
+        user.setVerificationToken(verificationToken);
         user.setVerifiedStatus(false);
         
         user.setPasswordHash(hashedPassword);
-        System.out.println(hashedPassword);
         
-        userDAO.insertUser(user);
+        boolean inserted = userDAO.insertUser(user);
+        
+        if(!inserted) {
+        		request.setAttribute("errorMessage", "Signup failed. Please try again.");
+        		request.getRequestDispatcher(request.getContextPath() + "/views/SignUp.jsp").forward(request,response);
+        		return;
+        	
+        }
+        String appUrl = request.getScheme() + "://" 
+                + request.getServerName() 
+                + ":" + request.getServerPort() 
+                + request.getContextPath();
+
+        String verificationLink = appUrl + "/VerifyEmailServlet?token=" + verificationToken;
+        
+        boolean emailSent = emailService.sendVerificationEmail(email, firstName, verificationLink);
+        
+        if (!emailSent) {
+            request.setAttribute("errorMessage",
+                    "Account created, but verification email could not be sent.");
+            request.getRequestDispatcher("/views/Login.jsp").forward(request, response);
+            return;
+        }
+        
+        request.setAttribute("successMessage",
+                "Account created successfully. Please check your email to verify your account.");
+        request.getRequestDispatcher("/views/Login.jsp").forward(request, response);
+        
         
         response.sendRedirect(request.getContextPath() + "/views/Login.jsp");        
 	} 
