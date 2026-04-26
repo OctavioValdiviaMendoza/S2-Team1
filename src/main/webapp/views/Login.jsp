@@ -52,5 +52,18 @@ if (errorMessage != null) {
 <%
 }
 %>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const successMessage = params.get("success");
+
+    if (successMessage) {
+        alert(successMessage);
+
+       
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+</script>
+
 </body>
 </html>

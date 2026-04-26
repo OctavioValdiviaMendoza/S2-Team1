@@ -35,8 +35,25 @@ public class SignupServlet extends HttpServlet{
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
         
+        
+        //For Demo purposes fake id will be used and it is in the form of letter and 7 digits
+        	//For example Y1234567
+        if (govId == null || !govId.matches("^[A-Z]\\d{7}$")) {
+            request.setAttribute("errorMessage", "Invalid California DL format (A1234567)");
+            request.getRequestDispatcher("/views/SignUp.jsp").forward(request, response);
+            return;
+        }
+        
         if (!password.equals(confirmPassword)) {
             request.setAttribute("errorMessage", "Passwords do not match.");
+            request.getRequestDispatcher("/views/SignUp.jsp").forward(request, response);
+            return;
+        }
+        
+        
+        phoneNumber = phoneNumber.replaceAll("\\D", "");
+        if (phoneNumber.length() != 10) {
+            request.setAttribute("errorMessage", "Phone number must be 10 digits");
             request.getRequestDispatcher("/views/SignUp.jsp").forward(request, response);
             return;
         }
@@ -61,7 +78,7 @@ public class SignupServlet extends HttpServlet{
         
         if(!inserted) {
         		request.setAttribute("errorMessage", "Signup failed. Please try again.");
-        		request.getRequestDispatcher(request.getContextPath() + "/views/SignUp.jsp").forward(request,response);
+        		request.getRequestDispatcher("/views/SignUp.jsp").forward(request,response);
         		return;
         	
         }
@@ -83,11 +100,10 @@ public class SignupServlet extends HttpServlet{
         
         request.setAttribute("successMessage",
                 "Account created successfully. Please check your email to verify your account.");
-        request.getRequestDispatcher("/views/Login.jsp").forward(request, response);
-        
-        
-        response.sendRedirect(request.getContextPath() + "/views/Login.jsp");        
-	} 
+        response.sendRedirect(
+        	    request.getContextPath() + "/views/Login.jsp?success=Account created successfully. Please check your email to verify your account."
+        	);
+        } 
 	
 	
 	
