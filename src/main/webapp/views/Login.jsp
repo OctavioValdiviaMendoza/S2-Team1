@@ -16,7 +16,9 @@
 
 <!-- NAVBAR -->
 <div class="navbar"> 
-	<div class="logo">Lendr</div> 
+	<a href= "${pageContext.request.contextPath}/views/JDBCDemo.jsp" class="logo">
+		Lendr
+	</a>
 </div> 
 <!-- LOGIN --> 
 <div class="auth-container"> 

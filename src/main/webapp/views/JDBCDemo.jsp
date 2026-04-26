@@ -38,7 +38,7 @@
     </p>
 
     <div class="cta">
-    		<a href = "../views/Browse.jsp">
+    		<a href = "../BrowseServlet">
     			<button class="primary">Browse Items</button>
     		</a>
         
