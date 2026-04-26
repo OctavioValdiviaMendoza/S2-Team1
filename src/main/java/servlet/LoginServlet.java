@@ -15,6 +15,7 @@ import service.UserService;
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private UserService userService = new UserService();
 
     public LoginServlet() {
         super();
@@ -41,7 +42,7 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        User user = UserService.authenticateUser(email.trim(), password);
+        User user = userService.authenticateUser(email.trim(), password);
 
         if (user != null) {
             HttpSession session = request.getSession();

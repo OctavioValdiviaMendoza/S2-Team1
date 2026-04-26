@@ -11,81 +11,15 @@ import java.util.List;
 import dao.UserDAO;
 
 public class UserService {
-    // Get user by ID
-    public static User getUserById(int userId) {
-        User user = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DBConnection.getConnection();
-
-            String sql = "SELECT * FROM users WHERE user_id = ?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setInt(1, userId);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                user = new User(
-                    rs.getInt("user_id"),
-                    rs.getString("first_name"),
-                    rs.getString("last_name"),
-                    rs.getString("email"),
-                    rs.getString("phone_number"),
-                    rs.getString("password_hash"),
-                    rs.getString("verification_token"),
-                    rs.getBoolean("verified"),
-                    rs.getString("gov_id"),
-                    rs.getTimestamp("created_at")
-                );
-            }
-
-            rs.close();
-            pstmt.close();
-            con.close();
-        } catch (Exception e) {
-            System.out.println("Error fetching user: " + e);
-        }
-
-        return user;
-    }
-
-    // Get user by email
-    public static User getUserByEmail(String email) {
-        User user = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DBConnection.getConnection();
-
-            String sql = "SELECT * FROM users WHERE email = ?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, email);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                user = new User(
-                    rs.getInt("user_id"),
-                    rs.getString("first_name"),
-                    rs.getString("last_name"),
-                    rs.getString("email"),
-                    rs.getString("phone_number"),
-                    rs.getString("password_hash"),
-                    rs.getString("verification_token"),
-                    rs.getBoolean("verified"),
-                    rs.getString("gov_id"),
-                    rs.getTimestamp("created_at")
-                );
-            }
-
-            rs.close();
-            pstmt.close();
-            con.close();
-        } catch (Exception e) {
-            System.out.println("Error fetching user by email: " + e);
-        }
-
-        return user;
-    }
-
-    // Get payment method for user
+	
+	private UserDAO userDAO = new UserDAO();
+	
+	public User getUserById(int userId) {
+		User user = userDAO.getUserById(userId);
+		
+		return user;
+		
+	}
     public static String getPaymentMethod(int userId) {
         String paymentMethod = null;
         try {
@@ -119,64 +53,31 @@ public class UserService {
     }
 
     // Change user password
-    public static boolean changePassword(int userId, String currentPassword, String newPassword) {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DBConnection.getConnection();
+    public boolean changePassword(int userId, String currentPassword, String newPassword) {
+        // Get stored password hash from DB
+        String storedHash = userDAO.getPasswordHashByUserId(userId);
 
-            String selectSql = "SELECT password_hash FROM users WHERE user_id = ?";
-            PreparedStatement selectStmt = con.prepareStatement(selectSql);
-            selectStmt.setInt(1, userId);
-            ResultSet rs = selectStmt.executeQuery();
+        if (storedHash == null) {
+            return false; // user not found
+        }
 
-            if (!rs.next()) {
-                return false;
-            }
-
-            String storedHash = rs.getString("password_hash");
-            if (!checkPassword(currentPassword, storedHash)) {
-                return false;
-            }
-
-            String updateSql = "UPDATE users SET password_hash = ? WHERE user_id = ?";
-            PreparedStatement updateStmt = con.prepareStatement(updateSql);
-            updateStmt.setString(1, hashPassword(newPassword));
-            updateStmt.setInt(2, userId);
-
-            int result = updateStmt.executeUpdate();
-
-            rs.close();
-            selectStmt.close();
-            updateStmt.close();
-            con.close();
-
-            return result > 0;
-        } catch (Exception e) {
-            System.out.println("Error changing password: " + e);
+        // Check current password
+        if (!checkPassword(currentPassword, storedHash)) {
             return false;
         }
+
+        // Hash new password
+        String newHashedPassword = hashPassword(newPassword);
+
+        // Update password in DB
+        return userDAO.updatePassword(userId, newHashedPassword);
     }
 
     // Delete user account
     public static boolean deleteAccount(int userId) {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DBConnection.getConnection();
-
-            String sql = "DELETE FROM users WHERE user_id = ?";
-            PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setInt(1, userId);
-
-            int result = pstmt.executeUpdate();
-
-            pstmt.close();
-            con.close();
-
-            return result > 0;
-        } catch (Exception e) {
-            System.out.println("Error deleting account: " + e);
-            return false;
-        }
+    	   UserDAO userDAO = new UserDAO();
+       boolean deletedAccount = userDAO.deleteAccount(userId);
+       return deletedAccount;
     }
 
     // Get pending rental requests (for user who owns listings)
@@ -295,18 +196,18 @@ public class UserService {
             return false;
         }
     }
-
-    public static String hashPassword(String plainTextPassword) {
+    
+    //Using the jbcrypt dependency for both hashPasswor and checkPassword
+    public String hashPassword(String plainTextPassword) {
         return BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
     }
 
-    public static boolean checkPassword(String plainTextPassword, String hashedPassword) {
+    public boolean checkPassword(String plainTextPassword, String hashedPassword) {
         return BCrypt.checkpw(plainTextPassword, hashedPassword);
     }
     
 
-    public static User authenticateUser(String email, String password) {
-        UserDAO userDAO = new UserDAO();
+    public User authenticateUser(String email, String password) {
         User user = userDAO.getUserByEmail(email);
 
         if (user != null && user.getPasswordHash() != null && password != null && checkPassword(password,user.getPasswordHash()) ) {

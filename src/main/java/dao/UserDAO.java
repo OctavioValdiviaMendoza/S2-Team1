@@ -71,6 +71,42 @@ public class UserDAO {
 	        return user;
 	    }
 	    
+	    public User getUserById(int userId) {
+	        User user = null;
+	        try {
+	            Class.forName("com.mysql.cj.jdbc.Driver");
+	            Connection con = DBConnection.getConnection();
+
+	            String sql = "SELECT * FROM users WHERE user_id = ?";
+	            PreparedStatement pstmt = con.prepareStatement(sql);
+	            pstmt.setInt(1, userId);
+	            ResultSet rs = pstmt.executeQuery();
+
+	            if (rs.next()) {
+	                user = new User(
+	                    rs.getInt("user_id"),
+	                    rs.getString("first_name"),
+	                    rs.getString("last_name"),
+	                    rs.getString("email"),
+	                    rs.getString("phone_number"),
+	                    rs.getString("password_hash"),
+	                    rs.getString("verification_token"),
+	                    rs.getBoolean("verified"),
+	                    rs.getString("gov_id"),
+	                    rs.getTimestamp("created_at")
+	                );
+	            }
+
+	            rs.close();
+	            pstmt.close();
+	            con.close();
+	        } catch (Exception e) {
+	            System.out.println("Error fetching user: " + e);
+	        }
+
+	        return user;
+	    }
+	    
 	    public User getUserByVerificationToken(String token) {
 	        String sql = "SELECT * FROM users WHERE verification_token = ?";
 
@@ -116,6 +152,76 @@ public class UserDAO {
 
 	        } catch (Exception e) {
 	            e.printStackTrace();
+	            return false;
+	        }
+	    }
+	    
+	    public boolean deleteAccount(int userId) {
+	        try {
+	            Class.forName("com.mysql.cj.jdbc.Driver");
+	            Connection con = DBConnection.getConnection();
+
+	            String sql = "DELETE FROM users WHERE user_id = ?";
+	            PreparedStatement pstmt = con.prepareStatement(sql);
+	            pstmt.setInt(1, userId);
+
+	            int result = pstmt.executeUpdate();
+
+	            pstmt.close();
+	            con.close();
+
+	            return result > 0;
+	        } catch (Exception e) {
+	            System.out.println("Error deleting account: " + e);
+	            return false;
+	        }
+	    }
+	    
+	    public String getPasswordHashByUserId(int userId) {
+	        String hash = null;
+
+	        try {
+	            Class.forName("com.mysql.cj.jdbc.Driver");
+	            Connection con = DBConnection.getConnection();
+
+	            String sql = "SELECT password_hash FROM users WHERE user_id = ?";
+	            PreparedStatement pstmt = con.prepareStatement(sql);
+	            pstmt.setInt(1, userId);
+
+	            ResultSet rs = pstmt.executeQuery();
+
+	            if (rs.next()) {
+	                hash = rs.getString("password_hash");
+	            }
+
+	            rs.close();
+	            pstmt.close();
+	            con.close();
+	        } catch (Exception e) {
+	            System.out.println("Error fetching password hash: " + e);
+	        }
+
+	        return hash;
+	    }
+	    
+	    public boolean updatePassword(int userId, String hashedPassword) {
+	        try {
+	            Class.forName("com.mysql.cj.jdbc.Driver");
+	            Connection con = DBConnection.getConnection();
+
+	            String sql = "UPDATE users SET password_hash = ? WHERE user_id = ?";
+	            PreparedStatement pstmt = con.prepareStatement(sql);
+	            pstmt.setString(1, hashedPassword);
+	            pstmt.setInt(2, userId);
+
+	            int result = pstmt.executeUpdate();
+
+	            pstmt.close();
+	            con.close();
+
+	            return result > 0;
+	        } catch (Exception e) {
+	            System.out.println("Error updating password: " + e);
 	            return false;
 	        }
 	    }

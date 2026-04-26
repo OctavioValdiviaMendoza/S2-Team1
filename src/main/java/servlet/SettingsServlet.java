@@ -15,9 +15,12 @@ import model.Booking;
 import service.UserService;
 import service.ListingService;
 
+
 @WebServlet("/SettingsServlet")
 public class SettingsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private UserService userService = new UserService();
+    
 
     public SettingsServlet() {
         super();
@@ -103,7 +106,7 @@ public class SettingsServlet extends HttpServlet {
     private void loadProfileSettings(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        User user = UserService.getUserById(userId);
+        User user = userService.getUserById(userId);
         String paymentMethod = UserService.getPaymentMethod(userId);
         
         request.setAttribute("user", user);
@@ -116,7 +119,7 @@ public class SettingsServlet extends HttpServlet {
             throws ServletException, IOException {
         
         List<Listing> listings = ListingService.getListingsByUserId(userId);
-        User user = UserService.getUserById(userId);
+        User user = userService.getUserById(userId);
         
         request.setAttribute("user", user);
         request.setAttribute("listings", listings);
@@ -129,7 +132,7 @@ public class SettingsServlet extends HttpServlet {
         
         List<Booking> pendingRequests = UserService.getPendingRentalRequests(userId);
         List<Booking> processedRequests = UserService.getProcessedRentalRequests(userId);
-        User user = UserService.getUserById(userId);
+        User user = userService.getUserById(userId);
         
         request.setAttribute("user", user);
         request.setAttribute("pendingRequests", pendingRequests);
@@ -168,7 +171,7 @@ public class SettingsServlet extends HttpServlet {
         }
         
         // Verify current password and update
-        boolean success = UserService.changePassword(userId, currentPassword, newPassword);
+        boolean success = userService.changePassword(userId, currentPassword, newPassword);
         
         if (success) {
             request.setAttribute("message", "Password changed successfully");
