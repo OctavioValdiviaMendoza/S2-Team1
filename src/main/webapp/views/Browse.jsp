@@ -124,7 +124,9 @@
                         <p class="item-location">📍 <%= location %></p>
                         <p class="item-category"><%= categoryName %></p>
                         <p class="item-description"><%= description.length() > 50 ? description.substring(0, 50) + "..." : description %></p>
-                        <button class="view-btn" onclick="viewListingDetails(<%= listing.getListingId() %>)">View Details</button>
+                        <a href="<%= request.getContextPath() %>/ListingDetailServlet?listingId=<%= listing.getListingId() %>">
+						    <button class="view-btn">View Details</button>
+						</a>
                     </div>
                 </div>
 
