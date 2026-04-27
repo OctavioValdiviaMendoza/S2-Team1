@@ -78,9 +78,9 @@
 
                     <div class="action-group">
                         <a class="btn btn-primary"
-                           href="<%= request.getContextPath() %>/views/Checkout.jsp?listingId=<%= listing.getListingId() %>">
-                            Book Now
-                        </a>
+						   href="<%= request.getContextPath() %>/CheckoutServlet?listingId=<%= listing.getListingId() %>">
+						    Book Now
+						</a>
 
                         <a class="btn btn-secondary"
                            href="<%= request.getContextPath() %>/BrowseServlet">
