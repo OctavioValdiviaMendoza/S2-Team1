@@ -52,7 +52,7 @@ public class UserService {
         return paymentMethod;
     }
 
-    // Change user password
+    // Change user password found in User Settings
     public boolean changePassword(int userId, String currentPassword, String newPassword) {
         // Get stored password hash from DB
         String storedHash = userDAO.getPasswordHashByUserId(userId);
@@ -61,7 +61,7 @@ public class UserService {
             return false; // user not found
         }
 
-        // Check current password
+        // Check current password input field for User settings
         if (!checkPassword(currentPassword, storedHash)) {
             return false;
         }
@@ -69,7 +69,7 @@ public class UserService {
         // Hash new password
         String newHashedPassword = hashPassword(newPassword);
 
-        // Update password in DB
+        // Update password with new password in DB
         return userDAO.updatePassword(userId, newHashedPassword);
     }
 
