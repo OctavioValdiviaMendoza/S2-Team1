@@ -14,8 +14,10 @@ padding: 25px 60px;
 }
 
 .logo {
-font-size: 32px;
-font-weight: 700;
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+  text-decoration: none;
 }
 
 /* CENTER CONTAINER */
@@ -109,12 +111,13 @@ font-size: 14px;
 color: #666;
 }
 
-.switch-text a {
-color: #9333ea;
-text-decoration: none;
-font-weight: 500;
-margin-left: 5px;
+.switch-text a:link,
+.switch-text a:visited {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
 }
+
 
 .switch-text a:hover {
 text-decoration: underline;

@@ -8,7 +8,7 @@
 <!-- Google Font (matches your style) -->
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="../css/auth.css" rel="stylesheet">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/auth.css">
 
 </head>
 
@@ -16,7 +16,9 @@
 
 <!-- NAVBAR -->
 <div class="navbar"> 
-	<div class="logo">Lendr</div> 
+	<a href= "${pageContext.request.contextPath}/views/JDBCDemo.jsp" class="logo">
+		Lendr
+	</a>
 </div> 
 <!-- LOGIN --> 
 <div class="auth-container"> 
@@ -26,8 +28,8 @@
 		<h2>Welcome Back</h2> 
 		<p>Login to your account</p> 
 		
-		<form action="LoginServlet" method="post"> 
-			<input type="text" name="username" placeholder="Username" required> 
+		<form action="${pageContext.request.contextPath}/LoginServlet" method="post"> 
+			<input type="text" name="email" placeholder="Email" required> 
 			<input type="password" name="password" placeholder="Password" required> 
 			<button type="submit" class="auth-btn login-btn">Log In</button> 
 		</form> 
@@ -35,9 +37,33 @@
 		<div class="divider"></div> 
 		
 		<p class="switch-text"> Don't have an account? 
-		<a href="SignUp.jsp">Sign up here</a> </p> 
-		<a href="JDBCDemo.jsp" class="back-link">Back to Home</a> 
+		<a href="${pageContext.request.contextPath}/views/SignUp.jsp">Sign up here</a> </p> 
+		<a href="${pageContext.request.contextPath}/views/JDBCDemo.jsp" class="back-link">Back to Home</a> 
 		</div> 
 </div>
+
+<%
+String errorMessage = (String) request.getAttribute("errorMessage");
+if (errorMessage != null) {
+%>
+<script>
+    alert("<%= errorMessage %>");
+</script>
+<%
+}
+%>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const successMessage = params.get("success");
+
+    if (successMessage) {
+        alert(successMessage);
+
+       
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+</script>
+
 </body>
 </html>

@@ -44,6 +44,8 @@ public class BrowseServlet extends HttpServlet {
             listings = ListingService.getAllListings();
         }
 
+        System.out.println("DEBUG BrowseServlet listings count = " + (listings != null ? listings.size() : -1));
+
         request.setAttribute("listings", listings);
         request.setAttribute("categories", categories);
         request.setAttribute("listingCount", listings != null ? listings.size() : 0);

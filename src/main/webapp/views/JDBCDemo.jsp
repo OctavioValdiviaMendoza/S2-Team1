@@ -38,7 +38,10 @@
     </p>
 
     <div class="cta">
-        <button class="primary">Browse Items</button>
+    		<a href = "../BrowseServlet">
+    			<button class="primary">Browse Items</button>
+    		</a>
+        
         <button class="secondary">List an Item</button>
     </div>
 
