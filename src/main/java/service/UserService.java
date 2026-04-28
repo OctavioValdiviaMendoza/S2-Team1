@@ -175,15 +175,19 @@ public class UserService {
     }
 
     // Update booking status
-    public static boolean updateBookingStatus(int bookingId, String status) {
+    public static boolean updateBookingStatus(int bookingId, int ownerUserId, String status) {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DBConnection.getConnection();
 
-            String sql = "UPDATE bookings SET status = ? WHERE booking_id = ?";
+            String sql = "UPDATE bookings b " +
+                        "JOIN listings l ON b.listing_id = l.listing_id " +
+                        "SET b.status = ? " +
+                        "WHERE b.booking_id = ? AND l.user_id = ?";
             PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setString(1, status);
             pstmt.setInt(2, bookingId);
+            pstmt.setInt(3, ownerUserId);
 
             int result = pstmt.executeUpdate();
 

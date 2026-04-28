@@ -89,10 +89,10 @@ public class SettingsServlet extends HttpServlet {
                     handleDeleteAccount(userId, request, response);
                     break;
                 case "acceptRequest":
-                    handleAcceptRequest(request, response);
+                    handleAcceptRequest(userId, request, response);
                     break;
                 case "denyRequest":
-                    handleDenyRequest(request, response);
+                    handleDenyRequest(userId, request, response);
                     break;
                 default:
                     response.sendRedirect("SettingsServlet?action=profile&error=Invalid action");
@@ -205,7 +205,7 @@ public class SettingsServlet extends HttpServlet {
         }
     }
     
-    private void handleAcceptRequest(HttpServletRequest request, HttpServletResponse response)
+    private void handleAcceptRequest(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
         String bookingIdStr = request.getParameter("bookingId");
@@ -217,7 +217,7 @@ public class SettingsServlet extends HttpServlet {
         
         try {
             int bookingId = Integer.parseInt(bookingIdStr);
-            boolean success = UserService.updateBookingStatus(bookingId, "confirmed");
+            boolean success = UserService.updateBookingStatus(bookingId, userId, "confirmed");
             
             if (success) {
                 response.sendRedirect("SettingsServlet?action=requests&message=Rental request accepted");
@@ -229,7 +229,7 @@ public class SettingsServlet extends HttpServlet {
         }
     }
     
-    private void handleDenyRequest(HttpServletRequest request, HttpServletResponse response)
+    private void handleDenyRequest(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
         String bookingIdStr = request.getParameter("bookingId");
@@ -241,7 +241,7 @@ public class SettingsServlet extends HttpServlet {
         
         try {
             int bookingId = Integer.parseInt(bookingIdStr);
-            boolean success = UserService.updateBookingStatus(bookingId, "denied");
+            boolean success = UserService.updateBookingStatus(bookingId, userId, "denied");
             
             if (success) {
                 response.sendRedirect("SettingsServlet?action=requests&message=Rental request denied");

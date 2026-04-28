@@ -6,6 +6,9 @@
         response.sendRedirect(request.getContextPath() + "/BrowseServlet");
         return;
     }
+    Integer currentUserId = (Integer) session.getAttribute("userId");
+    boolean ownerViewing = currentUserId != null && currentUserId.intValue() == listing.getUserId();
+    String pageMessage = request.getParameter("message");
 %>
 <!DOCTYPE html>
 <html>
@@ -29,6 +32,11 @@
 
     <main class="detail-shell">
         <div class="detail-card">
+            <% if (pageMessage != null && !pageMessage.trim().isEmpty()) { %>
+                <div style="margin-bottom: 20px; padding: 14px 18px; border-radius: 12px; background: #dcfce7; color: #166534; font-weight: 500;">
+                    <%= pageMessage %>
+                </div>
+            <% } %>
 
             <div class="detail-top">
                 <div class="detail-image-section">
@@ -36,8 +44,11 @@
                         <%
                             String imageUrl = listing.getImageUrl();
                             if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                                String imageSrc = (imageUrl.startsWith("http://") || imageUrl.startsWith("https://"))
+                                        ? imageUrl
+                                        : request.getContextPath() + "/images/" + imageUrl;
                         %>
-                            <img src="<%= request.getContextPath() %>/images/<%= imageUrl %>" alt="<%= listing.getTitle() %>">
+                            <img src="<%= imageSrc %>" alt="<%= listing.getTitle() %>">
                         <%
                             } else {
                         %>
@@ -60,7 +71,7 @@
 
                     <h1><%= listing.getTitle() %></h1>
 
-                    <p class="price">$<%= String.format("%.2f", listing.getPrice()) %> / rental</p>
+                    <p class="price">$<%= String.format("%.2f", listing.getPrice()) %> / <%= listing.getPricingUnit() != null && !listing.getPricingUnit().isEmpty() ? listing.getPricingUnit() : "day" %></p>
 
                     <p class="availability">
                         Status:
@@ -77,10 +88,17 @@
                     </p>
 
                     <div class="action-group">
-                        <a class="btn btn-primary"
-						   href="<%= request.getContextPath() %>/CheckoutServlet?listingId=<%= listing.getListingId() %>">
-						    Book Now
-						</a>
+                        <% if (ownerViewing) { %>
+                            <a class="btn btn-primary"
+                               href="<%= request.getContextPath() %>/EditListingServlet?listingId=<%= listing.getListingId() %>">
+                                Edit Listing
+                            </a>
+                        <% } else { %>
+                            <a class="btn btn-primary"
+                               href="<%= request.getContextPath() %>/CheckoutServlet?listingId=<%= listing.getListingId() %>">
+                                Book Now
+                            </a>
+                        <% } %>
 
                         <a class="btn btn-secondary"
                            href="<%= request.getContextPath() %>/BrowseServlet">
@@ -98,6 +116,14 @@
             </section>
 
             <section class="detail-section">
+                <h2>Rental Preferences</h2>
+                <p><strong>Accepted payments:</strong> <%= listing.getAcceptedPaymentMethods() != null && !listing.getAcceptedPaymentMethods().isEmpty() ? listing.getAcceptedPaymentMethods() : "Not specified" %></p>
+                <p><strong>Contact method:</strong> <%= listing.getContactMethod() != null && !listing.getContactMethod().isEmpty() ? listing.getContactMethod() : "Not specified" %></p>
+                <p><strong>Contact info:</strong> <%= listing.getContactInfo() != null && !listing.getContactInfo().isEmpty() ? listing.getContactInfo() : "Not specified" %></p>
+                <p><strong>Pickup / drop-off:</strong> <%= listing.getFulfillmentMethod() != null && !listing.getFulfillmentMethod().isEmpty() ? listing.getFulfillmentMethod() : "Not specified" %></p>
+            </section>
+
+            <section class="detail-section">
                 <h2>Map</h2>
                 <div class="map-placeholder">
                     Future Google Maps API integration goes here.
@@ -107,7 +133,8 @@
             <section class="detail-section">
                 <h2>Owner Contact</h2>
                 <div class="info-placeholder">
-                    Placeholder for future owner contact info.
+                    Reach out by <strong><%= listing.getContactMethod() != null && !listing.getContactMethod().isEmpty() ? listing.getContactMethod() : "the listed contact method" %></strong>
+                    at <strong><%= listing.getContactInfo() != null && !listing.getContactInfo().isEmpty() ? listing.getContactInfo() : "the contact details above" %></strong>.
                 </div>
             </section>
 
