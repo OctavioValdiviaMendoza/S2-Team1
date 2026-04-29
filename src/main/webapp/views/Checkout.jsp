@@ -16,6 +16,9 @@
     String location = listing.getLocation() != null ? listing.getLocation() : "Location not available";
     String bookingStatus = listing.isAvailability() ? "Available" : "Unavailable";
     double dailyRate = listing.getPrice();
+    String pricingUnit = listing.getPricingUnit() != null && !listing.getPricingUnit().trim().isEmpty()
+            ? listing.getPricingUnit()
+            : "day";
 
     String startDate = request.getParameter("startDate") != null ? request.getParameter("startDate") : "";
     String endDate = request.getParameter("endDate") != null ? request.getParameter("endDate") : "";
@@ -24,7 +27,7 @@
 
     String imageUrl = listing.getImageUrl();
     String imageSrc = (imageUrl != null && !imageUrl.trim().isEmpty())
-            ? contextPath + "/images/" + imageUrl
+            ? ((imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) ? imageUrl : contextPath + "/images/" + imageUrl)
             : "https://via.placeholder.com/640x420?text=Listing+Image";
 %>
 <!DOCTYPE html>
@@ -209,7 +212,7 @@
 
                     <div class="summary-row">
                         <span>Rate</span>
-                        <strong id="summaryRate">$<%= String.format("%.2f", dailyRate) %> / day</strong>
+                        <strong id="summaryRate">$<%= String.format("%.2f", dailyRate) %> / <%= pricingUnit %></strong>
                     </div>
 
 <!--

@@ -33,7 +33,7 @@
     </p>
 
     <p class="subtext">
-        A modern rental marketplace for everyday items — skis, speakers,
+        A modern rental marketplace for everyday items: skis, speakers,
         clothes, tools, cameras and more.
     </p>
 
@@ -41,8 +41,10 @@
     		<a href = "../BrowseServlet">
     			<button class="primary">Browse Items</button>
     		</a>
-        
-        <button class="secondary">List an Item</button>
+
+        <a href="../CreateListingServlet">
+            <button class="secondary">List an Item</button>
+        </a>
     </div>
 
 </div>

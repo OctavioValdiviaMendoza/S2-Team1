@@ -52,7 +52,7 @@ public class UserService {
         return paymentMethod;
     }
 
-    // Change user password found in User Settings
+    // Change user password
     public boolean changePassword(int userId, String currentPassword, String newPassword) {
         // Get stored password hash from DB
         String storedHash = userDAO.getPasswordHashByUserId(userId);
@@ -61,7 +61,7 @@ public class UserService {
             return false; // user not found
         }
 
-        // Check current password input field for User settings
+        // Check current password
         if (!checkPassword(currentPassword, storedHash)) {
             return false;
         }
@@ -69,7 +69,7 @@ public class UserService {
         // Hash new password
         String newHashedPassword = hashPassword(newPassword);
 
-        // Update password with new password in DB
+        // Update password in DB
         return userDAO.updatePassword(userId, newHashedPassword);
     }
 
@@ -175,15 +175,19 @@ public class UserService {
     }
 
     // Update booking status
-    public static boolean updateBookingStatus(int bookingId, String status) {
+    public static boolean updateBookingStatus(int bookingId, int ownerUserId, String status) {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DBConnection.getConnection();
 
-            String sql = "UPDATE bookings SET status = ? WHERE booking_id = ?";
+            String sql = "UPDATE bookings b " +
+                        "JOIN listings l ON b.listing_id = l.listing_id " +
+                        "SET b.status = ? " +
+                        "WHERE b.booking_id = ? AND l.user_id = ?";
             PreparedStatement pstmt = con.prepareStatement(sql);
             pstmt.setString(1, status);
             pstmt.setInt(2, bookingId);
+            pstmt.setInt(3, ownerUserId);
 
             int result = pstmt.executeUpdate();
 

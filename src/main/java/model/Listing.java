@@ -14,6 +14,11 @@ public class Listing {
     private String categoryName; // For display purposes
     private String imageUrl; // Primary image URL
     private String location; // From addresses table
+    private String pricingUnit;
+    private String acceptedPaymentMethods;
+    private String contactMethod;
+    private String contactInfo;
+    private String fulfillmentMethod;
 
     public Listing() {}
 
@@ -116,5 +121,45 @@ public class Listing {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getPricingUnit() {
+        return pricingUnit;
+    }
+
+    public void setPricingUnit(String pricingUnit) {
+        this.pricingUnit = pricingUnit;
+    }
+
+    public String getAcceptedPaymentMethods() {
+        return acceptedPaymentMethods;
+    }
+
+    public void setAcceptedPaymentMethods(String acceptedPaymentMethods) {
+        this.acceptedPaymentMethods = acceptedPaymentMethods;
+    }
+
+    public String getContactMethod() {
+        return contactMethod;
+    }
+
+    public void setContactMethod(String contactMethod) {
+        this.contactMethod = contactMethod;
+    }
+
+    public String getContactInfo() {
+        return contactInfo;
+    }
+
+    public void setContactInfo(String contactInfo) {
+        this.contactInfo = contactInfo;
+    }
+
+    public String getFulfillmentMethod() {
+        return fulfillmentMethod;
+    }
+
+    public void setFulfillmentMethod(String fulfillmentMethod) {
+        this.fulfillmentMethod = fulfillmentMethod;
     }
 }

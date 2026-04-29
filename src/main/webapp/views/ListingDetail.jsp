@@ -2,19 +2,23 @@
 <%@ page import="model.Listing" %>
 <%@ page import="model.User" %>
 <%
-    String contextPath = request.getContextPath();
-
     Listing listing = (Listing) request.getAttribute("listing");
     if (listing == null) {
-        response.sendRedirect(contextPath + "/BrowseServlet");
+        response.sendRedirect(request.getContextPath() + "/BrowseServlet");
         return;
     }
 
     User loggedInUser = (User) session.getAttribute("user");
-    boolean isLoggedIn = session.getAttribute("userId") != null && loggedInUser != null;
-    String firstName = isLoggedIn && loggedInUser.getFirstName() != null && !loggedInUser.getFirstName().trim().isEmpty()
-        ? loggedInUser.getFirstName()
-        : "User";
+    boolean isLoggedIn = (loggedInUser != null);
+
+    Integer currentUserId = (Integer) session.getAttribute("userId");
+    boolean ownerViewing = currentUserId != null && currentUserId.intValue() == listing.getUserId();
+
+    String pageMessage = request.getParameter("message");
+    String searchValue = request.getParameter("search");
+    if (searchValue == null) {
+        searchValue = "";
+    }
 %>
 <!DOCTYPE html>
 <html>
@@ -28,41 +32,54 @@
 </head>
 <body>
 
-    <div class="navbar">
-	    <a href="<%= contextPath %>/BrowseServlet" class="logo">Lendr</a>
-	
-	    <div class="nav-center">
-	        <div class="search-bar">
-	            <input type="text" id="listingSearchInput" placeholder="Search items...">
-	            <button class="search-btn" type="button" id="listingSearchBtn">Search</button>
-	        </div>
-	    </div>
-	
-	    <div class="nav-buttons">
-	        <% if (!isLoggedIn) { %>
-	            <button class="nav-btn login-btn" type="button">Login</button>
-	            <button class="nav-btn signup-btn" type="button">Sign Up</button>
-	        <% } else { %>
-	            <div class="profile-menu">
-	                <span class="welcome-text">Hi, <%= firstName %></span>
-	
-	                <button class="profile-trigger" type="button" id="profileMenuButton" aria-haspopup="true" aria-expanded="false">
-	                    <span class="profile-avatar">👤</span>
-	                </button>
-	
-	                <div class="profile-dropdown" id="profileDropdown">
-	                    <a href="javascript:void(0);" class="dropdown-item">My Listings</a>
-	                    <a href="javascript:void(0);" class="dropdown-item">My Rentings</a>
-	                    <a href="<%= contextPath %>/SettingsServlet" class="dropdown-item">Account Settings</a>
-	                    <a href="<%= contextPath %>/LogoutServlet" class="dropdown-item logout-item">Log Out</a>
-	                </div>
-	            </div>
-	        <% } %>
-	    </div>
-	</div>
+    <nav class="navbar">
+        <a class="logo" href="<%= request.getContextPath() %>/BrowseServlet">Lendr</a>
+
+        <div class="nav-center">
+            <div class="search-bar">
+                <input
+                    type="text"
+                    id="navSearchInput"
+                    placeholder="Search listings..."
+                    value="<%= searchValue %>">
+                <button type="button" class="search-btn" onclick="performSearch()">Search</button>
+            </div>
+        </div>
+
+        <% if (isLoggedIn) { %>
+            <div class="profile-menu">
+                <span class="welcome-text">
+                    Hello <%= loggedInUser.getFirstName() != null && !loggedInUser.getFirstName().trim().isEmpty()
+                            ? loggedInUser.getFirstName()
+                            : "User" %>
+                </span>
+
+                <button type="button" class="profile-trigger" onclick="toggleProfileDropdown(event)">
+                    <span class="profile-avatar">👤</span>
+                </button>
+
+                <div id="profileDropdown" class="profile-dropdown">
+                    <a class="dropdown-item" href="<%= request.getContextPath() %>/BrowseServlet">Browse</a>
+                    <a class="dropdown-item" href="<%= request.getContextPath() %>/SettingsServlet">Settings</a>
+                    <a class="dropdown-item logout-item" href="<%= request.getContextPath() %>/LogoutServlet">Logout</a>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="nav-buttons">
+                <button type="button" class="nav-btn login-btn" onclick="goToLogin()">Login</button>
+                <button type="button" class="nav-btn signup-btn" onclick="goToSignup()">Sign Up</button>
+            </div>
+        <% } %>
+    </nav>
 
     <main class="detail-shell">
         <div class="detail-card">
+
+            <% if (pageMessage != null && !pageMessage.trim().isEmpty()) { %>
+                <div style="margin-bottom: 20px; padding: 14px 18px; border-radius: 12px; background: #dcfce7; color: #166534; font-weight: 500;">
+                    <%= pageMessage %>
+                </div>
+            <% } %>
 
             <div class="detail-top">
                 <div class="detail-image-section">
@@ -70,8 +87,11 @@
                         <%
                             String imageUrl = listing.getImageUrl();
                             if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                                String imageSrc = (imageUrl.startsWith("http://") || imageUrl.startsWith("https://"))
+                                        ? imageUrl
+                                        : request.getContextPath() + "/images/" + imageUrl;
                         %>
-                            <img src="<%= request.getContextPath() %>/images/<%= imageUrl %>" alt="<%= listing.getTitle() %>">
+                            <img src="<%= imageSrc %>" alt="<%= listing.getTitle() %>">
                         <%
                             } else {
                         %>
@@ -89,32 +109,46 @@
 
                 <div class="detail-info-section">
                     <span class="category-badge">
-                        <%= listing.getCategoryName() != null ? listing.getCategoryName() : "Uncategorized" %>
+                        <%= listing.getCategoryName() != null && !listing.getCategoryName().trim().isEmpty()
+                                ? listing.getCategoryName()
+                                : "Uncategorized" %>
                     </span>
 
                     <h1><%= listing.getTitle() %></h1>
 
-                    <p class="price">$<%= String.format("%.2f", listing.getPrice()) %> / rental</p>
+                    <p class="price">
+                        $<%= String.format("%.2f", listing.getPrice()) %> /
+                        <%= listing.getPricingUnit() != null && !listing.getPricingUnit().trim().isEmpty()
+                                ? listing.getPricingUnit()
+                                : "day" %>
+                    </p>
 
                     <p class="availability">
                         Status:
-                        <strong>
-                            <%= listing.isAvailability() ? "Available" : "Unavailable" %>
-                        </strong>
+                        <strong><%= listing.isAvailability() ? "Available" : "Unavailable" %></strong>
                     </p>
 
                     <p class="location">
                         Location:
                         <strong>
-                            <%= listing.getLocation() != null ? listing.getLocation() : "Location not available" %>
+                            <%= listing.getLocation() != null && !listing.getLocation().trim().isEmpty()
+                                    ? listing.getLocation()
+                                    : "Location not available" %>
                         </strong>
                     </p>
 
                     <div class="action-group">
-                        <a class="btn btn-primary"
-						   href="<%= request.getContextPath() %>/CheckoutServlet?listingId=<%= listing.getListingId() %>">
-						    Book Now
-						</a>
+                        <% if (ownerViewing) { %>
+                            <a class="btn btn-primary"
+                               href="<%= request.getContextPath() %>/EditListingServlet?listingId=<%= listing.getListingId() %>">
+                                Edit Listing
+                            </a>
+                        <% } else { %>
+                            <a class="btn btn-primary"
+                               href="<%= request.getContextPath() %>/CheckoutServlet?listingId=<%= listing.getListingId() %>">
+                                Book Now
+                            </a>
+                        <% } %>
 
                         <a class="btn btn-secondary"
                            href="<%= request.getContextPath() %>/BrowseServlet">
@@ -127,7 +161,37 @@
             <section class="detail-section">
                 <h2>Description</h2>
                 <p>
-                    <%= listing.getDescription() != null ? listing.getDescription() : "No description provided." %>
+                    <%= listing.getDescription() != null && !listing.getDescription().trim().isEmpty()
+                            ? listing.getDescription()
+                            : "No description provided." %>
+                </p>
+            </section>
+
+            <section class="detail-section">
+                <h2>Rental Preferences</h2>
+                <p>
+                    <strong>Accepted payments:</strong>
+                    <%= listing.getAcceptedPaymentMethods() != null && !listing.getAcceptedPaymentMethods().trim().isEmpty()
+                            ? listing.getAcceptedPaymentMethods()
+                            : "Not specified" %>
+                </p>
+                <p>
+                    <strong>Contact method:</strong>
+                    <%= listing.getContactMethod() != null && !listing.getContactMethod().trim().isEmpty()
+                            ? listing.getContactMethod()
+                            : "Not specified" %>
+                </p>
+                <p>
+                    <strong>Contact info:</strong>
+                    <%= listing.getContactInfo() != null && !listing.getContactInfo().trim().isEmpty()
+                            ? listing.getContactInfo()
+                            : "Not specified" %>
+                </p>
+                <p>
+                    <strong>Pickup / drop-off:</strong>
+                    <%= listing.getFulfillmentMethod() != null && !listing.getFulfillmentMethod().trim().isEmpty()
+                            ? listing.getFulfillmentMethod()
+                            : "Not specified" %>
                 </p>
             </section>
 
@@ -141,7 +205,18 @@
             <section class="detail-section">
                 <h2>Owner Contact</h2>
                 <div class="info-placeholder">
-                    Placeholder for future owner contact info.
+                    Reach out by
+                    <strong>
+                        <%= listing.getContactMethod() != null && !listing.getContactMethod().trim().isEmpty()
+                                ? listing.getContactMethod()
+                                : "the listed contact method" %>
+                    </strong>
+                    at
+                    <strong>
+                        <%= listing.getContactInfo() != null && !listing.getContactInfo().trim().isEmpty()
+                                ? listing.getContactInfo()
+                                : "the contact details above" %>
+                    </strong>.
                 </div>
             </section>
 
@@ -154,62 +229,54 @@
 
         </div>
     </main>
-    
+
     <script>
-	    const loginBtn = document.querySelector('.login-btn');
-	    const signupBtn = document.querySelector('.signup-btn');
-	    const searchBtn = document.getElementById('listingSearchBtn');
-	    const searchInput = document.getElementById('listingSearchInput');
-	
-	    if (loginBtn) {
-	        loginBtn.addEventListener('click', function() {
-	            window.location.href = '<%= contextPath %>/views/Login.jsp';
-	        });
-	    }
-	
-	    if (signupBtn) {
-	        signupBtn.addEventListener('click', function() {
-	            window.location.href = '<%= contextPath %>/views/SignUp.jsp';
-	        });
-	    }
-	
-	    if (searchBtn && searchInput) {
-	        searchBtn.addEventListener('click', function() {
-	            const searchValue = searchInput.value.trim();
-	            if (searchValue) {
-	                window.location.href = '<%= contextPath %>/BrowseServlet?search=' + encodeURIComponent(searchValue);
-	            } else {
-	                window.location.href = '<%= contextPath %>/BrowseServlet';
-	            }
-	        });
-	
-	        searchInput.addEventListener('keypress', function(e) {
-	            if (e.key === 'Enter') {
-	                searchBtn.click();
-	            }
-	        });
-	    }
-	
-	    const profileMenuButton = document.getElementById('profileMenuButton');
-	    const profileDropdown = document.getElementById('profileDropdown');
-	
-	    if (profileMenuButton && profileDropdown) {
-	        profileMenuButton.addEventListener('click', function(e) {
-	            e.stopPropagation();
-	            profileDropdown.classList.toggle('show');
-	
-	            const isExpanded = profileDropdown.classList.contains('show');
-	            profileMenuButton.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
-	        });
-	
-	        document.addEventListener('click', function(e) {
-	            if (!profileDropdown.contains(e.target) && !profileMenuButton.contains(e.target)) {
-	                profileDropdown.classList.remove('show');
-	                profileMenuButton.setAttribute('aria-expanded', 'false');
-	            }
-	        });
-	    }
-	</script>
+        function performSearch() {
+            const input = document.getElementById("navSearchInput");
+            const query = input ? input.value.trim() : "";
+
+            if (query.length === 0) {
+                window.location.href = "<%= request.getContextPath() %>/BrowseServlet";
+                return;
+            }
+
+            window.location.href =
+                "<%= request.getContextPath() %>/BrowseServlet?search=" + encodeURIComponent(query);
+        }
+
+        function goToLogin() {
+            window.location.href = "<%= request.getContextPath() %>/views/Login.jsp";
+        }
+
+        function goToSignup() {
+            window.location.href = "<%= request.getContextPath() %>/views/SignUp.jsp";
+        }
+
+        function toggleProfileDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById("profileDropdown");
+            if (dropdown) {
+                dropdown.classList.toggle("show");
+            }
+        }
+
+        document.addEventListener("click", function(event) {
+            const dropdown = document.getElementById("profileDropdown");
+            const trigger = document.querySelector(".profile-trigger");
+
+            if (!dropdown || !trigger) return;
+
+            if (!dropdown.contains(event.target) && !trigger.contains(event.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
+
+        document.getElementById("navSearchInput")?.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                performSearch();
+            }
+        });
+    </script>
 
 </body>
 </html>

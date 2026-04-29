@@ -290,11 +290,66 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
     margin-bottom: 20px;
     background: white;
     padding: 15px 20px;
     border-radius: 10px;
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.results-copy p {
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.browse-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toggle-btn,
+.create-listing-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.toggle-btn {
+    border: none;
+    background: #4f46e5;
+    color: white;
+}
+
+.toggle-btn:hover {
+    background: #3730a3;
+}
+
+.secondary-toggle {
+    background: white;
+    color: #4f46e5;
+    border: 2px solid #4f46e5;
+}
+
+.secondary-toggle:hover {
+    background: #eef2ff;
+}
+
+.create-listing-link {
+    background: #fbbf24;
+    color: #111827;
+}
+
+.create-listing-link:hover {
+    background: #f59e0b;
 }
 
 .sort-options select {
@@ -414,9 +469,6 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: background 0.3s;
-}
-
-.view-btn {
     display: block;
     text-align: center;
     text-decoration: none;
@@ -476,6 +528,18 @@ body {
     .sidebar {
         width: 100%;
         position: static;
+    }
+}
+
+@media (max-width: 900px) {
+    .sort-options {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .browse-actions {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 
