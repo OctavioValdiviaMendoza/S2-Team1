@@ -19,6 +19,7 @@ import service.ListingService;
 public class SettingsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private UserService userService = new UserService();
+    private ListingService listingService = new ListingService();
 
     public SettingsServlet() {
         super();
@@ -105,7 +106,7 @@ public class SettingsServlet extends HttpServlet {
     private void loadCommonSettingsData(int userId, HttpServletRequest request) {
         User user = userService.getUserById(userId);
         String paymentMethod = UserService.getPaymentMethod(userId);
-        List<Listing> listings = ListingService.getListingsByUserId(userId);
+        List<Listing> listings = listingService.getListingsByUserId(userId);
         List<Booking> pendingRequests = UserService.getPendingRentalRequests(userId);
         List<Booking> processedRequests = UserService.getProcessedRentalRequests(userId);
 

@@ -16,10 +16,22 @@ import model.Listing;
 import model.User;
 import service.ListingService;
 import service.UserService;
+import service.CategoryService;
+import util.DBConnection;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpSession;
 
 @WebServlet("/CreateListingServlet")
 public class CreateListingServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private ListingService listingService = new ListingService();
+    private CategoryService categoryService = new CategoryService();
 
     private final UserService userService = new UserService();
 
@@ -32,8 +44,40 @@ public class CreateListingServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/views/Login.jsp");
             return;
         }
+        
+        int userId = (Integer) session.getAttribute("userId");
+        
+        List<Map<String, String>> addresses = new ArrayList<>();
 
-        loadFormData(request, session);
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection con = DBConnection.getConnection()) {
+                String sql = "SELECT address_id, line_1, line_2, city, state, zip, type, is_default " +
+                             "FROM addresses WHERE user_id = ? ORDER BY is_default DESC, address_id ASC";
+                try (PreparedStatement ps = con.prepareStatement(sql)) {
+                    ps.setInt(1, userId);
+
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            Map<String, String> address = new HashMap<>();
+                            address.put("address_id", String.valueOf(rs.getInt("address_id")));
+                            address.put("line_1", rs.getString("line_1"));
+                            address.put("line_2", rs.getString("line_2"));
+                            address.put("city", rs.getString("city"));
+                            address.put("state", rs.getString("state"));
+                            address.put("zip", rs.getString("zip"));
+                            address.put("type", rs.getString("type"));
+                            address.put("is_default", String.valueOf(rs.getBoolean("is_default")));
+                            addresses.add(address);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        request.setAttribute("userAddresses", addresses);
         request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
     }
 
@@ -149,8 +193,13 @@ public class CreateListingServlet extends HttpServlet {
         listing.setContactMethod(contactMethod);
         listing.setContactInfo(contactInfo);
         listing.setFulfillmentMethod(fulfillmentMethod);
+        
+        
+        int addressId = Integer.parseInt(request.getParameter("addressId"));
+        listing.setAddressId(addressId);
 
-        int createdListingId = ListingService.createListing(listing, imageLinks);
+
+        int createdListingId = listingService.createListing(listing, imageLinks);
         if (createdListingId <= 0) {
             request.setAttribute("errorMessages", java.util.Arrays.asList("The listing could not be created. Please try again."));
             request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
@@ -161,7 +210,7 @@ public class CreateListingServlet extends HttpServlet {
     }
 
     private void loadFormData(HttpServletRequest request, HttpSession session) {
-        List<Category> categories = ListingService.getAllCategories();
+        List<Category> categories = categoryService.getAllCategories();
         request.setAttribute("categories", categories);
 
         Object sessionUser = session.getAttribute("user");

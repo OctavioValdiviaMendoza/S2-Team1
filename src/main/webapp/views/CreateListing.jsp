@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.*" %>
 <%@ page import="model.Category" %>
 <%@ page import="model.User" %>
 <%
@@ -120,6 +121,31 @@
                             <option value="drop-off" <%= "drop-off".equals(fulfillmentMethodValue) ? "selected" : "" %>>Drop-off only</option>
                             <option value="either" <%= "either".equals(fulfillmentMethodValue) ? "selected" : "" %>>Either</option>
                         </select>
+                    </div>
+                    
+                    <div class="form-group">
+                    <%
+					    List<Map<String, String>> userAddresses =
+					        (List<Map<String, String>>) request.getAttribute("userAddresses");
+					%>
+					
+					<label for="addressId">Pickup Location</label>
+					<select name="addressId" id="addressId" required>
+					    <option value="">-- Select a pickup address --</option>
+					    <%
+					        if (userAddresses != null) {
+					            for (Map<String, String> address : userAddresses) {
+					    %>
+					        <option value="<%= address.get("address_id") %>">
+					            <%= address.get("line_1") %>
+					            <%= (address.get("line_2") != null && !address.get("line_2").trim().isEmpty()) ? ", " + address.get("line_2") : "" %>,
+					            <%= address.get("city") %>, <%= address.get("state") %> <%= address.get("zip") %>
+					        </option>
+					    <%
+					            }
+					        }
+					    %>
+					</select>
                     </div>
                 </div>
 

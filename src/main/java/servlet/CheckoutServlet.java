@@ -15,6 +15,7 @@ import service.ListingService;
 @WebServlet("/CheckoutServlet")
 public class CheckoutServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private ListingService listingService = new ListingService();
 
     public CheckoutServlet() {
         super();
@@ -41,7 +42,7 @@ public class CheckoutServlet extends HttpServlet {
 
         try {
             int listingId = Integer.parseInt(listingIdParam);
-            Listing listing = ListingService.getListingById(listingId);
+            Listing listing = listingService.getListingById(listingId);
 
             if (listing == null) {
                 response.sendRedirect(request.getContextPath() + "/BrowseServlet");
