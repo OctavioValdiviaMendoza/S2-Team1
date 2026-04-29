@@ -1,13 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
-<%@ page import="java.util.*" %>
 <%@ page import="model.Category" %>
 <%@ page import="model.User" %>
+<%@ page import="model.Address" %>
 <%
     String contextPath = request.getContextPath();
     List<Category> categories = (List<Category>) request.getAttribute("categories");
     List<String> errorMessages = (List<String>) request.getAttribute("errorMessages");
     User currentUser = (User) request.getAttribute("currentUser");
+    List<Address> userAddresses = (List<Address>) request.getAttribute("userAddresses");
 
     String titleValue = request.getAttribute("titleValue") != null ? (String) request.getAttribute("titleValue") : "";
     String descriptionValue = request.getAttribute("descriptionValue") != null ? (String) request.getAttribute("descriptionValue") : "";
@@ -20,12 +21,23 @@
             : (currentUser != null && currentUser.getEmail() != null ? currentUser.getEmail() : "");
     String fulfillmentMethodValue = request.getAttribute("fulfillmentMethodValue") != null ? (String) request.getAttribute("fulfillmentMethodValue") : "";
     String imageLinksValue = request.getAttribute("imageLinksValue") != null ? (String) request.getAttribute("imageLinksValue") : "";
-    String listingIdValue = request.getAttribute("listingIdValue") != null ? (String) request.getAttribute("listingIdValue") : "";
+
+    String addressChoiceValue = request.getAttribute("addressChoiceValue") != null
+            ? (String) request.getAttribute("addressChoiceValue")
+            : "existing";
+    String addressIdValue = request.getAttribute("addressIdValue") != null ? (String) request.getAttribute("addressIdValue") : "";
+
+    String newLine1Value = request.getAttribute("newLine1Value") != null ? (String) request.getAttribute("newLine1Value") : "";
+    String newLine2Value = request.getAttribute("newLine2Value") != null ? (String) request.getAttribute("newLine2Value") : "";
+    String newCityValue = request.getAttribute("newCityValue") != null ? (String) request.getAttribute("newCityValue") : "";
+    String newStateValue = request.getAttribute("newStateValue") != null ? (String) request.getAttribute("newStateValue") : "";
+    String newZipValue = request.getAttribute("newZipValue") != null ? (String) request.getAttribute("newZipValue") : "";
+    String newAddressTypeValue = request.getAttribute("newAddressTypeValue") != null ? (String) request.getAttribute("newAddressTypeValue") : "pickup";
+    String newIsDefaultValue = request.getAttribute("newIsDefaultValue") != null ? (String) request.getAttribute("newIsDefaultValue") : "";
+
     String[] selectedPaymentMethods = request.getAttribute("selectedPaymentMethods") != null
             ? (String[]) request.getAttribute("selectedPaymentMethods")
             : new String[0];
-    Boolean editModeAttr = (Boolean) request.getAttribute("editMode");
-    boolean editMode = editModeAttr != null && editModeAttr.booleanValue();
 
     String defaultPhone = currentUser != null && currentUser.getPhoneNumber() != null ? currentUser.getPhoneNumber() : "";
     String defaultEmail = currentUser != null && currentUser.getEmail() != null ? currentUser.getEmail() : "";
@@ -35,11 +47,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= editMode ? "Edit Listing" : "Create a Listing" %> - Lendr</title>
+    <title>Create a Listing - Lendr</title>
     <link rel="stylesheet" href="<%= contextPath %>/css/create-listing.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .hidden-section { display: none; }
+        .address-choice-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+        .address-block { margin-top: 10px; }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -53,10 +70,8 @@
     <main class="listing-shell">
         <section class="listing-intro">
             <span class="eyebrow">Lister View</span>
-            <h1><%= editMode ? "Update your listing" : "Create a listing that is ready to rent" %></h1>
-            <p><%= editMode
-                    ? "Adjust the item details, pricing, payment methods, contact info, and image links. Save when your changes are ready to go live."
-                    : "Add the item details, your rate, accepted payment methods, contact info, and image links. Once the required fields are filled, the publish button appears and the listing can go live." %></p>
+            <h1>Create a listing that is ready to rent</h1>
+            <p>Add the item details, your rate, payment methods, contact info, photos, and pickup address.</p>
         </section>
 
         <section class="listing-card">
@@ -68,14 +83,11 @@
                 </div>
             <% } %>
 
-            <form id="create-listing-form" action="<%= contextPath %>/<%= editMode ? "EditListingServlet" : "CreateListingServlet" %>" method="post">
-                <% if (editMode) { %>
-                    <input type="hidden" name="listingId" value="<%= listingIdValue %>">
-                <% } %>
+            <form id="create-listing-form" action="<%= contextPath %>/CreateListingServlet" method="post">
                 <div class="form-grid two-col">
                     <div class="form-group">
                         <label for="title">Listing Title</label>
-                        <input type="text" id="title" name="title" value="<%= titleValue %>" placeholder="Cordless drill, DSLR camera, kayak..." required>
+                        <input type="text" id="title" name="title" value="<%= titleValue %>" required>
                     </div>
 
                     <div class="form-group">
@@ -95,13 +107,13 @@
 
                 <div class="form-group">
                     <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="5" placeholder="Describe the item, what is included, and anything renters should know." required><%= descriptionValue %></textarea>
+                    <textarea id="description" name="description" rows="5" required><%= descriptionValue %></textarea>
                 </div>
 
                 <div class="form-grid three-col">
                     <div class="form-group">
                         <label for="price">Price</label>
-                        <input type="number" id="price" name="price" min="1" step="0.01" value="<%= priceValue %>" placeholder="25.00" required>
+                        <input type="number" id="price" name="price" min="1" step="0.01" value="<%= priceValue %>" required>
                     </div>
 
                     <div class="form-group">
@@ -122,30 +134,89 @@
                             <option value="either" <%= "either".equals(fulfillmentMethodValue) ? "selected" : "" %>>Either</option>
                         </select>
                     </div>
-                    
-                    <div class="form-group">
-                    <%
-					    List<Map<String, String>> userAddresses =
-					        (List<Map<String, String>>) request.getAttribute("userAddresses");
-					%>
-					
-					<label for="addressId">Pickup Location</label>
-					<select name="addressId" id="addressId" required>
-					    <option value="">-- Select a pickup address --</option>
-					    <%
-					        if (userAddresses != null) {
-					            for (Map<String, String> address : userAddresses) {
-					    %>
-					        <option value="<%= address.get("address_id") %>">
-					            <%= address.get("line_1") %>
-					            <%= (address.get("line_2") != null && !address.get("line_2").trim().isEmpty()) ? ", " + address.get("line_2") : "" %>,
-					            <%= address.get("city") %>, <%= address.get("state") %> <%= address.get("zip") %>
-					        </option>
-					    <%
-					            }
-					        }
-					    %>
-					</select>
+                </div>
+
+                <div class="form-group">
+                    <label>Pickup Address</label>
+
+                    <div class="address-choice-row">
+                        <label>
+                            <input type="radio" name="addressChoice" value="existing"
+                                   <%= !"new".equals(addressChoiceValue) ? "checked" : "" %>>
+                            Use an existing address
+                        </label>
+                        <label>
+                            <input type="radio" name="addressChoice" value="new"
+                                   <%= "new".equals(addressChoiceValue) ? "checked" : "" %>>
+                            Add a new address
+                        </label>
+                    </div>
+
+                    <div id="existing-address-block" class="address-block">
+                        <label for="addressId">Existing Address</label>
+                        <select name="addressId" id="addressId">
+                            <option value="">-- Select a pickup address --</option>
+                            <% if (userAddresses != null) {
+                                   for (Address address : userAddresses) { %>
+                                <option value="<%= address.getAddressId() %>"
+                                    <%= String.valueOf(address.getAddressId()).equals(addressIdValue) ? "selected" : "" %>>
+                                    <%= address.getLine1() %>
+                                    <%= (address.getLine2() != null && !address.getLine2().trim().isEmpty()) ? ", " + address.getLine2() : "" %>,
+                                    <%= address.getCity() %>, <%= address.getState() %> <%= address.getZip() %>
+                                </option>
+                            <%   }
+                               } %>
+                        </select>
+                    </div>
+
+                    <div id="new-address-block" class="address-block hidden-section">
+                        <div class="form-grid two-col">
+                            <div class="form-group">
+                                <label for="newLine1">Address Line 1</label>
+                                <input type="text" id="newLine1" name="newLine1" value="<%= newLine1Value %>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newLine2">Address Line 2</label>
+                                <input type="text" id="newLine2" name="newLine2" value="<%= newLine2Value %>">
+                            </div>
+                        </div>
+
+                        <div class="form-grid three-col">
+                            <div class="form-group">
+                                <label for="newCity">City</label>
+                                <input type="text" id="newCity" name="newCity" value="<%= newCityValue %>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newState">State</label>
+                                <input type="text" id="newState" name="newState" maxlength="2" value="<%= newStateValue %>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newZip">ZIP</label>
+                                <input type="text" id="newZip" name="newZip" value="<%= newZipValue %>">
+                            </div>
+                        </div>
+
+                        <div class="form-grid two-col">
+                            <div class="form-group">
+                                <label for="newAddressType">Address Type</label>
+                                <select id="newAddressType" name="newAddressType">
+                                    <option value="pickup" <%= "pickup".equals(newAddressTypeValue) ? "selected" : "" %>>Pickup</option>
+                                    <option value="home" <%= "home".equals(newAddressTypeValue) ? "selected" : "" %>>Home</option>
+                                    <option value="billing" <%= "billing".equals(newAddressTypeValue) ? "selected" : "" %>>Billing</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" name="newIsDefault" value="true"
+                                        <%= "true".equalsIgnoreCase(newIsDefaultValue) || "on".equalsIgnoreCase(newIsDefaultValue) ? "checked" : "" %>>
+                                    Set as default address
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -174,7 +245,7 @@
 
                     <div class="form-group">
                         <label for="contactInfo">Contact Info</label>
-                        <input type="text" id="contactInfo" name="contactInfo" value="<%= contactInfoValue %>" placeholder="email@example.com or 555-555-5555" required>
+                        <input type="text" id="contactInfo" name="contactInfo" value="<%= contactInfoValue %>" required>
                     </div>
                 </div>
 
@@ -182,7 +253,7 @@
                     <label for="image-link-input">Image Links</label>
                     <div id="drop-zone" class="drop-zone">
                         <p>Drag in image links, paste them, or add them manually.</p>
-                        <p class="drop-subtext">Each link should start with `http://` or `https://`.</p>
+                        <p class="drop-subtext">Each link should start with http:// or https://.</p>
                     </div>
 
                     <div class="image-input-row">
@@ -195,10 +266,8 @@
                 </div>
 
                 <div class="form-footer">
-                    <p class="helper-text"><%= editMode
-                            ? "Save changes to update this listing immediately."
-                            : "Your listing will be added to the marketplace immediately after submission." %></p>
-                    <button type="submit" id="submit-btn" class="primary-btn hidden-action"><%= editMode ? "Save Changes" : "Create Listing" %></button>
+                    <p class="helper-text">Your listing will be added to the marketplace immediately after submission.</p>
+                    <button type="submit" id="submit-btn" class="primary-btn hidden-action">Create Listing</button>
                 </div>
             </form>
         </section>
@@ -216,9 +285,26 @@
             const contactMethod = document.getElementById('contactMethod');
             const contactInfo = document.getElementById('contactInfo');
 
+            const addressChoiceInputs = document.querySelectorAll('input[name="addressChoice"]');
+            const existingAddressBlock = document.getElementById('existing-address-block');
+            const newAddressBlock = document.getElementById('new-address-block');
+            const addressId = document.getElementById('addressId');
+
             let imageLinks = imageLinksField.value
                 ? imageLinksField.value.split(/\r?\n/).map((link) => link.trim()).filter(Boolean)
                 : [];
+
+            function usingNewAddress() {
+                const checked = document.querySelector('input[name="addressChoice"]:checked');
+                return checked && checked.value === 'new';
+            }
+
+            function toggleAddressBlocks() {
+                const showNew = usingNewAddress();
+                existingAddressBlock.classList.toggle('hidden-section', showNew);
+                newAddressBlock.classList.toggle('hidden-section', !showNew);
+                updateSubmitState();
+            }
 
             function syncImageField() {
                 imageLinksField.value = imageLinks.join('\n');
@@ -256,6 +342,21 @@
                 updateSubmitState();
             }
 
+            function addressReady() {
+                if (!usingNewAddress()) {
+                    return addressId.value.trim().length > 0;
+                }
+
+                const requiredNewAddressFields = [
+                    document.getElementById('newLine1').value.trim(),
+                    document.getElementById('newCity').value.trim(),
+                    document.getElementById('newState').value.trim(),
+                    document.getElementById('newZip').value.trim()
+                ];
+
+                return requiredNewAddressFields.every(Boolean);
+            }
+
             function updateSubmitState() {
                 const requiredFields = [
                     document.getElementById('title').value.trim(),
@@ -269,7 +370,7 @@
                 ];
 
                 const hasPaymentMethod = form.querySelectorAll('input[name="paymentMethods"]:checked').length > 0;
-                const isReady = requiredFields.every(Boolean) && hasPaymentMethod && imageLinks.length > 0;
+                const isReady = requiredFields.every(Boolean) && hasPaymentMethod && imageLinks.length > 0 && addressReady();
 
                 submitBtn.disabled = !isReady;
                 submitBtn.classList.toggle('hidden-action', !isReady);
@@ -339,18 +440,23 @@
                 updateSubmitState();
             });
 
+            addressChoiceInputs.forEach((input) => {
+                input.addEventListener('change', toggleAddressBlocks);
+            });
+
             form.addEventListener('input', updateSubmitState);
             form.addEventListener('change', updateSubmitState);
 
             syncImageField();
             renderImageLinks();
+            toggleAddressBlocks();
             updateSubmitState();
         })();
     </script>
 </body>
 </html>
 
-<%! 
+<%!
     private boolean contains(String[] values, String expected) {
         if (values == null) {
             return false;

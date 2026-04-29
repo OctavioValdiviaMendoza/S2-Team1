@@ -41,7 +41,9 @@ public class ListingDetailServlet extends HttpServlet {
                 return;
             }
 
+            
             request.setAttribute("listing", listing);
+            request.setAttribute("imageUrls", listingService.getImageUrlsByListingId(listingId));
             request.getRequestDispatcher("/views/ListingDetail.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {

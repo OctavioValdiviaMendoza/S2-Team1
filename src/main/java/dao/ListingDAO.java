@@ -374,25 +374,6 @@ public class ListingDAO {
         return null;
     }
 
-    public boolean addressBelongsToUser(int addressId, int userId) {
-        String sql = "SELECT 1 FROM addresses WHERE address_id = ? AND user_id = ?";
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, addressId);
-            ps.setInt(2, userId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
     private Listing mapListing(ResultSet rs) throws SQLException {
         Listing listing = new Listing();
         listing.setListingId(rs.getInt("listing_id"));
