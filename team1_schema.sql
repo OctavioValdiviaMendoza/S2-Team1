@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `team1` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `team1`;
 -- MySQL dump 10.13  Distrib 8.0.45, for Win64 (x86_64)
 --
 -- Host: localhost    Database: team1
@@ -37,7 +35,7 @@ CREATE TABLE `addresses` (
   PRIMARY KEY (`address_id`),
   KEY `fk_addresses_users` (`user_id`),
   CONSTRAINT `fk_addresses_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -46,7 +44,7 @@ CREATE TABLE `addresses` (
 
 LOCK TABLES `addresses` WRITE;
 /*!40000 ALTER TABLE `addresses` DISABLE KEYS */;
-INSERT INTO `addresses` VALUES (1,1,'123 Market St','Apt 4B','San Jose','CA','95112','home',1),(2,1,'500 Tech Park Dr',NULL,'San Jose','CA','95110','pickup',0),(3,2,'742 Evergreen Terrace',NULL,'San Jose','CA','95123','home',1),(4,3,'88 Willow Rd','Unit 12','Santa Clara','CA','95050','pickup',1),(5,4,'300 First St',NULL,'San Jose','CA','95113','home',1),(6,4,'91 E Tasman Dr',NULL,'San Jose','CA','95134','pickup',0),(7,5,'451 Blossom Hill Rd',NULL,'San Jose','CA','95123','home',1),(8,6,'200 W Santa Clara St',NULL,'San Jose','CA','95113','pickup',1),(9,7,'78 Almaden Blvd','Suite 300','San Jose','CA','95113','billing',1),(10,8,'880 Story Rd',NULL,'San Jose','CA','95122','home',1),(11,9,'1500 Berryessa Rd',NULL,'San Jose','CA','95133','pickup',1),(12,10,'2200 Mission College Blvd',NULL,'Santa Clara','CA','95054','home',1),(13,11,'101 N Market St',NULL,'San Jose','CA','95113','pickup',1),(14,12,'500 El Camino Real',NULL,'Santa Clara','CA','95050','home',1),(15,13,'400 Castro St',NULL,'Mountain View','CA','94041','pickup',1),(16,14,'600 University Ave',NULL,'Palo Alto','CA','94301','home',1),(17,15,'1 Infinite Loop',NULL,'Cupertino','CA','95014','pickup',1);
+INSERT INTO `addresses` VALUES (1,1,'123 Market St','Apt 4B','San Jose','CA','95112','home',1),(2,1,'500 Tech Park Dr',NULL,'San Jose','CA','95110','pickup',0),(3,2,'742 Evergreen Terrace',NULL,'San Jose','CA','95123','home',1),(4,3,'88 Willow Rd','Unit 12','Santa Clara','CA','95050','pickup',1),(5,4,'300 First St',NULL,'San Jose','CA','95113','home',1),(6,4,'91 E Tasman Dr',NULL,'San Jose','CA','95134','pickup',0),(7,5,'451 Blossom Hill Rd',NULL,'San Jose','CA','95123','home',1),(8,6,'200 W Santa Clara St',NULL,'San Jose','CA','95113','pickup',1),(9,7,'78 Almaden Blvd','Suite 300','San Jose','CA','95113','billing',1),(10,8,'880 Story Rd',NULL,'San Jose','CA','95122','home',1),(11,9,'1500 Berryessa Rd',NULL,'San Jose','CA','95133','pickup',1),(12,10,'2200 Mission College Blvd',NULL,'Santa Clara','CA','95054','home',1),(13,11,'101 N Market St',NULL,'San Jose','CA','95113','pickup',1),(14,12,'500 El Camino Real',NULL,'Santa Clara','CA','95050','home',1),(15,13,'400 Castro St',NULL,'Mountain View','CA','94041','pickup',1),(16,14,'600 University Ave',NULL,'Palo Alto','CA','94301','home',1),(17,15,'1 Infinite Loop',NULL,'Cupertino','CA','95014','pickup',1),(18,34,'One Washington Square','','San Jose','CA','95123','pickup',1);
 /*!40000 ALTER TABLE `addresses` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,7 +174,7 @@ CREATE TABLE `listing_images` (
   PRIMARY KEY (`image_id`),
   KEY `listing_id` (`listing_id`),
   CONSTRAINT `listing_images_ibfk_1` FOREIGN KEY (`listing_id`) REFERENCES `listings` (`listing_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -185,7 +183,7 @@ CREATE TABLE `listing_images` (
 
 LOCK TABLES `listing_images` WRITE;
 /*!40000 ALTER TABLE `listing_images` DISABLE KEYS */;
-INSERT INTO `listing_images` VALUES (1,1,'laptop1.jpg'),(2,1,'laptop2.jpg'),(3,2,'drill1.jpg'),(4,3,'basketball1.jpg'),(5,3,'basketball2.jpg'),(6,4,'tent1.jpg'),(7,5,'blender1.jpg'),(8,6,'ladder1.jpg'),(9,7,'camera1.jpg'),(10,7,'camera2.jpg'),(11,8,'ps5_1.jpg'),(12,9,'speaker1.jpg'),(13,10,'kayak1.jpg'),(14,10,'kayak2.jpg');
+INSERT INTO `listing_images` VALUES (1,1,'laptop1.jpg'),(2,1,'laptop2.jpg'),(3,2,'drill1.jpg'),(4,3,'basketball1.jpg'),(5,3,'basketball2.jpg'),(6,4,'tent1.jpg'),(7,5,'blender1.jpg'),(8,6,'ladder1.jpg'),(9,7,'camera1.jpg'),(10,7,'camera2.jpg'),(11,8,'ps5_1.jpg'),(12,9,'speaker1.jpg'),(13,10,'kayak1.jpg'),(14,10,'kayak2.jpg'),(15,11,'https://turboant.com/cdn/shop/files/turboant_m10_pro_commuting_electric_scooters.jpg?crop=center&height=1680&v=1776156151&width=1680'),(16,12,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgBBkB7sb61Gv25rzxGHFNl33XQ8LLSgUyYw&s');
 /*!40000 ALTER TABLE `listing_images` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -205,12 +203,15 @@ CREATE TABLE `listings` (
   `price` decimal(10,2) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `availability` tinyint(1) DEFAULT NULL,
+  `address_id` int DEFAULT NULL,
   PRIMARY KEY (`listing_id`),
   KEY `user_id` (`user_id`),
   KEY `category_id` (`category_id`),
+  KEY `fk_listings_addresses` (`address_id`),
+  CONSTRAINT `fk_listings_addresses` FOREIGN KEY (`address_id`) REFERENCES `addresses` (`address_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `listings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `listings_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -219,7 +220,7 @@ CREATE TABLE `listings` (
 
 LOCK TABLES `listings` WRITE;
 /*!40000 ALTER TABLE `listings` DISABLE KEYS */;
-INSERT INTO `listings` VALUES (1,1,1,'Laptop','Lightweight laptop for work and school',25.00,'2026-03-17 03:21:13',1),(2,2,2,'Power Drill','Cordless drill with battery included',10.00,'2026-03-17 03:21:13',1),(3,3,3,'Basketball Hoop','Adjustable outdoor hoop',12.00,'2026-03-17 03:21:13',1),(4,4,4,'Camping Tent','4-person waterproof tent',8.00,'2026-03-17 03:21:13',1),(5,5,5,'Blender','High-speed blender for smoothies',6.50,'2026-03-17 03:21:13',1),(6,6,6,'Ladder','10ft aluminum ladder',7.00,'2026-03-17 03:21:13',0),(7,7,7,'DSLR Camera','Canon camera with lens kit',30.00,'2026-03-17 03:21:13',1),(8,8,8,'PlayStation 5','Console with one controller',22.00,'2026-03-17 03:21:13',1),(9,1,9,'Bluetooth Speaker','Portable speaker with deep bass',5.00,'2026-03-17 03:21:13',1),(10,2,10,'Kayak','Single-person kayak for lakes',18.00,'2026-03-17 03:21:13',0);
+INSERT INTO `listings` VALUES (1,1,1,'Laptop','Lightweight laptop for work and school',25.00,'2026-03-17 03:21:13',1,NULL),(2,2,2,'Power Drill','Cordless drill with battery included',10.00,'2026-03-17 03:21:13',1,NULL),(3,3,3,'Basketball Hoop','Adjustable outdoor hoop',12.00,'2026-03-17 03:21:13',1,NULL),(4,4,4,'Camping Tent','4-person waterproof tent',8.00,'2026-03-17 03:21:13',1,NULL),(5,5,5,'Blender','High-speed blender for smoothies',6.50,'2026-03-17 03:21:13',1,NULL),(6,6,6,'Ladder','10ft aluminum ladder',7.00,'2026-03-17 03:21:13',0,NULL),(7,7,7,'DSLR Camera','Canon camera with lens kit',30.00,'2026-03-17 03:21:13',1,NULL),(8,8,8,'PlayStation 5','Console with one controller',22.00,'2026-03-17 03:21:13',1,NULL),(9,1,9,'Bluetooth Speaker','Portable speaker with deep bass',5.00,'2026-03-17 03:21:13',1,NULL),(10,2,10,'Kayak','Single-person kayak for lakes',18.00,'2026-03-17 03:21:13',0,NULL),(11,34,2,'Scooter','New Razor Scooter\n\n[LENDR_META]\npricingUnit=day\npaymentMethods=cash\ncontactMethod=email\ncontactInfo=lendr.services@gmail.com\nfulfillmentMethod=pickup',10.00,'2026-04-28 20:02:03',1,NULL),(12,34,3,'Bike','Old but still good!',12.00,'2026-04-29 04:12:06',1,18);
 /*!40000 ALTER TABLE `listings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -470,7 +471,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `gov_id` (`gov_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -479,7 +480,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'','','alice.johnson@example.com','408-555-1001','hash_a91d2',NULL,1,'GOV1001','2026-03-15 23:43:20'),(2,'','','brian.smith@example.com','408-555-1002','hash_b38fa','token_1x92ab',0,'GOV1002','2026-03-15 23:43:20'),(3,'','','carla.gomez@example.com','408-555-1003','hash_c21de',NULL,1,'GOV1003','2026-03-15 23:43:20'),(4,'','','david.lee@example.com','408-555-1004','hash_d82ac','token_7z31pq',0,'GOV1004','2026-03-15 23:43:20'),(5,'','','emma.brown@example.com','408-555-1005','hash_e9af2',NULL,1,'GOV1005','2026-03-15 23:43:20'),(6,'','','frank.wilson@example.com','408-555-1006','hash_f34bc','token_8lm22x',0,'GOV1006','2026-03-15 23:43:20'),(7,'','','grace.kim@example.com','408-555-1007','hash_g72df',NULL,1,'GOV1007','2026-03-15 23:43:20'),(8,'','','henry.davis@example.com','408-555-1008','hash_h18cd','token_5k12nv',0,'GOV1008','2026-03-15 23:43:20'),(9,'','','isabella.martinez@example.com','408-555-1009','hash_i29ab',NULL,1,'GOV1009','2026-03-15 23:43:20'),(10,'','','jack.thompson@example.com','408-555-1010','hash_j93ed',NULL,1,'GOV1010','2026-03-15 23:43:20'),(11,'','','karen.white@example.com','408-555-1011','hash_k02ff','token_2ab44y',0,'GOV1011','2026-03-15 23:43:20'),(12,'','','liam.anderson@example.com','408-555-1012','hash_l44bc',NULL,1,'GOV1012','2026-03-15 23:43:20'),(13,'','','maya.patel@example.com','408-555-1013','hash_m77de',NULL,1,'GOV1013','2026-03-15 23:43:20'),(14,'','','noah.clark@example.com','408-555-1014','hash_n62aa','token_4mn77q',0,'GOV1014','2026-03-15 23:43:20'),(15,'','','olivia.harris@example.com','408-555-1015','hash_o11ff',NULL,1,'GOV1015','2026-03-15 23:43:20'),(16,'test1','tester','fakeemail@gmail.com','999-999-9999','$2a$10$S8WjIIxNTypz9Gzh8GXktO4SoGoGy3P7Bje8kEx5jhUbNLXbUgK66','',0,'y1234','2026-04-12 03:40:32');
+INSERT INTO `users` VALUES (1,'','','alice.johnson@example.com','408-555-1001','hash_a91d2',NULL,1,'GOV1001','2026-03-15 23:43:20'),(2,'','','brian.smith@example.com','408-555-1002','hash_b38fa','token_1x92ab',0,'GOV1002','2026-03-15 23:43:20'),(3,'','','carla.gomez@example.com','408-555-1003','hash_c21de',NULL,1,'GOV1003','2026-03-15 23:43:20'),(4,'','','david.lee@example.com','408-555-1004','hash_d82ac','token_7z31pq',0,'GOV1004','2026-03-15 23:43:20'),(5,'','','emma.brown@example.com','408-555-1005','hash_e9af2',NULL,1,'GOV1005','2026-03-15 23:43:20'),(6,'','','frank.wilson@example.com','408-555-1006','hash_f34bc','token_8lm22x',0,'GOV1006','2026-03-15 23:43:20'),(7,'','','grace.kim@example.com','408-555-1007','hash_g72df',NULL,1,'GOV1007','2026-03-15 23:43:20'),(8,'','','henry.davis@example.com','408-555-1008','hash_h18cd','token_5k12nv',0,'GOV1008','2026-03-15 23:43:20'),(9,'','','isabella.martinez@example.com','408-555-1009','hash_i29ab',NULL,1,'GOV1009','2026-03-15 23:43:20'),(10,'','','jack.thompson@example.com','408-555-1010','hash_j93ed',NULL,1,'GOV1010','2026-03-15 23:43:20'),(11,'','','karen.white@example.com','408-555-1011','hash_k02ff','token_2ab44y',0,'GOV1011','2026-03-15 23:43:20'),(12,'','','liam.anderson@example.com','408-555-1012','hash_l44bc',NULL,1,'GOV1012','2026-03-15 23:43:20'),(13,'','','maya.patel@example.com','408-555-1013','hash_m77de',NULL,1,'GOV1013','2026-03-15 23:43:20'),(14,'','','noah.clark@example.com','408-555-1014','hash_n62aa','token_4mn77q',0,'GOV1014','2026-03-15 23:43:20'),(15,'','','olivia.harris@example.com','408-555-1015','hash_o11ff',NULL,1,'GOV1015','2026-03-15 23:43:20'),(16,'test1','tester','fakeemail@gmail.com','999-999-9999','$2a$10$S8WjIIxNTypz9Gzh8GXktO4SoGoGy3P7Bje8kEx5jhUbNLXbUgK66','',0,'y1234','2026-04-12 03:40:32'),(17,'Test2','Tester','Testing@gmail.com','133123123','$2a$10$YO1Lr.4yfXK.A2qvTFSJL.oTsv9NLQrknT7E4J3B3rR0WelAyiD1S','',0,'123','2026-04-14 18:24:17'),(21,'Test123','1234','123233@gmail.com','123123123123','$2a$10$ROrH3lpAOY.e9mjrciBwPOGVaeBmOLshkwxUzgqByFAaAp12WeItS','',0,'12312312312312','2026-04-14 18:41:29'),(22,'mark','saver','mark@gmail.com','111111111','$2a$10$ebdbxSp1rCBUZ8nOGmft/ehpuGqxhM/KW/2Hty2Hug8G.HSmc6eT2','',0,'111','2026-04-14 22:44:02'),(34,'James','Clark','lendr.services@gmail.com','4082222222','$2a$10$h8cgPS/zbFhQqH9xOhvNluQfJlSYFjXpZCbBXBKg5Pcuaztph0ibi',NULL,1,'G1231231','2026-04-28 19:52:14');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -492,4 +493,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-04-12  3:52:22
+-- Dump completed on 2026-04-29 14:58:14
