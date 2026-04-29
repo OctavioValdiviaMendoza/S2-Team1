@@ -19,6 +19,8 @@ public class Listing {
     private String contactMethod;
     private String contactInfo;
     private String fulfillmentMethod;
+    private int addressId;
+
 
     public Listing() {}
 
@@ -161,5 +163,13 @@ public class Listing {
 
     public void setFulfillmentMethod(String fulfillmentMethod) {
         this.fulfillmentMethod = fulfillmentMethod;
+    }
+    
+    public int getAddressId() {
+        return addressId;
+    }
+
+    public void setAddressId(int addressId) {
+        this.addressId = addressId;
     }
 }
