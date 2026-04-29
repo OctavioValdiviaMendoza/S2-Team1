@@ -2,12 +2,19 @@
 <%@ page import="java.util.List" %>
 <%@ page import="model.Listing" %>
 <%@ page import="model.Category" %>
+<%@ page import="model.User" %>
 <%
     String contextPath = request.getContextPath();
     String selectedCategoryId = request.getParameter("categoryId");
     String searchTerm = request.getParameter("search");
     List<Category> categories = (List<Category>) request.getAttribute("categories");
     List<Listing> listings = (List<Listing>) request.getAttribute("listings");
+
+    User loggedInUser = (User) session.getAttribute("user");
+    boolean isLoggedIn = session.getAttribute("userId") != null && loggedInUser != null;
+    String firstName = isLoggedIn && loggedInUser.getFirstName() != null && !loggedInUser.getFirstName().trim().isEmpty()
+        ? loggedInUser.getFirstName()
+        : "User";
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,26 +32,46 @@
 
     <!-- NAVBAR -->
     <div class="navbar">
-        <a href="<%= contextPath %>/views/JDBCDemo.jsp" class="logo">Lendr</a>
+        <a href="<%= contextPath %>/BrowseServlet" class="logo">Lendr</a>
+
         <div class="nav-center">
             <div class="search-bar">
                 <input type="text" placeholder="Search items..." value="<%= searchTerm != null ? searchTerm : "" %>">
-                <button class="search-btn">Search</button>
+                <button class="search-btn" type="button">Search</button>
             </div>
         </div>
+
         <div class="nav-buttons">
-            <button class="nav-btn login-btn">Login</button>
-            <button class="nav-btn signup-btn">Sign Up</button>
+            <% if (!isLoggedIn) { %>
+                <button class="nav-btn login-btn" type="button">Login</button>
+                <button class="nav-btn signup-btn" type="button">Sign Up</button>
+            <% } else { %>
+                <div class="profile-menu">
+                    <span class="welcome-text">Hi, <%= firstName %></span>
+
+                    <button class="profile-trigger" type="button" id="profileMenuButton" aria-haspopup="true" aria-expanded="false">
+                        <span class="profile-avatar">👤</span>
+                    </button>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <a href="javascript:void(0);" class="dropdown-item">My Listings</a>
+                        <a href="javascript:void(0);" class="dropdown-item">My Rentings</a>
+                        <a href="<%= contextPath %>/SettingsServlet" class="dropdown-item">Account Settings</a>
+                        <a href="<%= contextPath %>/LogoutServlet" class="dropdown-item logout-item">Log Out</a>
+                    </div>
+
+                </div>
+            <% } %>
         </div>
     </div>
 
     <!-- MAIN CONTENT -->
     <div class="browse-container">
-        
+
         <!-- SIDEBAR FILTERS -->
         <aside class="sidebar">
             <h3>Filters</h3>
-            
+
             <div class="filter-group">
                 <label for="category">Category</label>
                 <select id="category">
@@ -52,7 +79,9 @@
                     <% if (categories != null) {
                         for (Category category : categories) {
                     %>
-                    <option value="<%= category.getCategoryId() %>" <%= String.valueOf(category.getCategoryId()).equals(selectedCategoryId) ? "selected" : "" %>><%= category.getCategoryName() %></option>
+                    <option value="<%= category.getCategoryId() %>" <%= String.valueOf(category.getCategoryId()).equals(selectedCategoryId) ? "selected" : "" %>>
+                        <%= category.getCategoryName() %>
+                    </option>
                     <%  }
                        }
                     %>
@@ -61,7 +90,7 @@
 
             <div class="filter-group">
                 <label for="price-range">Price Range</label>
-                <input type="range" id="price-range" min="0" max="500" step="10">
+                <input type="range" id="price-range" min="0" max="500" step="10" value="500">
                 <span class="price-display">$0 - $500</span>
             </div>
 
@@ -81,8 +110,8 @@
                 </select>
             </div>
 
-            <button class="filter-btn">Apply Filters</button>
-            <button class="filter-btn clear-btn">Clear All</button>
+            <button class="filter-btn" id="applyFiltersBtn" type="button">Apply Filters</button>
+            <button class="filter-btn clear-btn" id="clearFiltersBtn" type="button">Clear All</button>
         </aside>
 
         <!-- MAIN LISTINGS AREA -->
@@ -97,7 +126,6 @@
                 </select>
             </div>
 
-            
             <!-- LISTINGS GRID -->
             <div class="listings-grid">
                 <% if (listings != null && !listings.isEmpty()) {
@@ -111,7 +139,7 @@
                                 ? imageUrl
                                 : "https://via.placeholder.com/250x250?text=" + title.replaceAll(" ", "+");
                 %>
-                
+
                 <!-- LISTING CARD -->
                 <div class="item-card">
                     <div class="item-image">
@@ -124,9 +152,9 @@
                         <p class="item-location">📍 <%= location %></p>
                         <p class="item-category"><%= categoryName %></p>
                         <p class="item-description"><%= description.length() > 50 ? description.substring(0, 50) + "..." : description %></p>
-                        <a href="<%= request.getContextPath() %>/ListingDetailServlet?listingId=<%= listing.getListingId() %>">
-						    <button class="view-btn">View Details</button>
-						</a>
+                        <a class="view-btn" href="<%= contextPath %>/ListingDetailServlet?listingId=<%= listing.getListingId() %>">
+                            View Details
+                        </a>
                     </div>
                 </div>
 
@@ -140,92 +168,131 @@
                 <%
                     }
                 %>
-
             </div>
 
             <!-- PAGINATION -->
             <div class="pagination">
-                <button class="page-btn">Previous</button>
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">3</button>
-                <button class="page-btn">Next</button>
+                <button class="page-btn" type="button">Previous</button>
+                <button class="page-btn active" type="button">1</button>
+                <button class="page-btn" type="button">2</button>
+                <button class="page-btn" type="button">3</button>
+                <button class="page-btn" type="button">Next</button>
             </div>
-
         </main>
-
     </div>
 
     <!-- FOOTER -->
     <footer class="footer">
-        <p>&copy; 2024 Lendr. All rights reserved.</p>
+        <p>&copy; 2026 Lendr. All rights reserved.</p>
     </footer>
 
     <script>
         // Price range slider
         const priceRange = document.getElementById('price-range');
         const priceDisplay = document.querySelector('.price-display');
-        priceRange.addEventListener('input', function() {
-        		priceDisplay.textContent = '$0 - $' + this.value;
-        });
+
+        if (priceRange && priceDisplay) {
+            priceRange.addEventListener('input', function() {
+                priceDisplay.textContent = '$0 - $' + this.value;
+            });
+        }
 
         // Navigation buttons
-        document.querySelector('.login-btn').addEventListener('click', function() {
-            window.location.href = '<%= contextPath %>/views/Login.jsp';
-        });
-        document.querySelector('.signup-btn').addEventListener('click', function() {
-            window.location.href = '<%= contextPath %>/views/SignUp.jsp';
-        });
+        const loginBtn = document.querySelector('.login-btn');
+        const signupBtn = document.querySelector('.signup-btn');
+
+        if (loginBtn) {
+            loginBtn.addEventListener('click', function() {
+                window.location.href = '<%= contextPath %>/views/Login.jsp';
+            });
+        }
+
+        if (signupBtn) {
+            signupBtn.addEventListener('click', function() {
+                window.location.href = '<%= contextPath %>/views/SignUp.jsp';
+            });
+        }
+
+        // Profile dropdown
+        const profileMenuButton = document.getElementById('profileMenuButton');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileMenuButton && profileDropdown) {
+            profileMenuButton.addEventListener('click', function(event) {
+                event.stopPropagation();
+                profileDropdown.classList.toggle('show');
+
+                const expanded = profileDropdown.classList.contains('show');
+                profileMenuButton.setAttribute('aria-expanded', expanded);
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.profile-menu')) {
+                    profileDropdown.classList.remove('show');
+                    profileMenuButton.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
 
         // Search functionality
-        document.querySelector('.search-btn').addEventListener('click', function() {
-            const searchTerm = document.querySelector('.search-bar input').value;
-            if (searchTerm) {
-                window.location.href = '<%= contextPath %>/BrowseServlet?search=' + encodeURIComponent(searchTerm);
-            } else {
-                window.location.href = '<%= contextPath %>/BrowseServlet';
-            }
-        });
+        const searchBtn = document.querySelector('.search-btn');
+        const searchInput = document.querySelector('.search-bar input');
 
-        // Filter apply
-        document.querySelector('.filter-btn').addEventListener('click', function() {
-            const categoryId = document.getElementById('category').value;
-            if (categoryId) {
-                window.location.href = '<%= contextPath %>/BrowseServlet?categoryId=' + encodeURIComponent(categoryId);
-            } else {
-                window.location.href = '<%= contextPath %>/BrowseServlet';
-            }
-        });
+        if (searchBtn && searchInput) {
+            searchBtn.addEventListener('click', function() {
+                const term = searchInput.value.trim();
+                if (term) {
+                    window.location.href = '<%= contextPath %>/BrowseServlet?search=' + encodeURIComponent(term);
+                } else {
+                    window.location.href = '<%= contextPath %>/BrowseServlet';
+                }
+            });
+
+            searchInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    searchBtn.click();
+                }
+            });
+        }
+
+        // Apply filters
+        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', function() {
+                const categoryId = document.getElementById('category').value;
+                if (categoryId) {
+                    window.location.href = '<%= contextPath %>/BrowseServlet?categoryId=' + encodeURIComponent(categoryId);
+                } else {
+                    window.location.href = '<%= contextPath %>/BrowseServlet';
+                }
+            });
+        }
 
         // Clear filters
-        document.querySelector('.clear-btn').addEventListener('click', function() {
-            document.getElementById('category').value = '';
-            document.getElementById('condition').value = '';
-            document.getElementById('location').value = '';
-            document.getElementById('price-range').value = '500';
-            priceDisplay.textContent = '$0 - $500';
-            window.location.href = '<%= contextPath %>/BrowseServlet';
-        });
-
-        // View details function
-        function viewListingDetails(listingId) {
-            window.location.href = '<%= contextPath %>/ListingDetailServlet?listingId=' + listingId;
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', function() {
+                document.getElementById('category').value = '';
+                document.getElementById('condition').value = '';
+                document.getElementById('location').value = '';
+                document.getElementById('price-range').value = '500';
+                priceDisplay.textContent = '$0 - $500';
+                window.location.href = '<%= contextPath %>/BrowseServlet';
+            });
         }
-        
-        
     </script>
-    
+
     <%
-    String successMessage = (String) session.getAttribute("successMessage");
-    if (successMessage != null) {
-		%>
-		<script>
-		    alert("<%= successMessage %>");
-		</script>
-		<%
-		        session.removeAttribute("successMessage"); // prevent repeat
-    }
-	%>
+        String successMessage = (String) session.getAttribute("successMessage");
+        if (successMessage != null) {
+    %>
+        <script>
+            alert("<%= successMessage %>");
+        </script>
+    <%
+            session.removeAttribute("successMessage");
+        }
+    %>
 
 </body>
 </html>

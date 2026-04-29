@@ -1,11 +1,20 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.Listing" %>
+<%@ page import="model.User" %>
 <%
+    String contextPath = request.getContextPath();
+
     Listing listing = (Listing) request.getAttribute("listing");
     if (listing == null) {
-        response.sendRedirect(request.getContextPath() + "/BrowseServlet");
+        response.sendRedirect(contextPath + "/BrowseServlet");
         return;
     }
+
+    User loggedInUser = (User) session.getAttribute("user");
+    boolean isLoggedIn = session.getAttribute("userId") != null && loggedInUser != null;
+    String firstName = isLoggedIn && loggedInUser.getFirstName() != null && !loggedInUser.getFirstName().trim().isEmpty()
+        ? loggedInUser.getFirstName()
+        : "User";
 %>
 <!DOCTYPE html>
 <html>
@@ -19,13 +28,38 @@
 </head>
 <body>
 
-    <nav class="navbar">
-        <a class="logo" href="<%= request.getContextPath() %>/BrowseServlet">Lendr</a>
-        <div class="nav-links">
-            <a href="<%= request.getContextPath() %>/BrowseServlet">Browse</a>
-            <a href="<%= request.getContextPath() %>/SettingsServlet">Settings</a>
-        </div>
-    </nav>
+    <div class="navbar">
+	    <a href="<%= contextPath %>/BrowseServlet" class="logo">Lendr</a>
+	
+	    <div class="nav-center">
+	        <div class="search-bar">
+	            <input type="text" id="listingSearchInput" placeholder="Search items...">
+	            <button class="search-btn" type="button" id="listingSearchBtn">Search</button>
+	        </div>
+	    </div>
+	
+	    <div class="nav-buttons">
+	        <% if (!isLoggedIn) { %>
+	            <button class="nav-btn login-btn" type="button">Login</button>
+	            <button class="nav-btn signup-btn" type="button">Sign Up</button>
+	        <% } else { %>
+	            <div class="profile-menu">
+	                <span class="welcome-text">Hi, <%= firstName %></span>
+	
+	                <button class="profile-trigger" type="button" id="profileMenuButton" aria-haspopup="true" aria-expanded="false">
+	                    <span class="profile-avatar">👤</span>
+	                </button>
+	
+	                <div class="profile-dropdown" id="profileDropdown">
+	                    <a href="javascript:void(0);" class="dropdown-item">My Listings</a>
+	                    <a href="javascript:void(0);" class="dropdown-item">My Rentings</a>
+	                    <a href="<%= contextPath %>/SettingsServlet" class="dropdown-item">Account Settings</a>
+	                    <a href="<%= contextPath %>/LogoutServlet" class="dropdown-item logout-item">Log Out</a>
+	                </div>
+	            </div>
+	        <% } %>
+	    </div>
+	</div>
 
     <main class="detail-shell">
         <div class="detail-card">
@@ -120,6 +154,62 @@
 
         </div>
     </main>
+    
+    <script>
+	    const loginBtn = document.querySelector('.login-btn');
+	    const signupBtn = document.querySelector('.signup-btn');
+	    const searchBtn = document.getElementById('listingSearchBtn');
+	    const searchInput = document.getElementById('listingSearchInput');
+	
+	    if (loginBtn) {
+	        loginBtn.addEventListener('click', function() {
+	            window.location.href = '<%= contextPath %>/views/Login.jsp';
+	        });
+	    }
+	
+	    if (signupBtn) {
+	        signupBtn.addEventListener('click', function() {
+	            window.location.href = '<%= contextPath %>/views/SignUp.jsp';
+	        });
+	    }
+	
+	    if (searchBtn && searchInput) {
+	        searchBtn.addEventListener('click', function() {
+	            const searchValue = searchInput.value.trim();
+	            if (searchValue) {
+	                window.location.href = '<%= contextPath %>/BrowseServlet?search=' + encodeURIComponent(searchValue);
+	            } else {
+	                window.location.href = '<%= contextPath %>/BrowseServlet';
+	            }
+	        });
+	
+	        searchInput.addEventListener('keypress', function(e) {
+	            if (e.key === 'Enter') {
+	                searchBtn.click();
+	            }
+	        });
+	    }
+	
+	    const profileMenuButton = document.getElementById('profileMenuButton');
+	    const profileDropdown = document.getElementById('profileDropdown');
+	
+	    if (profileMenuButton && profileDropdown) {
+	        profileMenuButton.addEventListener('click', function(e) {
+	            e.stopPropagation();
+	            profileDropdown.classList.toggle('show');
+	
+	            const isExpanded = profileDropdown.classList.contains('show');
+	            profileMenuButton.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+	        });
+	
+	        document.addEventListener('click', function(e) {
+	            if (!profileDropdown.contains(e.target) && !profileMenuButton.contains(e.target)) {
+	                profileDropdown.classList.remove('show');
+	                profileMenuButton.setAttribute('aria-expanded', 'false');
+	            }
+	        });
+	    }
+	</script>
 
 </body>
 </html>

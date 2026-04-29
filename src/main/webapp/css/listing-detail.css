@@ -5,14 +5,17 @@ body {
     color: #333;
 }
 
-/* NAVBAR (reuse style) */
+/* NAVBAR */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 40px;
     background: white;
-    box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .logo {
@@ -22,10 +25,162 @@ body {
     text-decoration: none;
 }
 
-.nav-links a {
-    margin-left: 15px;
+.nav-center {
+    flex: 1;
+    margin: 0 40px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 8px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.search-bar input:focus {
+    border-color: #4f46e5;
+}
+
+.search-btn {
+    padding: 10px 24px;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+
+.search-btn:hover {
+    background: #3730a3;
+}
+
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.login-btn {
+    background: white;
     color: #4f46e5;
+    border: 2px solid #4f46e5;
+}
+
+.login-btn:hover {
+    background: #4f46e5;
+    color: white;
+}
+
+.signup-btn {
+    background: #fbbf24;
+    color: #111;
+}
+
+.signup-btn:hover {
+    background: #f59e0b;
+}
+
+/* PROFILE MENU */
+.profile-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.welcome-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+}
+
+.profile-trigger {
+    width: 42px;
+    height: 42px;
+    border: 2px solid #4f46e5;
+    border-radius: 50%;
+    background: white;
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 0;
+}
+
+.profile-trigger:hover {
+    background: #4f46e5;
+    color: white;
+}
+
+.profile-avatar {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 190px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.12);
+    border: 1px solid #e5e7eb;
+    padding: 8px 0;
+    display: none;
+    z-index: 200;
+}
+
+.profile-dropdown.show {
+    display: block;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    color: #333;
     text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    background: white;
+    transition: background 0.2s, color 0.2s;
+}
+
+.dropdown-item:hover {
+    background: #f5f3ff;
+    color: #4f46e5;
+}
+
+.logout-item {
+    color: #dc2626;
+}
+
+.logout-item:hover {
+    background: #fef2f2;
+    color: #b91c1c;
 }
 
 /* MAIN LAYOUT */
@@ -39,7 +194,7 @@ body {
     background: white;
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* TOP SECTION */
@@ -156,5 +311,60 @@ body {
 @media (max-width: 900px) {
     .detail-top {
         flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 20px;
+    }
+
+    .nav-center {
+        flex-basis: 100%;
+        margin: 10px 0;
+    }
+
+    .search-bar {
+        flex-direction: column;
+    }
+
+    .profile-menu {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        padding: 10px;
+    }
+
+    .logo {
+        font-size: 24px;
+    }
+
+    .nav-buttons {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .nav-btn {
+        flex: 1;
+    }
+
+    .profile-menu {
+        width: 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .welcome-text {
+        font-size: 13px;
+    }
+
+    .profile-dropdown {
+        right: 0;
+        left: auto;
     }
 }
