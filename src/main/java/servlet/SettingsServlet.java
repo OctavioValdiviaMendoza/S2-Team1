@@ -15,12 +15,10 @@ import model.Booking;
 import service.UserService;
 import service.ListingService;
 
-
 @WebServlet("/SettingsServlet")
 public class SettingsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private UserService userService = new UserService();
-    
 
     public SettingsServlet() {
         super();
@@ -29,24 +27,23 @@ public class SettingsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession(false);
-        
-        // Check if user is logged in
+
         if (session == null || session.getAttribute("userId") == null) {
             response.sendRedirect("views/Login.jsp");
             return;
         }
-        
+
         int userId = (int) session.getAttribute("userId");
         String action = request.getParameter("action");
-        
-        if (action == null) {
+
+        if (action == null || action.isEmpty()) {
             action = "profile";
         }
-        
+
         try {
-            switch(action) {
+            switch (action) {
                 case "profile":
                     loadProfileSettings(userId, request, response);
                     break;
@@ -58,30 +55,31 @@ public class SettingsServlet extends HttpServlet {
                     break;
                 default:
                     loadProfileSettings(userId, request, response);
+                    break;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error in SettingsServlet: " + e);
             request.setAttribute("error", "An error occurred while loading settings");
-            request.getRequestDispatcher("views/Settings.jsp").forward(request, response);
+            loadProfileSettings(userId, request, response);
         }
     }
-    
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession(false);
-        
+
         if (session == null || session.getAttribute("userId") == null) {
             response.sendRedirect("views/Login.jsp");
             return;
         }
-        
+
         int userId = (int) session.getAttribute("userId");
         String action = request.getParameter("action");
-        
+
         try {
-            switch(action) {
+            switch (action) {
                 case "changePassword":
                     handleChangePassword(userId, request, response);
                     break;
@@ -96,159 +94,159 @@ public class SettingsServlet extends HttpServlet {
                     break;
                 default:
                     response.sendRedirect("SettingsServlet?action=profile&error=Invalid action");
+                    break;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error in SettingsServlet POST: " + e);
             response.sendRedirect("SettingsServlet?action=profile&error=An error occurred");
         }
     }
-    
-    private void loadProfileSettings(int userId, HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
+
+    private void loadCommonSettingsData(int userId, HttpServletRequest request) {
         User user = userService.getUserById(userId);
         String paymentMethod = UserService.getPaymentMethod(userId);
-        
+        List<Listing> listings = ListingService.getListingsByUserId(userId);
+        List<Booking> pendingRequests = UserService.getPendingRentalRequests(userId);
+        List<Booking> processedRequests = UserService.getProcessedRentalRequests(userId);
+
         request.setAttribute("user", user);
         request.setAttribute("paymentMethod", paymentMethod);
-        request.setAttribute("verificationStatus", user != null && user.isVerifiedStatus() ? "Verified" : "Not Verified");
+        request.setAttribute("verificationStatus",
+                user != null && user.isVerifiedStatus() ? "Verified" : "Not Verified");
+        request.setAttribute("listings", listings);
+        request.setAttribute("pendingRequests", pendingRequests);
+        request.setAttribute("processedRequests", processedRequests);
+    }
+
+    private void loadProfileSettings(int userId, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        loadCommonSettingsData(userId, request);
+        request.setAttribute("activeTab", "profile");
         request.getRequestDispatcher("views/Settings.jsp").forward(request, response);
     }
-    
+
     private void loadUserListings(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        List<Listing> listings = ListingService.getListingsByUserId(userId);
-        User user = userService.getUserById(userId);
-        
-        request.setAttribute("user", user);
-        request.setAttribute("listings", listings);
+        loadCommonSettingsData(userId, request);
         request.setAttribute("activeTab", "listings");
         request.getRequestDispatcher("views/Settings.jsp").forward(request, response);
     }
-    
+
     private void loadRentalRequests(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        List<Booking> pendingRequests = UserService.getPendingRentalRequests(userId);
-        List<Booking> processedRequests = UserService.getProcessedRentalRequests(userId);
-        User user = userService.getUserById(userId);
-        
-        request.setAttribute("user", user);
-        request.setAttribute("pendingRequests", pendingRequests);
-        request.setAttribute("processedRequests", processedRequests);
+        loadCommonSettingsData(userId, request);
         request.setAttribute("activeTab", "requests");
         request.getRequestDispatcher("views/Settings.jsp").forward(request, response);
     }
-    
+
     private void handleChangePassword(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String currentPassword = request.getParameter("currentPassword");
         String newPassword = request.getParameter("newPassword");
         String confirmPassword = request.getParameter("confirmPassword");
-        
-        // Validate inputs
+
         if (currentPassword == null || currentPassword.isEmpty() ||
             newPassword == null || newPassword.isEmpty() ||
             confirmPassword == null || confirmPassword.isEmpty()) {
-            
+
             request.setAttribute("error", "All password fields are required");
             loadProfileSettings(userId, request, response);
             return;
         }
-        
+
         if (!newPassword.equals(confirmPassword)) {
             request.setAttribute("error", "New passwords do not match");
             loadProfileSettings(userId, request, response);
             return;
         }
-        
+
         if (newPassword.length() < 6) {
             request.setAttribute("error", "Password must be at least 6 characters");
             loadProfileSettings(userId, request, response);
             return;
         }
-        
-        // Verify current password and update
+
         boolean success = userService.changePassword(userId, currentPassword, newPassword);
-        
+
         if (success) {
             request.setAttribute("message", "Password changed successfully");
         } else {
             request.setAttribute("error", "Current password is incorrect");
         }
-        
+
         loadProfileSettings(userId, request, response);
     }
-    
+
     private void handleDeleteAccount(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String confirmDelete = request.getParameter("confirmDelete");
-        
+
         if (confirmDelete == null || !confirmDelete.equals("yes")) {
             request.setAttribute("error", "Please confirm account deletion");
             loadProfileSettings(userId, request, response);
             return;
         }
-        
+
         boolean success = UserService.deleteAccount(userId);
-        
+
         if (success) {
-            HttpSession session = request.getSession();
-            session.invalidate();
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
             response.sendRedirect("views/Login.jsp?message=Account deleted successfully");
         } else {
             request.setAttribute("error", "Failed to delete account. Please try again.");
             loadProfileSettings(userId, request, response);
         }
     }
-    
+
     private void handleAcceptRequest(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String bookingIdStr = request.getParameter("bookingId");
-        
+
         if (bookingIdStr == null || bookingIdStr.isEmpty()) {
             response.sendRedirect("SettingsServlet?action=requests&error=Invalid booking");
             return;
         }
-        
+
         try {
             int bookingId = Integer.parseInt(bookingIdStr);
             boolean success = UserService.updateBookingStatus(bookingId, userId, "confirmed");
-            
+
             if (success) {
                 response.sendRedirect("SettingsServlet?action=requests&message=Rental request accepted");
             } else {
                 response.sendRedirect("SettingsServlet?action=requests&error=Failed to accept request");
             }
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             response.sendRedirect("SettingsServlet?action=requests&error=Invalid booking ID");
         }
     }
-    
+
     private void handleDenyRequest(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String bookingIdStr = request.getParameter("bookingId");
-        
+
         if (bookingIdStr == null || bookingIdStr.isEmpty()) {
             response.sendRedirect("SettingsServlet?action=requests&error=Invalid booking");
             return;
         }
-        
+
         try {
             int bookingId = Integer.parseInt(bookingIdStr);
             boolean success = UserService.updateBookingStatus(bookingId, userId, "denied");
-            
+
             if (success) {
                 response.sendRedirect("SettingsServlet?action=requests&message=Rental request denied");
             } else {
                 response.sendRedirect("SettingsServlet?action=requests&error=Failed to deny request");
             }
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             response.sendRedirect("SettingsServlet?action=requests&error=Invalid booking ID");
         }
     }
