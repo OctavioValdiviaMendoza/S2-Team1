@@ -48,7 +48,6 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("userId", user.getUserId());
             session.setAttribute("user", user);
-
             session.setAttribute("successMessage", "Hello " + user.getFirstName());
             response.sendRedirect(request.getContextPath() + "/BrowseServlet");
         } else {
