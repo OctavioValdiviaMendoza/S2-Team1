@@ -1,6 +1,7 @@
 package servlet;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,8 +15,8 @@ import service.ListingService;
 @WebServlet("/ListingDetailServlet")
 public class ListingDetailServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    
-    private ListingService listingService = new ListingService();
+
+    private final ListingService listingService = new ListingService();
 
     public ListingDetailServlet() {
         super();
@@ -34,6 +35,7 @@ public class ListingDetailServlet extends HttpServlet {
 
         try {
             int listingId = Integer.parseInt(listingIdParam);
+
             Listing listing = listingService.getListingById(listingId);
 
             if (listing == null) {
@@ -41,9 +43,11 @@ public class ListingDetailServlet extends HttpServlet {
                 return;
             }
 
-            
+            List<String> imageUrls = listingService.getImageUrlsByListingId(listingId);
+
             request.setAttribute("listing", listing);
-            request.setAttribute("imageUrls", listingService.getImageUrlsByListingId(listingId));
+            request.setAttribute("imageUrls", imageUrls);
+
             request.getRequestDispatcher("/views/ListingDetail.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {

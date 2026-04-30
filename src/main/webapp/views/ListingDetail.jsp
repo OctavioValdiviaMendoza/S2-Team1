@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.List" %>
 <%@ page import="model.Listing" %>
 <%@ page import="model.User" %>
 <%
@@ -7,6 +8,8 @@
         response.sendRedirect(request.getContextPath() + "/BrowseServlet");
         return;
     }
+
+    List<String> imageUrls = (List<String>) request.getAttribute("imageUrls");
 
     User loggedInUser = (User) session.getAttribute("user");
     boolean isLoggedIn = (loggedInUser != null);
@@ -29,6 +32,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .gallery-strip {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+        }
+
+        .gallery-thumb {
+            flex: 0 0 auto;
+            width: 92px;
+            height: 92px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+        }
+
+        .gallery-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-empty {
+            margin-top: 12px;
+            color: #6b7280;
+        }
+    </style>
 </head>
 <body>
 
@@ -101,9 +135,35 @@
                         %>
                     </div>
 
-                    <div class="gallery-placeholder">
+                    <div>
                         <h3>Image Gallery</h3>
-                        <p>Placeholder for future scrolling images / thumbnails.</p>
+
+                        <%
+                            if (imageUrls != null && !imageUrls.isEmpty()) {
+                        %>
+                            <div class="gallery-strip">
+                                <%
+                                    for (String url : imageUrls) {
+                                        if (url != null && !url.trim().isEmpty()) {
+                                            String thumbSrc = (url.startsWith("http://") || url.startsWith("https://"))
+                                                    ? url
+                                                    : request.getContextPath() + "/images/" + url;
+                                %>
+                                    <div class="gallery-thumb">
+                                        <img src="<%= thumbSrc %>" alt="<%= listing.getTitle() %> image">
+                                    </div>
+                                <%
+                                        }
+                                    }
+                                %>
+                            </div>
+                        <%
+                            } else {
+                        %>
+                            <p class="gallery-empty">No additional images available.</p>
+                        <%
+                            }
+                        %>
                     </div>
                 </div>
 

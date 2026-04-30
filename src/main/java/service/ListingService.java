@@ -116,6 +116,7 @@ public class ListingService {
         return listingImageService.getPrimaryImageUrlByListingId(listingId);
     }
 
+    
     public void enrichListing(Listing listing) {
         if (listing == null) {
             return;
