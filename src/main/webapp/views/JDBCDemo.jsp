@@ -68,42 +68,5 @@
     </div>
 
 </div>
-
-
-<%
-/* SQL runs but prints nothing */
-
-String db = "team1";
-String user = "root";
-String password = "Mendoza_101!";
-
-try {
-
-java.sql.Connection con;
-Class.forName("com.mysql.jdbc.Driver");
-
-con = DriverManager.getConnection(
-"jdbc:mysql://localhost:3306/team1?autoReconnect=true&useSSL=false",
-user,
-password
-);
-
-Statement stmt = con.createStatement();
-ResultSet rs = stmt.executeQuery("SELECT * FROM team1.listings");
-
-while(rs.next()){
-	System.out.println(rs.getInt(1)+" "+rs.getInt(2)+" "+rs.getInt(3) +" "+ rs.getString(4));
-}
-
-rs.close();
-stmt.close();
-con.close();
-
-} catch(SQLException e) {
-    // do nothing
-}
-
-%>
-
 </body>
 </html>
