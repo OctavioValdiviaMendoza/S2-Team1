@@ -292,6 +292,15 @@
                                     </span>
                                 </p>
                             </div>
+                            <% if ("confirmed".equalsIgnoreCase(booking.getStatus())) { %>
+                                <div class="booking-actions">
+                                    <form action="<%= contextPath %>/SettingsServlet" method="post">
+                                        <input type="hidden" name="action" value="completeRequest">
+                                        <input type="hidden" name="bookingId" value="<%= booking.getBookingId() %>">
+                                        <button type="submit" class="btn btn-success">Mark Completed</button>
+                                    </form>
+                                </div>
+                            <% } %>
                         </div>
                     <% } %>
                 <% } else { %>

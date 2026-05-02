@@ -115,39 +115,62 @@ public class ListingDAO {
     }
 
     public List<Listing> filterListings(Integer categoryId, String keyword, Double maxPrice) {
+        return filterListings(categoryId, keyword, maxPrice, null);
+    }
+
+    public List<Listing> filterListings(Integer categoryId, String keyword, Double maxPrice, String location) {
         List<Listing> listings = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM listings WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
+        boolean hasLocationFilter = location != null && !location.trim().isEmpty();
 
-        if (categoryId != null) {
-            sql.append("AND category_id = ? ");
-            params.add(categoryId);
-        }
+        try (Connection con = DBConnection.getConnection()) {
+            boolean canFilterByLocation = hasLocationFilter && hasTableColumn(con, "listings", "address_id");
+            StringBuilder sql = new StringBuilder("SELECT l.* FROM listings l ");
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append("AND (title LIKE ? OR description LIKE ?) ");
-            String searchTerm = "%" + keyword.trim() + "%";
-            params.add(searchTerm);
-            params.add(searchTerm);
-        }
-
-        if (maxPrice != null) {
-            sql.append("AND price <= ? ");
-            params.add(maxPrice);
-        }
-
-        sql.append("ORDER BY created_at DESC");
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
-
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
+            if (canFilterByLocation) {
+                sql.append("LEFT JOIN addresses a ON l.address_id = a.address_id ");
             }
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    listings.add(mapListing(rs));
+            sql.append("WHERE 1=1 ");
+
+            if (categoryId != null) {
+                sql.append("AND l.category_id = ? ");
+                params.add(categoryId);
+            }
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                sql.append("AND (l.title LIKE ? OR l.description LIKE ?) ");
+                String searchTerm = "%" + keyword.trim() + "%";
+                params.add(searchTerm);
+                params.add(searchTerm);
+            }
+
+            if (maxPrice != null) {
+                sql.append("AND l.price <= ? ");
+                params.add(maxPrice);
+            }
+
+            if (canFilterByLocation) {
+                sql.append("AND (a.city LIKE ? OR a.state LIKE ? OR a.zip LIKE ? OR a.line_1 LIKE ?) ");
+                String locationTerm = "%" + location.trim() + "%";
+                params.add(locationTerm);
+                params.add(locationTerm);
+                params.add(locationTerm);
+                params.add(locationTerm);
+            }
+
+            sql.append("ORDER BY l.created_at DESC");
+
+            try (PreparedStatement ps = con.prepareStatement(sql.toString())) {
+
+                for (int i = 0; i < params.size(); i++) {
+                    ps.setObject(i + 1, params.get(i));
+                }
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        listings.add(mapListing(rs));
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -384,7 +407,26 @@ public class ListingDAO {
         listing.setPrice(rs.getDouble("price"));
         listing.setCreatedAt(rs.getTimestamp("created_at"));
         listing.setAvailability(rs.getBoolean("availability"));
-        listing.setAddressId(rs.getInt("address_id"));
+        if (hasColumn(rs, "address_id")) {
+            listing.setAddressId(rs.getInt("address_id"));
+        }
         return listing;
+    }
+
+    private boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
+        ResultSetMetaData metaData = rs.getMetaData();
+        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+            if (columnName.equalsIgnoreCase(metaData.getColumnName(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasTableColumn(Connection con, String tableName, String columnName) throws SQLException {
+        DatabaseMetaData metaData = con.getMetaData();
+        try (ResultSet columns = metaData.getColumns(con.getCatalog(), null, tableName, columnName)) {
+            return columns.next();
+        }
     }
 }

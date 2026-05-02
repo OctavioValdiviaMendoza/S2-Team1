@@ -10,13 +10,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import model.Listing;
+import model.Review;
 import service.ListingService;
+import service.ReviewService;
 
 @WebServlet("/ListingDetailServlet")
 public class ListingDetailServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private final ListingService listingService = new ListingService();
+    private final ReviewService reviewService = new ReviewService();
 
     public ListingDetailServlet() {
         super();
@@ -44,9 +47,27 @@ public class ListingDetailServlet extends HttpServlet {
             }
 
             List<String> imageUrls = listingService.getImageUrlsByListingId(listingId);
+            List<Review> reviews = reviewService.getReviewsByListingId(listingId);
+
+            Integer currentUserId = null;
+            if (request.getSession(false) != null && request.getSession(false).getAttribute("userId") != null) {
+                currentUserId = (Integer) request.getSession(false).getAttribute("userId");
+            }
+
+            boolean canReview = false;
+            boolean hasReviewed = false;
+            if (currentUserId != null) {
+                canReview = reviewService.canUserReviewListing(listingId, currentUserId);
+                hasReviewed = reviewService.hasUserReviewedListing(listingId, currentUserId);
+            }
 
             request.setAttribute("listing", listing);
             request.setAttribute("imageUrls", imageUrls);
+            request.setAttribute("reviews", reviews);
+            request.setAttribute("reviewCount", reviews.size());
+            request.setAttribute("averageRating", reviewService.getAverageRatingByListingId(listingId));
+            request.setAttribute("canReview", canReview);
+            request.setAttribute("hasReviewed", hasReviewed);
 
             request.getRequestDispatcher("/views/ListingDetail.jsp").forward(request, response);
 

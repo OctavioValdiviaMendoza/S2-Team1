@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="model.Listing" %>
+<%@ page import="model.Review" %>
 <%@ page import="model.User" %>
 <%
     Listing listing = (Listing) request.getAttribute("listing");
@@ -10,12 +11,19 @@
     }
 
     List<String> imageUrls = (List<String>) request.getAttribute("imageUrls");
+    List<Review> reviews = (List<Review>) request.getAttribute("reviews");
+    Integer reviewCount = (Integer) request.getAttribute("reviewCount");
+    Double averageRating = (Double) request.getAttribute("averageRating");
+    Boolean canReview = (Boolean) request.getAttribute("canReview");
+    Boolean hasReviewed = (Boolean) request.getAttribute("hasReviewed");
 
     User loggedInUser = (User) session.getAttribute("user");
     boolean isLoggedIn = (loggedInUser != null);
 
     Integer currentUserId = (Integer) session.getAttribute("userId");
     boolean ownerViewing = currentUserId != null && currentUserId.intValue() == listing.getUserId();
+    boolean showReviewForm = Boolean.TRUE.equals(canReview);
+    boolean userAlreadyReviewed = Boolean.TRUE.equals(hasReviewed);
 
     String pageMessage = request.getParameter("message");
     String searchValue = request.getParameter("search");
@@ -188,6 +196,18 @@
                         <strong><%= listing.isAvailability() ? "Available" : "Unavailable" %></strong>
                     </p>
 
+                    <p class="listing-rating-summary">
+                        Rating:
+                        <strong>
+                            <% if (reviewCount != null && reviewCount > 0) { %>
+                                <%= String.format("%.1f", averageRating != null ? averageRating : 0.0) %>/5
+                                (<%= reviewCount %> <%= reviewCount == 1 ? "review" : "reviews" %>)
+                            <% } else { %>
+                                No reviews yet
+                            <% } %>
+                        </strong>
+                    </p>
+
                     <p class="location">
                         Location:
                         <strong>
@@ -225,6 +245,70 @@
                             ? listing.getDescription()
                             : "No description provided." %>
                 </p>
+            </section>
+
+            <section class="detail-section reviews-section">
+                <div class="reviews-heading">
+                    <div>
+                        <h2>Reviews</h2>
+                        <p class="reviews-summary">
+                            <% if (reviewCount != null && reviewCount > 0) { %>
+                                Average rating: <strong><%= String.format("%.1f", averageRating != null ? averageRating : 0.0) %>/5</strong>
+                            <% } else { %>
+                                This listing has not been reviewed yet.
+                            <% } %>
+                        </p>
+                    </div>
+                </div>
+
+                <% if (showReviewForm) { %>
+                    <form class="review-form" action="<%= request.getContextPath() %>/ReviewServlet" method="post">
+                        <input type="hidden" name="listingId" value="<%= listing.getListingId() %>">
+
+                        <div class="review-form-grid">
+                            <div class="review-field">
+                                <label for="rating">Rating</label>
+                                <select id="rating" name="rating" required>
+                                    <option value="">Select rating</option>
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Good</option>
+                                    <option value="3">3 - Okay</option>
+                                    <option value="2">2 - Poor</option>
+                                    <option value="1">1 - Bad</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="review-field">
+                            <label for="comment">Comment</label>
+                            <textarea id="comment" name="comment" rows="4" maxlength="1000" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary review-submit">Submit Review</button>
+                    </form>
+                <% } else if (isLoggedIn && userAlreadyReviewed) { %>
+                    <div class="review-note">You have already reviewed this listing.</div>
+                <% } else if (isLoggedIn && !ownerViewing) { %>
+                    <div class="review-note">You can review this listing after you have a completed rental.</div>
+                <% } %>
+
+                <div class="review-list">
+                    <% if (reviews != null && !reviews.isEmpty()) {
+                        for (Review review : reviews) {
+                    %>
+                        <article class="review-card">
+                            <div class="review-card-header">
+                                <strong><%= review.getReviewerName() != null ? review.getReviewerName() : "Renter" %></strong>
+                                <span><%= String.format("%.1f", review.getRating()) %>/5</span>
+                            </div>
+                            <p><%= review.getComment() != null ? review.getComment() : "" %></p>
+                        </article>
+                    <%  }
+                       } else {
+                    %>
+                        <div class="info-placeholder">No renter reviews yet.</div>
+                    <% } %>
+                </div>
             </section>
 
             <section class="detail-section">
