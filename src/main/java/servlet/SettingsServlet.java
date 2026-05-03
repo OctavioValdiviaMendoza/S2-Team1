@@ -19,6 +19,7 @@ import service.ListingService;
 public class SettingsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private UserService userService = new UserService();
+    private ListingService listingService = new ListingService();
 
     public SettingsServlet() {
         super();
@@ -92,6 +93,9 @@ public class SettingsServlet extends HttpServlet {
                 case "denyRequest":
                     handleDenyRequest(userId, request, response);
                     break;
+                case "completeRequest":
+                    handleCompleteRequest(userId, request, response);
+                    break;
                 default:
                     response.sendRedirect("SettingsServlet?action=profile&error=Invalid action");
                     break;
@@ -105,7 +109,7 @@ public class SettingsServlet extends HttpServlet {
     private void loadCommonSettingsData(int userId, HttpServletRequest request) {
         User user = userService.getUserById(userId);
         String paymentMethod = UserService.getPaymentMethod(userId);
-        List<Listing> listings = ListingService.getListingsByUserId(userId);
+        List<Listing> listings = listingService.getListingsByUserId(userId);
         List<Booking> pendingRequests = UserService.getPendingRentalRequests(userId);
         List<Booking> processedRequests = UserService.getProcessedRentalRequests(userId);
 
@@ -245,6 +249,30 @@ public class SettingsServlet extends HttpServlet {
                 response.sendRedirect("SettingsServlet?action=requests&message=Rental request denied");
             } else {
                 response.sendRedirect("SettingsServlet?action=requests&error=Failed to deny request");
+            }
+        } catch (NumberFormatException e) {
+            response.sendRedirect("SettingsServlet?action=requests&error=Invalid booking ID");
+        }
+    }
+
+    private void handleCompleteRequest(int userId, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String bookingIdStr = request.getParameter("bookingId");
+
+        if (bookingIdStr == null || bookingIdStr.isEmpty()) {
+            response.sendRedirect("SettingsServlet?action=requests&error=Invalid booking");
+            return;
+        }
+
+        try {
+            int bookingId = Integer.parseInt(bookingIdStr);
+            boolean success = UserService.updateBookingStatus(bookingId, userId, "completed");
+
+            if (success) {
+                response.sendRedirect("SettingsServlet?action=requests&message=Rental marked completed");
+            } else {
+                response.sendRedirect("SettingsServlet?action=requests&error=Failed to complete rental");
             }
         } catch (NumberFormatException e) {
             response.sendRedirect("SettingsServlet?action=requests&error=Invalid booking ID");

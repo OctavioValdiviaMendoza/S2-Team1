@@ -1,6 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.List" %>
 <%@ page import="model.Listing" %>
+<%@ page import="model.Review" %>
 <%@ page import="model.User" %>
+<%@ page import="model.Address" %>
 <%
     Listing listing = (Listing) request.getAttribute("listing");
     if (listing == null) {
@@ -8,17 +11,42 @@
         return;
     }
 
+    List<String> imageUrls = (List<String>) request.getAttribute("imageUrls");
+    List<Review> reviews = (List<Review>) request.getAttribute("reviews");
+    Integer reviewCount = (Integer) request.getAttribute("reviewCount");
+    Double averageRating = (Double) request.getAttribute("averageRating");
+    Boolean canReview = (Boolean) request.getAttribute("canReview");
+    Boolean hasReviewed = (Boolean) request.getAttribute("hasReviewed");
+
     User loggedInUser = (User) session.getAttribute("user");
     boolean isLoggedIn = (loggedInUser != null);
 
     Integer currentUserId = (Integer) session.getAttribute("userId");
     boolean ownerViewing = currentUserId != null && currentUserId.intValue() == listing.getUserId();
+    boolean showReviewForm = Boolean.TRUE.equals(canReview);
+    boolean userAlreadyReviewed = Boolean.TRUE.equals(hasReviewed);
 
     String pageMessage = request.getParameter("message");
     String searchValue = request.getParameter("search");
     if (searchValue == null) {
         searchValue = "";
     }
+    
+    Address pickupAddress = (Address) request.getAttribute("pickupAddress");
+
+    boolean hasMapLocation = pickupAddress != null
+            && pickupAddress.getLatitude() != 0
+            && pickupAddress.getLongitude() != 0;
+
+    String directionsUrl = "";
+    if (hasMapLocation) {
+        directionsUrl = "https://www.google.com/maps/dir/?api=1&destination="
+                + pickupAddress.getLatitude()
+                + ","
+                + pickupAddress.getLongitude();
+    }
+    
+    String googleMapsApiKey = (String) request.getAttribute("googleMapsApiKey");
 %>
 <!DOCTYPE html>
 <html>
@@ -29,6 +57,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .gallery-strip {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+        }
+
+        .gallery-thumb {
+            flex: 0 0 auto;
+            width: 92px;
+            height: 92px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+        }
+
+        .gallery-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-empty {
+            margin-top: 12px;
+            color: #6b7280;
+        }
+    </style>
 </head>
 <body>
 
@@ -101,9 +160,35 @@
                         %>
                     </div>
 
-                    <div class="gallery-placeholder">
+                    <div>
                         <h3>Image Gallery</h3>
-                        <p>Placeholder for future scrolling images / thumbnails.</p>
+
+                        <%
+                            if (imageUrls != null && !imageUrls.isEmpty()) {
+                        %>
+                            <div class="gallery-strip">
+                                <%
+                                    for (String url : imageUrls) {
+                                        if (url != null && !url.trim().isEmpty()) {
+                                            String thumbSrc = (url.startsWith("http://") || url.startsWith("https://"))
+                                                    ? url
+                                                    : request.getContextPath() + "/images/" + url;
+                                %>
+                                    <div class="gallery-thumb">
+                                        <img src="<%= thumbSrc %>" alt="<%= listing.getTitle() %> image">
+                                    </div>
+                                <%
+                                        }
+                                    }
+                                %>
+                            </div>
+                        <%
+                            } else {
+                        %>
+                            <p class="gallery-empty">No additional images available.</p>
+                        <%
+                            }
+                        %>
                     </div>
                 </div>
 
@@ -126,6 +211,18 @@
                     <p class="availability">
                         Status:
                         <strong><%= listing.isAvailability() ? "Available" : "Unavailable" %></strong>
+                    </p>
+
+                    <p class="listing-rating-summary">
+                        Rating:
+                        <strong>
+                            <% if (reviewCount != null && reviewCount > 0) { %>
+                                <%= String.format("%.1f", averageRating != null ? averageRating : 0.0) %>/5
+                                (<%= reviewCount %> <%= reviewCount == 1 ? "review" : "reviews" %>)
+                            <% } else { %>
+                                No reviews yet
+                            <% } %>
+                        </strong>
                     </p>
 
                     <p class="location">
@@ -167,6 +264,70 @@
                 </p>
             </section>
 
+            <section class="detail-section reviews-section">
+                <div class="reviews-heading">
+                    <div>
+                        <h2>Reviews</h2>
+                        <p class="reviews-summary">
+                            <% if (reviewCount != null && reviewCount > 0) { %>
+                                Average rating: <strong><%= String.format("%.1f", averageRating != null ? averageRating : 0.0) %>/5</strong>
+                            <% } else { %>
+                                This listing has not been reviewed yet.
+                            <% } %>
+                        </p>
+                    </div>
+                </div>
+
+                <% if (showReviewForm) { %>
+                    <form class="review-form" action="<%= request.getContextPath() %>/ReviewServlet" method="post">
+                        <input type="hidden" name="listingId" value="<%= listing.getListingId() %>">
+
+                        <div class="review-form-grid">
+                            <div class="review-field">
+                                <label for="rating">Rating</label>
+                                <select id="rating" name="rating" required>
+                                    <option value="">Select rating</option>
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Good</option>
+                                    <option value="3">3 - Okay</option>
+                                    <option value="2">2 - Poor</option>
+                                    <option value="1">1 - Bad</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="review-field">
+                            <label for="comment">Comment</label>
+                            <textarea id="comment" name="comment" rows="4" maxlength="1000" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary review-submit">Submit Review</button>
+                    </form>
+                <% } else if (isLoggedIn && userAlreadyReviewed) { %>
+                    <div class="review-note">You have already reviewed this listing.</div>
+                <% } else if (isLoggedIn && !ownerViewing) { %>
+                    <div class="review-note">You can review this listing after you have a completed rental.</div>
+                <% } %>
+
+                <div class="review-list">
+                    <% if (reviews != null && !reviews.isEmpty()) {
+                        for (Review review : reviews) {
+                    %>
+                        <article class="review-card">
+                            <div class="review-card-header">
+                                <strong><%= review.getReviewerName() != null ? review.getReviewerName() : "Renter" %></strong>
+                                <span><%= String.format("%.1f", review.getRating()) %>/5</span>
+                            </div>
+                            <p><%= review.getComment() != null ? review.getComment() : "" %></p>
+                        </article>
+                    <%  }
+                       } else {
+                    %>
+                        <div class="info-placeholder">No renter reviews yet.</div>
+                    <% } %>
+                </div>
+            </section>
+
             <section class="detail-section">
                 <h2>Rental Preferences</h2>
                 <p>
@@ -197,9 +358,33 @@
 
             <section class="detail-section">
                 <h2>Map</h2>
-                <div class="map-placeholder">
-                    Future Google Maps API integration goes here.
-                </div>
+                <section class="listing-map-section">
+    <h2>Pickup Location</h2>
+
+    <% if (pickupAddress != null) { %>
+        <p>
+            <%= pickupAddress.getLine1() %>
+            <%= pickupAddress.getLine2() != null && !pickupAddress.getLine2().trim().isEmpty() ? ", " + pickupAddress.getLine2() : "" %>,
+            <%= pickupAddress.getCity() %>, <%= pickupAddress.getState() %> <%= pickupAddress.getZip() %>
+        </p>
+    <% } %>
+
+    <% if (hasMapLocation) { %>
+        <div id="listing-map" style="width: 100%; height: 350px; border-radius: 16px; margin-top: 12px;"></div>
+
+        <a
+            href="<%= directionsUrl %>"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="primary-btn"
+            style="display: inline-block; margin-top: 12px; text-decoration: none;"
+        >
+            Get Directions
+        </a>
+    <% } else { %>
+        <p>Map location is not available for this listing yet.</p>
+    <% } %>
+</section>
             </section>
 
             <section class="detail-section">
@@ -277,6 +462,35 @@
             }
         });
     </script>
+    <% if (hasMapLocation) { %>
+<script>
+    function initListingMap() {
+        const pickupLocation = {
+            lat: <%= pickupAddress.getLatitude() %>,
+            lng: <%= pickupAddress.getLongitude() %>
+        };
+
+        const map = new google.maps.Map(document.getElementById("listing-map"), {
+            center: pickupLocation,
+            zoom: 15
+        });
+
+        const marker = new google.maps.Marker({
+            position: pickupLocation,
+            map: map,
+            title: "Pickup Location"
+        });
+
+        marker.addListener("click", function () {
+            window.open("<%= directionsUrl %>", "_blank");
+        });
+    }
+</script>
+
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&callback=initListingMap">
+</script>
+<% } %>
 
 </body>
 </html>

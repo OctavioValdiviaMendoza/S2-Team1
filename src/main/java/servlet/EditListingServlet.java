@@ -16,10 +16,13 @@ import model.Listing;
 import model.User;
 import service.ListingService;
 import service.UserService;
+import service.CategoryService;
 
 @WebServlet("/EditListingServlet")
 public class EditListingServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private ListingService listingService = new ListingService();
+    private CategoryService categoryService = new CategoryService();
 
     private final UserService userService = new UserService();
 
@@ -40,16 +43,20 @@ public class EditListingServlet extends HttpServlet {
             return;
         }
 
-        Listing listing = ListingService.getListingById(listingId);
+        Listing listing = listingService.getListingById(listingId);
         if (listing == null || listing.getUserId() != userId) {
             response.sendRedirect(request.getContextPath() + "/SettingsServlet?action=listings&error=You can only edit your own listings");
             return;
         }
+        String googleMapsApiKey = System.getenv("GOOGLE_MAPS_API_KEY");
 
+        	
         loadFormData(request, session);
-        populateFormValues(request, listing, ListingService.getImageUrlsByListingId(listingId));
+        populateFormValues(request, listing, listingService.getImageUrlsByListingId(listingId));
         request.setAttribute("editMode", true);
         request.setAttribute("listingIdValue", String.valueOf(listingId));
+        request.setAttribute("googleMapsApiKey", googleMapsApiKey);
+        
         request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
     }
 
@@ -70,7 +77,7 @@ public class EditListingServlet extends HttpServlet {
             return;
         }
 
-        Listing existingListing = ListingService.getListingById(listingId);
+        Listing existingListing = listingService.getListingById(listingId);
         if (existingListing == null || existingListing.getUserId() != userId) {
             response.sendRedirect(request.getContextPath() + "/SettingsServlet?action=listings&error=You can only edit your own listings");
             return;
@@ -180,7 +187,7 @@ public class EditListingServlet extends HttpServlet {
         listing.setContactInfo(contactInfo);
         listing.setFulfillmentMethod(fulfillmentMethod);
 
-        boolean updated = ListingService.updateListing(listing, imageLinks);
+        boolean updated = listingService.updateListing(listing, imageLinks);
         if (!updated) {
             request.setAttribute("errorMessages", java.util.Arrays.asList("The listing could not be updated. Please try again."));
             request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
@@ -191,7 +198,7 @@ public class EditListingServlet extends HttpServlet {
     }
 
     private void loadFormData(HttpServletRequest request, HttpSession session) {
-        List<Category> categories = ListingService.getAllCategories();
+        List<Category> categories = categoryService.getAllCategories();
         request.setAttribute("categories", categories);
 
         Object sessionUser = session.getAttribute("user");

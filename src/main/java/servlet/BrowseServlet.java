@@ -1,7 +1,6 @@
 package servlet;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
@@ -14,10 +13,13 @@ import javax.servlet.http.HttpSession;
 import model.Listing;
 import model.Category;
 import service.ListingService;
+import service.CategoryService;
 
 @WebServlet("/BrowseServlet")
 public class BrowseServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private ListingService listingService = new ListingService();
+    private CategoryService categoryService = new CategoryService();
 
     public BrowseServlet() {
         super();
@@ -28,7 +30,7 @@ public class BrowseServlet extends HttpServlet {
             throws ServletException, IOException {
 
         List<Listing> listings = null;
-        List<Category> categories = ListingService.getAllCategories();
+        List<Category> categories = categoryService.getAllCategories();
 
         // Original parameters
         String page = request.getParameter("page");
@@ -80,34 +82,22 @@ public class BrowseServlet extends HttpServlet {
 
         // Preserve original behavior first where appropriate
         if (invalidCategoryId) {
-            listings = ListingService.getAllListings();
-        } else if (hasExtendedFilters && hasFilterListingsMethod()) {
-            // Use new combined filtering only if that service method actually exists
-            listings = invokeFilterListings(parsedCategoryId, search, parsedMaxPrice, location);
-
-            // Safety fallback in case reflection fails or method returns null
-            if (listings == null) {
-                if (search != null && !search.isEmpty()) {
-                    listings = ListingService.searchListings(search);
-                } else if (parsedCategoryId != null) {
-                    listings = ListingService.getListingsByCategory(parsedCategoryId);
-                } else {
-                    listings = ListingService.getAllListings();
-                }
-            }
+            listings = listingService.getAllListings();
+        } else if (hasExtendedFilters) {
+            listings = listingService.filterListings(parsedCategoryId, search, parsedMaxPrice, location);
         } else {
             // Original uploaded logic
             if (search != null && !search.isEmpty()) {
-                listings = ListingService.searchListings(search);
+                listings = listingService.searchListings(search);
             } else if (categoryId != null && !categoryId.isEmpty()) {
                 try {
                     int catId = Integer.parseInt(categoryId);
-                    listings = ListingService.getListingsByCategory(catId);
+                    listings = listingService.getListingsByCategory(catId);
                 } catch (NumberFormatException e) {
-                    listings = ListingService.getAllListings();
+                    listings = listingService.getAllListings();
                 }
             } else {
-                listings = ListingService.getAllListings();
+                listings = listingService.getAllListings();
             }
         }
 
@@ -146,49 +136,5 @@ public class BrowseServlet extends HttpServlet {
         request.setAttribute("page", page);
 
         request.getRequestDispatcher("views/Browse.jsp").forward(request, response);
-    }
-
-    /**
-     * Checks whether ListingService.filterListings(Integer, String, Double, String)
-     * exists, so this servlet can preserve compatibility with the original uploaded project.
-     */
-    private boolean hasFilterListingsMethod() {
-        try {
-            Method method = ListingService.class.getMethod(
-                "filterListings",
-                Integer.class,
-                String.class,
-                Double.class,
-                String.class
-            );
-            return method != null;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Invokes ListingService.filterListings(...) only if it exists.
-     */
-    @SuppressWarnings("unchecked")
-    private List<Listing> invokeFilterListings(Integer categoryId, String search, Double maxPrice, String location) {
-        try {
-            Method method = ListingService.class.getMethod(
-                "filterListings",
-                Integer.class,
-                String.class,
-                Double.class,
-                String.class
-            );
-
-            Object result = method.invoke(null, categoryId, search, maxPrice, location);
-
-            if (result instanceof List<?>) {
-                return (List<Listing>) result;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }
