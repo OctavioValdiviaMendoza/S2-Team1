@@ -40,6 +40,10 @@ public class CreateListingServlet extends HttpServlet {
         }
 
         loadFormData(request, session);
+        
+        String googleMapsApiKey = System.getenv("GOOGLE_MAPS_API_KEY");
+        request.setAttribute("googleMapsApiKey", googleMapsApiKey);
+        
         request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
     }
 
@@ -79,11 +83,7 @@ public class CreateListingServlet extends HttpServlet {
         String newLatitudeStr = trim(request.getParameter("newLatitude"));
         String newLongitudeStr = trim(request.getParameter("newLongitude"));
         String newPlaceId = trim(request.getParameter("newPlaceId"));
-        
-        System.out.println("DEBUG newLatitudeStr = " + newLatitudeStr);
-        System.out.println("DEBUG newLongitudeStr = " + newLongitudeStr);
-        System.out.println("DEBUG newPlaceId = " + newPlaceId);
-
+    
         request.setAttribute("titleValue", title);
         request.setAttribute("descriptionValue", description);
         request.setAttribute("categoryIdValue", categoryIdStr);
