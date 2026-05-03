@@ -11,8 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import model.Address;
 import model.Listing;
+import model.Review;
 import service.AddressService;
 import service.ListingService;
+import service.ReviewService;
 
 @WebServlet("/ListingDetailServlet")
 public class ListingDetailServlet extends HttpServlet {
@@ -20,6 +22,7 @@ public class ListingDetailServlet extends HttpServlet {
 
     private final ListingService listingService = new ListingService();
     private final AddressService addressService = new AddressService();
+    private final ReviewService reviewService = new ReviewService();
 
     public ListingDetailServlet() {
         super();
@@ -47,19 +50,40 @@ public class ListingDetailServlet extends HttpServlet {
             }
 
             List<String> imageUrls = listingService.getImageUrlsByListingId(listingId);
+            List<Review> reviews = reviewService.getReviewsByListingId(listingId);
+
+            Integer currentUserId = null;
+            if (request.getSession(false) != null
+                    && request.getSession(false).getAttribute("userId") != null) {
+                currentUserId = (Integer) request.getSession(false).getAttribute("userId");
+            }
+
+            boolean canReview = false;
+            boolean hasReviewed = false;
+
+            if (currentUserId != null) {
+                canReview = reviewService.canUserReviewListing(listingId, currentUserId);
+                hasReviewed = reviewService.hasUserReviewedListing(listingId, currentUserId);
+            }
 
             Address pickupAddress = null;
             if (listing.getAddressId() > 0) {
                 pickupAddress = addressService.getAddressById(listing.getAddressId());
             }
-            
-            String googleMapsApiKey = System.getenv("GOOGLE_MAPS_API_KEY");
 
+            String googleMapsApiKey = System.getenv("GOOGLE_MAPS_API_KEY");
 
             request.setAttribute("listing", listing);
             request.setAttribute("imageUrls", imageUrls);
+
             request.setAttribute("pickupAddress", pickupAddress);
             request.setAttribute("googleMapsApiKey", googleMapsApiKey);
+
+            request.setAttribute("reviews", reviews);
+            request.setAttribute("reviewCount", reviews.size());
+            request.setAttribute("averageRating", reviewService.getAverageRatingByListingId(listingId));
+            request.setAttribute("canReview", canReview);
+            request.setAttribute("hasReviewed", hasReviewed);
 
             request.getRequestDispatcher("/views/ListingDetail.jsp").forward(request, response);
 

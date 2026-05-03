@@ -60,6 +60,12 @@ public class ListingService {
         return listings;
     }
 
+    public List<Listing> filterListings(Integer categoryId, String keyword, Double maxPrice, String location) {
+        List<Listing> listings = listingDAO.filterListings(categoryId, keyword, maxPrice, location);
+        enrichListings(listings);
+        return listings;
+    }
+
     public int createListing(Listing listing, List<String> imageUrls) {
         if (listing == null) {
             return -1;
