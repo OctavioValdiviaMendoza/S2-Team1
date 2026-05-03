@@ -34,6 +34,7 @@
 		<input type="text" name="govId" id="govId" placeholder="Government ID" required> 
 		<input type="password" id="password" name="password" placeholder="Password" required> 
 		<input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
+		<span style="color: #667; font-size: 14px; font-weight:bold;">Password Must Have 8 characters total: (1)Upper case, (1)Lower case, (1)Number, (1)Special Character</span>
 		<button type="submit" class="auth-btn login-btn">Sign Up</button> 
 	</form> 
 	

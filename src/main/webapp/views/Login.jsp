@@ -59,8 +59,6 @@ if (errorMessage != null) {
 
     if (successMessage) {
         alert(successMessage);
-
-       
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 </script>
