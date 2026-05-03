@@ -2,6 +2,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="model.Listing" %>
 <%@ page import="model.User" %>
+<%@ page import="model.Address" %>
 <%
     Listing listing = (Listing) request.getAttribute("listing");
     if (listing == null) {
@@ -22,6 +23,22 @@
     if (searchValue == null) {
         searchValue = "";
     }
+    
+    Address pickupAddress = (Address) request.getAttribute("pickupAddress");
+
+    boolean hasMapLocation = pickupAddress != null
+            && pickupAddress.getLatitude() != 0
+            && pickupAddress.getLongitude() != 0;
+
+    String directionsUrl = "";
+    if (hasMapLocation) {
+        directionsUrl = "https://www.google.com/maps/dir/?api=1&destination="
+                + pickupAddress.getLatitude()
+                + ","
+                + pickupAddress.getLongitude();
+    }
+    
+    String googleMapsApiKey = (String) request.getAttribute("googleMapsApiKey");
 %>
 <!DOCTYPE html>
 <html>
@@ -257,9 +274,33 @@
 
             <section class="detail-section">
                 <h2>Map</h2>
-                <div class="map-placeholder">
-                    Future Google Maps API integration goes here.
-                </div>
+                <section class="listing-map-section">
+    <h2>Pickup Location</h2>
+
+    <% if (pickupAddress != null) { %>
+        <p>
+            <%= pickupAddress.getLine1() %>
+            <%= pickupAddress.getLine2() != null && !pickupAddress.getLine2().trim().isEmpty() ? ", " + pickupAddress.getLine2() : "" %>,
+            <%= pickupAddress.getCity() %>, <%= pickupAddress.getState() %> <%= pickupAddress.getZip() %>
+        </p>
+    <% } %>
+
+    <% if (hasMapLocation) { %>
+        <div id="listing-map" style="width: 100%; height: 350px; border-radius: 16px; margin-top: 12px;"></div>
+
+        <a
+            href="<%= directionsUrl %>"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="primary-btn"
+            style="display: inline-block; margin-top: 12px; text-decoration: none;"
+        >
+            Get Directions
+        </a>
+    <% } else { %>
+        <p>Map location is not available for this listing yet.</p>
+    <% } %>
+</section>
             </section>
 
             <section class="detail-section">
@@ -337,6 +378,35 @@
             }
         });
     </script>
+    <% if (hasMapLocation) { %>
+<script>
+    function initListingMap() {
+        const pickupLocation = {
+            lat: <%= pickupAddress.getLatitude() %>,
+            lng: <%= pickupAddress.getLongitude() %>
+        };
+
+        const map = new google.maps.Map(document.getElementById("listing-map"), {
+            center: pickupLocation,
+            zoom: 15
+        });
+
+        const marker = new google.maps.Marker({
+            position: pickupLocation,
+            map: map,
+            title: "Pickup Location"
+        });
+
+        marker.addListener("click", function () {
+            window.open("<%= directionsUrl %>", "_blank");
+        });
+    }
+</script>
+
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&callback=initListingMap">
+</script>
+<% } %>
 
 </body>
 </html>

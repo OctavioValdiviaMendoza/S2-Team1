@@ -56,8 +56,8 @@ public class AddressDAO {
 
     public int createAddress(Address address) {
         String sql = "INSERT INTO addresses " +
-                     "(user_id, line_1, line_2, city, state, zip, type, is_default) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                     "(user_id, line_1, line_2, city, state, zip, type, is_default, latitude, longitude, place_id) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -70,6 +70,9 @@ public class AddressDAO {
             ps.setString(6, address.getZip());
             ps.setString(7, address.getType());
             ps.setBoolean(8, address.isDefault());
+            ps.setFloat(9, address.getLatitude());
+            ps.setFloat(10, address.getLongitude());
+            ps.setString(11, address.getPlaceId());
 
             int rows = ps.executeUpdate();
             if (rows == 0) {
@@ -119,6 +122,9 @@ public class AddressDAO {
         address.setZip(rs.getString("zip"));
         address.setType(rs.getString("type"));
         address.setDefault(rs.getBoolean("is_default"));
+        address.setLatitude(rs.getFloat("latitude"));
+        address.setLongitude(rs.getFloat("longitude"));
+        address.setPlaceId(rs.getString("place_id"));
         return address;
     }
 }

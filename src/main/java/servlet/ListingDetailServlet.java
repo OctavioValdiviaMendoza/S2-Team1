@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import model.Address;
 import model.Listing;
+import service.AddressService;
 import service.ListingService;
 
 @WebServlet("/ListingDetailServlet")
@@ -17,6 +19,7 @@ public class ListingDetailServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private final ListingService listingService = new ListingService();
+    private final AddressService addressService = new AddressService();
 
     public ListingDetailServlet() {
         super();
@@ -45,8 +48,18 @@ public class ListingDetailServlet extends HttpServlet {
 
             List<String> imageUrls = listingService.getImageUrlsByListingId(listingId);
 
+            Address pickupAddress = null;
+            if (listing.getAddressId() > 0) {
+                pickupAddress = addressService.getAddressById(listing.getAddressId());
+            }
+            
+            String googleMapsApiKey = System.getenv("GOOGLE_MAPS_API_KEY");
+
+
             request.setAttribute("listing", listing);
             request.setAttribute("imageUrls", imageUrls);
+            request.setAttribute("pickupAddress", pickupAddress);
+            request.setAttribute("googleMapsApiKey", googleMapsApiKey);
 
             request.getRequestDispatcher("/views/ListingDetail.jsp").forward(request, response);
 

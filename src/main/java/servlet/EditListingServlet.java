@@ -48,11 +48,15 @@ public class EditListingServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/SettingsServlet?action=listings&error=You can only edit your own listings");
             return;
         }
+        String googleMapsApiKey = System.getenv("GOOGLE_MAPS_API_KEY");
 
+        	
         loadFormData(request, session);
         populateFormValues(request, listing, listingService.getImageUrlsByListingId(listingId));
         request.setAttribute("editMode", true);
         request.setAttribute("listingIdValue", String.valueOf(listingId));
+        request.setAttribute("googleMapsApiKey", googleMapsApiKey);
+        
         request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
     }
 

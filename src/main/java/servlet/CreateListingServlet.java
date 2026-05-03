@@ -76,6 +76,13 @@ public class CreateListingServlet extends HttpServlet {
         String newZip = trim(request.getParameter("newZip"));
         String newAddressType = trim(request.getParameter("newAddressType"));
         String newIsDefaultStr = trim(request.getParameter("newIsDefault"));
+        String newLatitudeStr = trim(request.getParameter("newLatitude"));
+        String newLongitudeStr = trim(request.getParameter("newLongitude"));
+        String newPlaceId = trim(request.getParameter("newPlaceId"));
+        
+        System.out.println("DEBUG newLatitudeStr = " + newLatitudeStr);
+        System.out.println("DEBUG newLongitudeStr = " + newLongitudeStr);
+        System.out.println("DEBUG newPlaceId = " + newPlaceId);
 
         request.setAttribute("titleValue", title);
         request.setAttribute("descriptionValue", description);
@@ -97,6 +104,11 @@ public class CreateListingServlet extends HttpServlet {
         request.setAttribute("newZipValue", newZip);
         request.setAttribute("newAddressTypeValue", newAddressType);
         request.setAttribute("newIsDefaultValue", newIsDefaultStr);
+        request.setAttribute("newLatitudeValue", newLatitudeStr);
+        request.setAttribute("newLongitudeValue", newLongitudeStr);
+        request.setAttribute("newPlaceIdValue", newPlaceId);
+        String googleMapsApiKey = System.getenv("GOOGLE_MAPS_API_KEY");
+        request.setAttribute("googleMapsApiKey", googleMapsApiKey);
 
         loadFormData(request, session);
 
@@ -104,6 +116,8 @@ public class CreateListingServlet extends HttpServlet {
         Integer categoryId = null;
         Double price = null;
         Integer addressId = null;
+        Float newLatitude = null;
+        Float newLongitude = null;
 
         List<String> imageLinks = parseImageLinks(imageLinksRaw);
 
@@ -184,6 +198,22 @@ public class CreateListingServlet extends HttpServlet {
             if (newZip.isEmpty()) {
                 errorMessages.add("ZIP code is required for a new address.");
             }
+
+            if (!newLatitudeStr.isEmpty()) {
+                try {
+                    newLatitude = Float.parseFloat(newLatitudeStr);
+                } catch (NumberFormatException e) {
+                    errorMessages.add("Latitude is invalid.");
+                }
+            }
+
+            if (!newLongitudeStr.isEmpty()) {
+                try {
+                    newLongitude = Float.parseFloat(newLongitudeStr);
+                } catch (NumberFormatException e) {
+                    errorMessages.add("Longitude is invalid.");
+                }
+            }
         } else {
             if (addressIdStr.isEmpty()) {
                 errorMessages.add("Select an existing pickup address or choose to add a new one.");
@@ -205,6 +235,10 @@ public class CreateListingServlet extends HttpServlet {
             request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
             return;
         }
+        
+        System.out.println("DEBUG newLatitudeStr = " + newLatitudeStr);
+        System.out.println("DEBUG newLongitudeStr = " + newLongitudeStr);
+        System.out.println("DEBUG newPlaceId = " + newPlaceId);
 
         Listing listing = new Listing();
         listing.setUserId(userId);
@@ -231,6 +265,16 @@ public class CreateListingServlet extends HttpServlet {
             newAddress.setZip(newZip);
             newAddress.setType(newAddressType.isEmpty() ? "pickup" : newAddressType);
             newAddress.setDefault("true".equalsIgnoreCase(newIsDefaultStr) || "on".equalsIgnoreCase(newIsDefaultStr));
+
+            if (newLatitude != null) {
+                newAddress.setLatitude(newLatitude);
+            }
+
+            if (newLongitude != null) {
+                newAddress.setLongitude(newLongitude);
+            }
+
+            newAddress.setPlaceId(newPlaceId);
 
             listingId = listingService.createListingWithNewAddress(listing, imageLinks, newAddress);
         } else {

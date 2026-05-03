@@ -34,6 +34,9 @@
     String newZipValue = request.getAttribute("newZipValue") != null ? (String) request.getAttribute("newZipValue") : "";
     String newAddressTypeValue = request.getAttribute("newAddressTypeValue") != null ? (String) request.getAttribute("newAddressTypeValue") : "pickup";
     String newIsDefaultValue = request.getAttribute("newIsDefaultValue") != null ? (String) request.getAttribute("newIsDefaultValue") : "";
+    String newLatitudeValue = request.getAttribute("newLatitudeValue") != null ? (String) request.getAttribute("newLatitudeValue") : "";
+    String newLongitudeValue = request.getAttribute("newLongitudeValue") != null ? (String) request.getAttribute("newLongitudeValue") : "";
+    String newPlaceIdValue = request.getAttribute("newPlaceIdValue") != null ? (String) request.getAttribute("newPlaceIdValue") : "";
 
     String[] selectedPaymentMethods = request.getAttribute("selectedPaymentMethods") != null
             ? (String[]) request.getAttribute("selectedPaymentMethods")
@@ -41,6 +44,7 @@
 
     String defaultPhone = currentUser != null && currentUser.getPhoneNumber() != null ? currentUser.getPhoneNumber() : "";
     String defaultEmail = currentUser != null && currentUser.getEmail() != null ? currentUser.getEmail() : "";
+    String googleMapsApiKey = (String) request.getAttribute("googleMapsApiKey");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,6 +60,7 @@
         .hidden-section { display: none; }
         .address-choice-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
         .address-block { margin-top: 10px; }
+        .address-help { font-size: 0.9rem; opacity: 0.8; margin-top: 6px; }
     </style>
 </head>
 <body>
@@ -170,34 +175,40 @@
                     </div>
 
                     <div id="new-address-block" class="address-block hidden-section">
+                        <p class="address-help">Start typing an address and pick a Google suggestion to auto-fill location details.</p>
+
                         <div class="form-grid two-col">
                             <div class="form-group">
                                 <label for="newLine1">Address Line 1</label>
-                                <input type="text" id="newLine1" name="newLine1" value="<%= newLine1Value %>">
+                                <input type="text" id="newLine1" name="newLine1" value="<%= newLine1Value %>" autocomplete="street-address">
                             </div>
 
                             <div class="form-group">
                                 <label for="newLine2">Address Line 2</label>
-                                <input type="text" id="newLine2" name="newLine2" value="<%= newLine2Value %>">
+                                <input type="text" id="newLine2" name="newLine2" value="<%= newLine2Value %>" autocomplete="address-line2">
                             </div>
                         </div>
 
                         <div class="form-grid three-col">
                             <div class="form-group">
                                 <label for="newCity">City</label>
-                                <input type="text" id="newCity" name="newCity" value="<%= newCityValue %>">
+                                <input type="text" id="newCity" name="newCity" value="<%= newCityValue %>" autocomplete="address-level2">
                             </div>
 
                             <div class="form-group">
                                 <label for="newState">State</label>
-                                <input type="text" id="newState" name="newState" maxlength="2" value="<%= newStateValue %>">
+                                <input type="text" id="newState" name="newState" maxlength="2" value="<%= newStateValue %>" autocomplete="address-level1">
                             </div>
 
                             <div class="form-group">
                                 <label for="newZip">ZIP</label>
-                                <input type="text" id="newZip" name="newZip" value="<%= newZipValue %>">
+                                <input type="text" id="newZip" name="newZip" value="<%= newZipValue %>" autocomplete="postal-code">
                             </div>
                         </div>
+
+                        <input type="hidden" name="newLatitude" id="newLatitude" value="<%= newLatitudeValue %>">
+                        <input type="hidden" name="newLongitude" id="newLongitude" value="<%= newLongitudeValue %>">
+                        <input type="hidden" name="newPlaceId" id="newPlaceId" value="<%= newPlaceIdValue %>">
 
                         <div class="form-grid two-col">
                             <div class="form-group">
@@ -267,13 +278,79 @@
 
                 <div class="form-footer">
                     <p class="helper-text">Your listing will be added to the marketplace immediately after submission.</p>
-                    <button type="submit" id="submit-btn" class="primary-btn hidden-action">Create Listing</button>
-                </div>
+					<button type="submit" id="submit-btn" class="primary-btn">Create Listing</button>                </div>
             </form>
         </section>
     </main>
 
     <script>
+        let lendrAutocomplete = null;
+
+        function initLendrAddressAutocomplete() {
+            const addressInput = document.getElementById('newLine1');
+            if (!addressInput || !window.google || !google.maps || !google.maps.places) {
+                return;
+            }
+
+            lendrAutocomplete = new google.maps.places.Autocomplete(addressInput, {
+                types: ['address'],
+                componentRestrictions: { country: 'us' },
+                fields: ['address_components', 'geometry', 'place_id']
+            });
+
+            lendrAutocomplete.addListener('place_changed', function () {
+                const place = lendrAutocomplete.getPlace();
+                if (!place) {
+                    return;
+                }
+
+                let streetNumber = '';
+                let route = '';
+                let city = '';
+                let state = '';
+                let zip = '';
+
+                if (place.address_components) {
+                    place.address_components.forEach(function (component) {
+                        const types = component.types || [];
+
+                        if (types.indexOf('street_number') !== -1) {
+                            streetNumber = component.long_name;
+                        }
+                        if (types.indexOf('route') !== -1) {
+                            route = component.long_name;
+                        }
+                        if (types.indexOf('locality') !== -1) {
+                            city = component.long_name;
+                        }
+                        if (types.indexOf('administrative_area_level_1') !== -1) {
+                            state = component.short_name;
+                        }
+                        if (types.indexOf('postal_code') !== -1) {
+                            zip = component.long_name;
+                        }
+                    });
+                }
+
+                document.getElementById('newLine1').value = (streetNumber + ' ' + route).trim();
+                document.getElementById('newCity').value = city;
+                document.getElementById('newState').value = state;
+                document.getElementById('newZip').value = zip;
+                document.getElementById('newPlaceId').value = place.place_id || '';
+
+                if (place.geometry && place.geometry.location) {
+                    document.getElementById('newLatitude').value = place.geometry.location.lat();
+                    document.getElementById('newLongitude').value = place.geometry.location.lng();
+                }
+
+                const form = document.getElementById('create-listing-form');
+                if (form) {
+                    form.dispatchEvent(new Event('input', { bubbles: true }));
+                    form.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        }
+
         (function () {
             const form = document.getElementById('create-listing-form');
             const submitBtn = document.getElementById('submit-btn');
@@ -290,8 +367,16 @@
             const newAddressBlock = document.getElementById('new-address-block');
             const addressId = document.getElementById('addressId');
 
+            const newLine1 = document.getElementById('newLine1');
+            const newCity = document.getElementById('newCity');
+            const newState = document.getElementById('newState');
+            const newZip = document.getElementById('newZip');
+            const newLatitude = document.getElementById('newLatitude');
+            const newLongitude = document.getElementById('newLongitude');
+            const newPlaceId = document.getElementById('newPlaceId');
+
             let imageLinks = imageLinksField.value
-                ? imageLinksField.value.split(/\r?\n/).map((link) => link.trim()).filter(Boolean)
+                ? imageLinksField.value.split(/\r?\n/).map(function (link) { return link.trim(); }).filter(Boolean)
                 : [];
 
             function usingNewAddress() {
@@ -318,7 +403,7 @@
                     return;
                 }
 
-                imageLinks.forEach((link, index) => {
+                imageLinks.forEach(function (link, index) {
                     const item = document.createElement('div');
                     item.className = 'image-link-pill';
                     item.innerHTML = '<span>' + link + '</span><button type="button" data-index="' + index + '">Remove</button>';
@@ -332,7 +417,7 @@
 
             function addImageLink(link) {
                 const normalizedLink = link.trim();
-                if (!normalizedLink || !isValidUrl(normalizedLink) || imageLinks.includes(normalizedLink)) {
+                if (!normalizedLink || !isValidUrl(normalizedLink) || imageLinks.indexOf(normalizedLink) !== -1) {
                     return;
                 }
 
@@ -342,16 +427,26 @@
                 updateSubmitState();
             }
 
+            function clearGeoFieldsIfManualAddressChanges() {
+                if (!usingNewAddress()) {
+                    return;
+                }
+
+                newLatitude.value = '';
+                newLongitude.value = '';
+                newPlaceId.value = '';
+            }
+
             function addressReady() {
                 if (!usingNewAddress()) {
                     return addressId.value.trim().length > 0;
                 }
 
                 const requiredNewAddressFields = [
-                    document.getElementById('newLine1').value.trim(),
-                    document.getElementById('newCity').value.trim(),
-                    document.getElementById('newState').value.trim(),
-                    document.getElementById('newZip').value.trim()
+                    newLine1.value.trim(),
+                    newCity.value.trim(),
+                    newState.value.trim(),
+                    newZip.value.trim()
                 ];
 
                 return requiredNewAddressFields.every(Boolean);
@@ -373,7 +468,7 @@
                 const isReady = requiredFields.every(Boolean) && hasPaymentMethod && imageLinks.length > 0 && addressReady();
 
                 submitBtn.disabled = !isReady;
-                submitBtn.classList.toggle('hidden-action', !isReady);
+                //submitBtn.classList.toggle('hidden-action', !isReady);
             }
 
             addImageBtn.addEventListener('click', function () {
@@ -440,8 +535,15 @@
                 updateSubmitState();
             });
 
-            addressChoiceInputs.forEach((input) => {
+            addressChoiceInputs.forEach(function (input) {
                 input.addEventListener('change', toggleAddressBlocks);
+            });
+
+            [newLine1, newCity, newState, newZip].forEach(function (field) {
+                field.addEventListener('input', function () {
+                    clearGeoFieldsIfManualAddressChanges();
+                    updateSubmitState();
+                });
             });
 
             form.addEventListener('input', updateSubmitState);
@@ -452,6 +554,10 @@
             toggleAddressBlocks();
             updateSubmitState();
         })();
+    </script>
+
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&libraries=places&callback=initLendrAddressAutocomplete">
     </script>
 </body>
 </html>
