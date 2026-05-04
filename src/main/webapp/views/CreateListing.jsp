@@ -65,7 +65,7 @@
 </head>
 <body>
     <nav class="navbar">
-        <a class="logo" href="<%= contextPath %>/views/JDBCDemo.jsp">Lendr</a>
+        <a class="logo" href="<%= contextPath %>/BrowseServlet">Lendr</a>
         <div class="nav-links">
             <a href="<%= contextPath %>/BrowseServlet">Browse</a>
             <a href="<%= contextPath %>/SettingsServlet">Settings</a>

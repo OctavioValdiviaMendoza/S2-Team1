@@ -12,6 +12,8 @@ import javax.servlet.http.HttpSession;
 
 import model.Listing;
 import model.Category;
+import model.User;
+import service.UserService;
 import service.ListingService;
 import service.CategoryService;
 
@@ -20,6 +22,7 @@ public class BrowseServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private ListingService listingService = new ListingService();
     private CategoryService categoryService = new CategoryService();
+    private UserService userService = new UserService();
 
     public BrowseServlet() {
         super();
@@ -117,6 +120,13 @@ public class BrowseServlet extends HttpServlet {
 
         // Preserve original DEBUG line
         System.out.println("DEBUG BrowseServlet listings count = " + (listings != null ? listings.size() : -1));
+        
+        
+        User currentUser = null; 
+        
+        if(currentUserId != null) {
+        		currentUser = userService.getUserById(currentUserId);
+        }
 
         // Original attributes
         request.setAttribute("listings", listings);
@@ -131,6 +141,7 @@ public class BrowseServlet extends HttpServlet {
         request.setAttribute("selectedCondition", condition);
         request.setAttribute("viewMode", viewMode);
         request.setAttribute("loggedIn", loggedIn);
+        request.setAttribute("currentUser", currentUser);
 
         // Preserve original page attribute if your JSP ever uses it
         request.setAttribute("page", page);

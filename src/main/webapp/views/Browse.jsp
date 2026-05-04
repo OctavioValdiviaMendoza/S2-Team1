@@ -38,8 +38,10 @@
     List<Category> categories = (List<Category>) request.getAttribute("categories");
     List<Listing> listings = (List<Listing>) request.getAttribute("listings");
 
-    User loggedInUser = (User) session.getAttribute("user");
-    boolean isLoggedIn = session.getAttribute("userId") != null && loggedInUser != null;
+	Integer  userId = (Integer) session.getAttribute("userId");
+	boolean isLoggedIn = userId != null;
+	User loggedInUser = (User) request.getAttribute("currentUser");
+	
     String firstName = isLoggedIn && loggedInUser.getFirstName() != null && !loggedInUser.getFirstName().trim().isEmpty()
         ? loggedInUser.getFirstName()
         : "User";
@@ -361,18 +363,6 @@
             }
         }
     </script>
-
-    <%
-        String successMessage = (String) session.getAttribute("successMessage");
-        if (successMessage != null) {
-    %>
-        <script>
-            alert("<%= successMessage %>");
-        </script>
-    <%
-            session.removeAttribute("successMessage");
-        }
-    %>
 
 </body>
 </html>
