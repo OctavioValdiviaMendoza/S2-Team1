@@ -236,9 +236,6 @@ public class CreateListingServlet extends HttpServlet {
             return;
         }
         
-        System.out.println("DEBUG newLatitudeStr = " + newLatitudeStr);
-        System.out.println("DEBUG newLongitudeStr = " + newLongitudeStr);
-        System.out.println("DEBUG newPlaceId = " + newPlaceId);
 
         Listing listing = new Listing();
         listing.setUserId(userId);
@@ -296,13 +293,11 @@ public class CreateListingServlet extends HttpServlet {
         List<Category> categories = categoryService.getAllCategories();
         request.setAttribute("categories", categories);
 
-        User currentUser = null;
-        Object userObj = session.getAttribute("user");
         Integer userId = (Integer) session.getAttribute("userId");
-
-        if (userObj instanceof User) {
-            currentUser = (User) userObj;
-        } else if (userId != null) {
+        
+        User currentUser = null;
+        
+        if(userId != null) {
             currentUser = userService.getUserById(userId);
         }
 

@@ -135,8 +135,8 @@
                         <select id="fulfillmentMethod" name="fulfillmentMethod" required>
                             <option value="">Choose one</option>
                             <option value="pickup" <%= "pickup".equals(fulfillmentMethodValue) ? "selected" : "" %>>Pickup only</option>
-                            <option value="drop-off" <%= "drop-off".equals(fulfillmentMethodValue) ? "selected" : "" %>>Drop-off only</option>
-                            <option value="either" <%= "either".equals(fulfillmentMethodValue) ? "selected" : "" %>>Either</option>
+                            <!-- <option value="drop-off" < //"drop-off".equals(fulfillmentMethodValue) ? "selected" : "" %>>Drop-off only</option>-->
+                            <!-- <option value="either" < //"either".equals(fulfillmentMethodValue) ? "selected" : "" %>>Either</option> -->
                         </select>
                     </div>
                 </div>
