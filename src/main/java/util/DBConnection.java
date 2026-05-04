@@ -5,7 +5,7 @@ public class DBConnection {
 	
 	private static final String URL = "jdbc:mysql://localhost:3306/team1?autoReconnect=true&useSSL=false&serverTimezone=UTC";
 	private static final String USER = "root";
-	private static final String PASSWORD = "Team1";
+	private static final String PASSWORD = "Paris-Hole-06";
 	
 	static {
 		try {
