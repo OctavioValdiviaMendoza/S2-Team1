@@ -18,10 +18,11 @@
     Boolean canReview = (Boolean) request.getAttribute("canReview");
     Boolean hasReviewed = (Boolean) request.getAttribute("hasReviewed");
 
-    User loggedInUser = (User) session.getAttribute("user");
-    boolean isLoggedIn = (loggedInUser != null);
+    Integer  currentUserId = (Integer) session.getAttribute("userId");
+	User loggedInUser = (User) request.getAttribute("currentUser");
+	
+	boolean isLoggedIn = currentUserId != null && loggedInUser != null;
 
-    Integer currentUserId = (Integer) session.getAttribute("userId");
     boolean ownerViewing = currentUserId != null && currentUserId.intValue() == listing.getUserId();
     boolean showReviewForm = Boolean.TRUE.equals(canReview);
     boolean userAlreadyReviewed = Boolean.TRUE.equals(hasReviewed);

@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import model.Address;
 import model.Listing;
 import model.Review;
+import model.User;
+import service.UserService;
 import service.AddressService;
 import service.ListingService;
 import service.ReviewService;
@@ -23,6 +25,7 @@ public class ListingDetailServlet extends HttpServlet {
     private final ListingService listingService = new ListingService();
     private final AddressService addressService = new AddressService();
     private final ReviewService reviewService = new ReviewService();
+    private UserService userService = new UserService();
 
     public ListingDetailServlet() {
         super();
@@ -57,6 +60,12 @@ public class ListingDetailServlet extends HttpServlet {
                     && request.getSession(false).getAttribute("userId") != null) {
                 currentUserId = (Integer) request.getSession(false).getAttribute("userId");
             }
+            
+            User currentUser = null; 
+            
+            if(currentUserId != null) {
+            		currentUser = userService.getUserById(currentUserId);
+            }
 
             boolean canReview = false;
             boolean hasReviewed = false;
@@ -84,6 +93,7 @@ public class ListingDetailServlet extends HttpServlet {
             request.setAttribute("averageRating", reviewService.getAverageRatingByListingId(listingId));
             request.setAttribute("canReview", canReview);
             request.setAttribute("hasReviewed", hasReviewed);
+            request.setAttribute("currentUser", currentUser);
 
             request.getRequestDispatcher("/views/ListingDetail.jsp").forward(request, response);
 
