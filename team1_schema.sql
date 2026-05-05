@@ -38,7 +38,7 @@ CREATE TABLE `addresses` (
   PRIMARY KEY (`address_id`),
   KEY `fk_addresses_users` (`user_id`),
   CONSTRAINT `fk_addresses_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,7 +47,7 @@ CREATE TABLE `addresses` (
 
 LOCK TABLES `addresses` WRITE;
 /*!40000 ALTER TABLE `addresses` DISABLE KEYS */;
-INSERT INTO `addresses` VALUES (1,1,'123 Market St','Apt 4B','San Jose','CA','95112','home',1,NULL,NULL,NULL),(2,1,'500 Tech Park Dr',NULL,'San Jose','CA','95110','pickup',0,NULL,NULL,NULL),(3,2,'742 Evergreen Terrace',NULL,'San Jose','CA','95123','home',1,NULL,NULL,NULL),(4,3,'88 Willow Rd','Unit 12','Santa Clara','CA','95050','pickup',1,NULL,NULL,NULL),(5,4,'300 First St',NULL,'San Jose','CA','95113','home',1,NULL,NULL,NULL),(6,4,'91 E Tasman Dr',NULL,'San Jose','CA','95134','pickup',0,NULL,NULL,NULL),(7,5,'451 Blossom Hill Rd',NULL,'San Jose','CA','95123','home',1,NULL,NULL,NULL),(8,6,'200 W Santa Clara St',NULL,'San Jose','CA','95113','pickup',1,NULL,NULL,NULL),(9,7,'78 Almaden Blvd','Suite 300','San Jose','CA','95113','billing',1,NULL,NULL,NULL),(10,8,'880 Story Rd',NULL,'San Jose','CA','95122','home',1,NULL,NULL,NULL),(11,9,'1500 Berryessa Rd',NULL,'San Jose','CA','95133','pickup',1,NULL,NULL,NULL),(12,10,'2200 Mission College Blvd',NULL,'Santa Clara','CA','95054','home',1,NULL,NULL,NULL),(13,11,'101 N Market St',NULL,'San Jose','CA','95113','pickup',1,NULL,NULL,NULL),(14,12,'500 El Camino Real',NULL,'Santa Clara','CA','95050','home',1,NULL,NULL,NULL),(15,13,'400 Castro St',NULL,'Mountain View','CA','94041','pickup',1,NULL,NULL,NULL),(16,14,'600 University Ave',NULL,'Palo Alto','CA','94301','home',1,NULL,NULL,NULL),(17,15,'1 Infinite Loop',NULL,'Cupertino','CA','95014','pickup',1,NULL,NULL,NULL),(19,36,'5815 Silver Creek Valley Pl','','San Jose','CA','95138','pickup',0,NULL,NULL,NULL);
+INSERT INTO `addresses` VALUES (28,47,'One Washington Square','','San Jose','CA','95192','pickup',1,37.3372730,-121.8802700,'ChIJMWzftLjMj4ARSnC2w8Hgens'),(29,48,'Tyler Court','','Santa Clara','CA','95051','pickup',0,37.3257560,-121.9827900,'EiRUeWxlciBDdCwgU2FudGEgQ2xhcmEsIENBIDk1MDUxLCBVU0EiLiosChQKEgmjcETghcqPgBGITgj8x051tBIUChIJk8EIXIG3j4ARwL_Ao3ykdeQ'),(30,49,'447 East William Street','','San Jose','CA','95112','pickup',1,37.3331450,-121.8758540,'ChIJzdrOiMjMj4AR4gO-qTmVzh0'),(31,50,'2323 McKee Road','','San Jose','CA','95116','pickup',1,37.3669100,-121.8501100,'ChIJlS_SyQbNj4ARE_hh884WshQ');
 /*!40000 ALTER TABLE `addresses` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -80,7 +80,6 @@ CREATE TABLE `bookings` (
 
 LOCK TABLES `bookings` WRITE;
 /*!40000 ALTER TABLE `bookings` DISABLE KEYS */;
-INSERT INTO `bookings` VALUES (1,1,2,'2026-04-01 10:00:00','2026-04-03 10:00:00','confirmed','2026-03-17 03:45:31'),(2,2,3,'2026-04-02 09:00:00','2026-04-04 09:00:00','confirmed','2026-03-17 03:45:31'),(3,3,4,'2026-04-05 12:00:00','2026-04-07 12:00:00','confirmed','2026-03-17 03:45:31'),(4,4,5,'2026-04-01 08:00:00','2026-04-02 08:00:00','completed','2026-03-17 03:45:31'),(5,5,6,'2026-04-03 14:00:00','2026-04-06 14:00:00','confirmed','2026-03-17 03:45:31'),(6,6,7,'2026-04-07 10:00:00','2026-04-09 10:00:00','pending','2026-03-17 03:45:31'),(7,7,8,'2026-04-10 11:00:00','2026-04-12 11:00:00','confirmed','2026-03-17 03:45:31'),(8,8,1,'2026-04-02 15:00:00','2026-04-05 15:00:00','confirmed','2026-03-17 03:45:31'),(9,9,2,'2026-04-06 09:00:00','2026-04-08 09:00:00','cancelled','2026-03-17 03:45:31'),(10,10,3,'2026-04-08 13:00:00','2026-04-10 13:00:00','confirmed','2026-03-17 03:45:31');
 /*!40000 ALTER TABLE `bookings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -132,7 +131,6 @@ CREATE TABLE `displays` (
 
 LOCK TABLES `displays` WRITE;
 /*!40000 ALTER TABLE `displays` DISABLE KEYS */;
-INSERT INTO `displays` VALUES (1,1),(1,2),(2,3),(3,4),(3,5),(4,6),(5,7),(6,8),(7,9),(7,10),(8,11),(9,12),(10,13),(10,14);
 /*!40000 ALTER TABLE `displays` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -159,7 +157,6 @@ CREATE TABLE `has` (
 
 LOCK TABLES `has` WRITE;
 /*!40000 ALTER TABLE `has` DISABLE KEYS */;
-INSERT INTO `has` VALUES (1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9),(10,10);
 /*!40000 ALTER TABLE `has` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -177,7 +174,7 @@ CREATE TABLE `listing_images` (
   PRIMARY KEY (`image_id`),
   KEY `listing_id` (`listing_id`),
   CONSTRAINT `listing_images_ibfk_1` FOREIGN KEY (`listing_id`) REFERENCES `listings` (`listing_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -186,7 +183,7 @@ CREATE TABLE `listing_images` (
 
 LOCK TABLES `listing_images` WRITE;
 /*!40000 ALTER TABLE `listing_images` DISABLE KEYS */;
-INSERT INTO `listing_images` VALUES (1,1,'laptop1.jpg'),(2,1,'laptop2.jpg'),(3,2,'drill1.jpg'),(4,3,'basketball1.jpg'),(5,3,'basketball2.jpg'),(6,4,'tent1.jpg'),(7,5,'blender1.jpg'),(8,6,'ladder1.jpg'),(9,7,'camera1.jpg'),(10,7,'camera2.jpg'),(11,8,'ps5_1.jpg'),(12,9,'speaker1.jpg'),(13,10,'kayak1.jpg'),(14,10,'kayak2.jpg'),(17,13,'https://prevelo.com/cdn/shop/files/prevelo-bikes-alpha-three-braap-blue-7689386.jpg?v=1761340098&width=1726');
+INSERT INTO `listing_images` VALUES (34,26,'https://i.ebayimg.com/images/g/EGUAAOSwSWhjxdjA/s-l1200.jpg'),(35,26,'https://m.media-amazon.com/images/I/81rNO0tZ+EL.jpg'),(38,27,'https://www.cnet.com/a/img/resize/bebef835df90640f9aa2e4a2f2a2699cf53a301f/hub/2020/10/26/b60bfe6f-3193-4381-b0d4-ac628cdcc565/img-1419.jpg?auto=webp&width=1200'),(39,28,'https://hips.hearstapps.com/hmg-prod/images/cordless-drills-004-68152dbb47215.jpg?crop=1xw:1xh;center,top&resize=1200:*'),(40,29,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnAhfFLQjMjB1jGPFHOVm7Lw6EZ2PZqHNtKA&s'),(41,30,'https://whiteduckoutdoors.com/cdn/shop/files/13-Regatta-Bell-Tent-sandstone-beige-main-picture.jpg?v=1766397551'),(42,31,'https://hips.hearstapps.com/hmg-prod/images/camping-stoves-group-003-66b3cfb563bca.jpg?crop=0.604xw:0.907xh;0.252xw,0.0881xh&resize=640:*'),(43,32,'https://ooni.com/cdn/shop/products/RockerBlade1.jpg?crop=center&format=webp&height=2048&v=1685741150&width=2048'),(44,33,'https://m.media-amazon.com/images/I/61diuHxtr-L._AC_UF894,1000_QL80_.jpg');
 /*!40000 ALTER TABLE `listing_images` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -214,7 +211,7 @@ CREATE TABLE `listings` (
   CONSTRAINT `fk_listings_addresses` FOREIGN KEY (`address_id`) REFERENCES `addresses` (`address_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `listings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `listings_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -223,8 +220,37 @@ CREATE TABLE `listings` (
 
 LOCK TABLES `listings` WRITE;
 /*!40000 ALTER TABLE `listings` DISABLE KEYS */;
-INSERT INTO `listings` VALUES (1,1,1,'Laptop','Lightweight laptop for work and school',25.00,'2026-03-17 03:21:13',1,NULL),(2,2,2,'Power Drill','Cordless drill with battery included',10.00,'2026-03-17 03:21:13',1,NULL),(3,3,3,'Basketball Hoop','Adjustable outdoor hoop',12.00,'2026-03-17 03:21:13',1,NULL),(4,4,4,'Camping Tent','4-person waterproof tent',8.00,'2026-03-17 03:21:13',1,NULL),(5,5,5,'Blender','High-speed blender for smoothies',6.50,'2026-03-17 03:21:13',1,NULL),(6,6,6,'Ladder','10ft aluminum ladder',7.00,'2026-03-17 03:21:13',0,NULL),(7,7,7,'DSLR Camera','Canon camera with lens kit',30.00,'2026-03-17 03:21:13',1,NULL),(8,8,8,'PlayStation 5','Console with one controller',22.00,'2026-03-17 03:21:13',1,NULL),(9,1,9,'Bluetooth Speaker','Portable speaker with deep bass',5.00,'2026-03-17 03:21:13',1,NULL),(10,2,10,'Kayak','Single-person kayak for lakes',18.00,'2026-03-17 03:21:13',0,NULL),(13,36,10,'Bike','New and Smooth!',10.00,'2026-05-01 11:47:12',1,19);
+INSERT INTO `listings` VALUES (26,47,1,'Mac Book Pro','Great for School Work!\r\nWorks as good as new.',30.00,'2026-05-05 15:17:54',1,28),(27,47,8,'PS5','PS5 Account comes with many games!',20.00,'2026-05-05 15:19:55',1,28),(28,48,2,'Drill','Comes with two batteries.',25.00,'2026-05-05 15:53:26',1,29),(29,49,9,'Guitar','Acoustic \r\nSix string',8.00,'2026-05-05 16:06:53',1,30),(30,49,4,'Regatta Bell Tent','The Regatta is America\'s Favorite Bell Tent. It\'s versatile, spacious, and quick to pitch. Perfect for family camping, hunting trips or glamping getaways.',50.00,'2026-05-05 16:09:34',1,30),(31,49,4,'Portable Stove','Works great! Easy use for weekend trips.',10.00,'2026-05-05 16:13:12',1,30),(32,50,5,'Pizza Cutter','Sharp and Easy to Use',3.00,'2026-05-05 16:37:09',1,31),(33,50,5,'Hand Mixer','This hand mixer has the right speed for the task at hand, from mixing in nuts and chocolate chips at speed one, to whipping perfect meringues at speed five.\r\nLockable swivel cord keeps the cord out of your way while mixing.\r\nQuickly remove any of the included accessories from the hand mixer with the single-handed press of the button.',4.00,'2026-05-05 16:39:36',1,31);
 /*!40000 ALTER TABLE `listings` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `logs`
+--
+
+DROP TABLE IF EXISTS `logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `logs` (
+  `log_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL,
+  `action` varchar(100) DEFAULT NULL,
+  `details` text,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`log_id`),
+  KEY `fk_logs_user` (`user_id`),
+  CONSTRAINT `fk_logs_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `logs`
+--
+
+LOCK TABLES `logs` WRITE;
+/*!40000 ALTER TABLE `logs` DISABLE KEYS */;
+INSERT INTO `logs` VALUES (12,NULL,'ACCOUNT_CREATED','New account 43 added to database','2026-05-04 20:15:39'),(13,NULL,'EMAIL_VERIFIED','Status changed in database','2026-05-04 20:15:51'),(14,NULL,'CREATE_LISTING','Created listing ID: 23','2026-05-04 20:18:37'),(15,NULL,'CREATE_LISTING','Created listing ID: 24','2026-05-04 20:20:10'),(16,NULL,'CREATE_LISTING','Created listing ID: 25','2026-05-04 20:21:07'),(17,NULL,'UPDATED_PASSWORD','password has been changed','2026-05-04 20:22:18'),(19,NULL,'ACCOUNT_CREATED','New account 44 added to database','2026-05-04 21:19:47'),(20,NULL,'ACCOUNT_CREATED','New account 45 added to database','2026-05-05 03:13:37'),(21,NULL,'EMAIL_VERIFIED','Status changed in database','2026-05-05 03:36:54'),(22,47,'ACCOUNT_CREATED','New account 47 added to database','2026-05-05 15:12:33'),(23,47,'CREATE_LISTING','Created listing ID: 26','2026-05-05 15:17:54'),(24,47,'CREATE_LISTING','Created listing ID: 27','2026-05-05 15:19:55'),(25,47,'EDIT_LISTING','Edited Listing ID:27','2026-05-05 15:38:54'),(26,48,'ACCOUNT_CREATED','New account 48 added to database','2026-05-05 15:46:18'),(27,48,'CREATE_LISTING','Created listing ID: 28','2026-05-05 15:53:26'),(28,49,'ACCOUNT_CREATED','New account 49 added to database','2026-05-05 16:03:23'),(29,49,'CREATE_LISTING','Created listing ID: 29','2026-05-05 16:06:53'),(30,49,'CREATE_LISTING','Created listing ID: 30','2026-05-05 16:09:34'),(31,49,'CREATE_LISTING','Created listing ID: 31','2026-05-05 16:13:12'),(32,50,'ACCOUNT_CREATED','New account 50 added to database','2026-05-05 16:33:45'),(33,50,'CREATE_LISTING','Created listing ID: 32','2026-05-05 16:37:09'),(34,50,'CREATE_LISTING','Created listing ID: 33','2026-05-05 16:39:36'),(35,NULL,'ACCOUNT_CREATED','New account 51 added to database','2026-05-05 16:42:41'),(36,NULL,'EMAIL_VERIFIED','Status changed in database','2026-05-05 16:43:50');
+/*!40000 ALTER TABLE `logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -250,7 +276,6 @@ CREATE TABLE `makes` (
 
 LOCK TABLES `makes` WRITE;
 /*!40000 ALTER TABLE `makes` DISABLE KEYS */;
-INSERT INTO `makes` VALUES (2,1),(3,2),(4,3),(5,4),(6,5),(7,6),(8,7),(1,8),(2,9),(3,10);
 /*!40000 ALTER TABLE `makes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -279,7 +304,6 @@ CREATE TABLE `notifications` (
 
 LOCK TABLES `notifications` WRITE;
 /*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
-INSERT INTO `notifications` VALUES (1,1,'Your booking has been confirmed','2026-03-17 09:34:48',1),(2,2,'Your payment was successful','2026-03-17 09:34:48',1),(3,3,'New message from a renter','2026-03-17 09:34:48',0),(4,4,'Your listing has a new review','2026-03-17 09:34:48',0),(5,5,'Booking request pending approval','2026-03-17 09:34:48',0),(6,6,'Payment failed, please retry','2026-03-17 09:34:48',1),(7,7,'Your item has been returned','2026-03-17 09:34:48',1),(8,8,'New booking request received','2026-03-17 09:34:48',0);
 /*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -306,7 +330,6 @@ CREATE TABLE `owns` (
 
 LOCK TABLES `owns` WRITE;
 /*!40000 ALTER TABLE `owns` DISABLE KEYS */;
-INSERT INTO `owns` VALUES (1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(1,9),(2,10);
 /*!40000 ALTER TABLE `owns` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -336,7 +359,6 @@ CREATE TABLE `payments` (
 
 LOCK TABLES `payments` WRITE;
 /*!40000 ALTER TABLE `payments` DISABLE KEYS */;
-INSERT INTO `payments` VALUES (1,1,50.00,'credit_card','completed','2026-03-17 03:53:54'),(2,2,91.00,'debit_card','completed','2026-03-17 03:53:54'),(3,3,60.00,'paypal','completed','2026-03-17 03:53:54'),(4,4,30.00,'credit_card','completed','2026-03-17 03:53:54'),(5,5,24.00,'apple_pay','completed','2026-03-17 03:53:54'),(6,6,14.00,'debit_card','pending','2026-03-17 03:53:54'),(7,7,60.00,'credit_card','completed','2026-03-17 03:53:54'),(8,8,66.00,'paypal','completed','2026-03-17 03:53:54'),(9,9,10.00,'credit_card','refunded','2026-03-17 03:53:54'),(10,10,36.00,'debit_card','completed','2026-03-17 03:53:54');
 /*!40000 ALTER TABLE `payments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -363,7 +385,6 @@ CREATE TABLE `processes` (
 
 LOCK TABLES `processes` WRITE;
 /*!40000 ALTER TABLE `processes` DISABLE KEYS */;
-INSERT INTO `processes` VALUES (1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9),(10,10);
 /*!40000 ALTER TABLE `processes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -390,7 +411,6 @@ CREATE TABLE `receives` (
 
 LOCK TABLES `receives` WRITE;
 /*!40000 ALTER TABLE `receives` DISABLE KEYS */;
-INSERT INTO `receives` VALUES (1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9),(10,10);
 /*!40000 ALTER TABLE `receives` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -421,7 +441,6 @@ CREATE TABLE `reviews` (
 
 LOCK TABLES `reviews` WRITE;
 /*!40000 ALTER TABLE `reviews` DISABLE KEYS */;
-INSERT INTO `reviews` VALUES (1,1,2,4.5,'Great laptop, worked perfectly for my needs'),(2,2,3,4.0,'Drill was powerful and easy to use'),(3,3,4,4.8,'Basketball hoop was sturdy and fun'),(4,4,5,3.9,'Tent was decent but setup took time'),(5,5,6,4.2,'Blender worked well for smoothies'),(6,6,7,3.5,'Ladder was okay, a bit unstable'),(7,7,8,5.0,'Camera quality was amazing'),(8,8,1,4.6,'PS5 was in perfect condition'),(9,9,2,4.1,'Speaker had great sound quality'),(10,10,3,4.7,'Kayak was very fun and easy to use');
 /*!40000 ALTER TABLE `reviews` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -449,7 +468,6 @@ CREATE TABLE `user_profiles` (
 
 LOCK TABLES `user_profiles` WRITE;
 /*!40000 ALTER TABLE `user_profiles` DISABLE KEYS */;
-INSERT INTO `user_profiles` VALUES (1,'email','profile1.jpg',4.5,4.8),(2,'phone','profile2.jpg',3.9,4.2),(3,'email','profile3.jpg',4.7,4.6),(4,'text','profile4.jpg',4.0,3.8),(5,'email','profile5.jpg',3.5,4.1),(6,'phone','profile6.jpg',4.9,4.9),(7,'text','profile7.jpg',4.2,4.0),(8,'email','profile8.jpg',3.8,3.9);
 /*!40000 ALTER TABLE `user_profiles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -471,10 +489,11 @@ CREATE TABLE `users` (
   `verified` tinyint(1) NOT NULL DEFAULT '0',
   `gov_id` varchar(50) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `is_admin` tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `gov_id` (`gov_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -483,7 +502,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'','','alice.johnson@example.com','408-555-1001','hash_a91d2',NULL,1,'GOV1001','2026-03-15 23:43:20'),(2,'','','brian.smith@example.com','408-555-1002','hash_b38fa','token_1x92ab',0,'GOV1002','2026-03-15 23:43:20'),(3,'','','carla.gomez@example.com','408-555-1003','hash_c21de',NULL,1,'GOV1003','2026-03-15 23:43:20'),(4,'','','david.lee@example.com','408-555-1004','hash_d82ac','token_7z31pq',0,'GOV1004','2026-03-15 23:43:20'),(5,'','','emma.brown@example.com','408-555-1005','hash_e9af2',NULL,1,'GOV1005','2026-03-15 23:43:20'),(6,'','','frank.wilson@example.com','408-555-1006','hash_f34bc','token_8lm22x',0,'GOV1006','2026-03-15 23:43:20'),(7,'','','grace.kim@example.com','408-555-1007','hash_g72df',NULL,1,'GOV1007','2026-03-15 23:43:20'),(8,'','','henry.davis@example.com','408-555-1008','hash_h18cd','token_5k12nv',0,'GOV1008','2026-03-15 23:43:20'),(9,'','','isabella.martinez@example.com','408-555-1009','hash_i29ab',NULL,1,'GOV1009','2026-03-15 23:43:20'),(10,'','','jack.thompson@example.com','408-555-1010','hash_j93ed',NULL,1,'GOV1010','2026-03-15 23:43:20'),(11,'','','karen.white@example.com','408-555-1011','hash_k02ff','token_2ab44y',0,'GOV1011','2026-03-15 23:43:20'),(12,'','','liam.anderson@example.com','408-555-1012','hash_l44bc',NULL,1,'GOV1012','2026-03-15 23:43:20'),(13,'','','maya.patel@example.com','408-555-1013','hash_m77de',NULL,1,'GOV1013','2026-03-15 23:43:20'),(14,'','','noah.clark@example.com','408-555-1014','hash_n62aa','token_4mn77q',0,'GOV1014','2026-03-15 23:43:20'),(15,'','','olivia.harris@example.com','408-555-1015','hash_o11ff',NULL,1,'GOV1015','2026-03-15 23:43:20'),(16,'test1','tester','fakeemail@gmail.com','999-999-9999','$2a$10$S8WjIIxNTypz9Gzh8GXktO4SoGoGy3P7Bje8kEx5jhUbNLXbUgK66','',0,'y1234','2026-04-12 03:40:32'),(17,'Test2','Tester','Testing@gmail.com','133123123','$2a$10$YO1Lr.4yfXK.A2qvTFSJL.oTsv9NLQrknT7E4J3B3rR0WelAyiD1S','',0,'123','2026-04-14 18:24:17'),(21,'Test123','1234','123233@gmail.com','123123123123','$2a$10$ROrH3lpAOY.e9mjrciBwPOGVaeBmOLshkwxUzgqByFAaAp12WeItS','',0,'12312312312312','2026-04-14 18:41:29'),(22,'mark','saver','mark@gmail.com','111111111','$2a$10$ebdbxSp1rCBUZ8nOGmft/ehpuGqxhM/KW/2Hty2Hug8G.HSmc6eT2','',0,'111','2026-04-14 22:44:02'),(36,'James','Jonson','lendr.services@gmail.com','4082222222','$2a$10$WDuyzlYXxcZyKPwIX0YQvO4rfVoI.WvM8N0gAxx19tfLScxVA8Nze',NULL,1,'Y1223232','2026-05-01 11:43:09'),(37,'Sarah','S','fake@gmail.com','4085555555','$2a$10$I6zyu0BVzD0UNwfAqVQcOOEaOJjHYtFrLfZA2o5JpqH3bjKUD15ai','223dae17-afed-4f6f-99d1-27eea19f7bac',0,'Y1231231','2026-05-01 11:50:57');
+INSERT INTO `users` VALUES (41,'Admin','Lender','admin@lender.com','4089000909','$2a$10$iTdi679od2EUAUw6q4E4U.2EMfbhW4OUGvh8SqS3feyTgR7Q0vu3e','53619933-6581-4735-9834-ddc0ceb0ee77',1,'A1111111','2026-05-04 15:40:53',1),(47,'James','Smith','James@lender.com','4081112020','$2a$10$byD/ofEjcyLxUZb6VgXd..M.TEY0Y4pBXCtn5VP4urH5jON2D3WYC','32b52ce0-2e5f-4b2d-ae11-a7eebac236b8',1,'A1111112','2026-05-05 15:12:31',0),(48,'Maria','Garcia','Maria@lender.com','4081113030','$2a$10$oZpLQdWukxyySfXsCC/eae8MoUjSX5q0YwVFnxFcBlvDAzRXNMfOa','163b8fa9-f029-45f5-83f1-0f0d456953fa',1,'A1111113','2026-05-05 15:46:16',0),(49,'Micheal','Smith','Micheal@lender.com','4081234567','$2a$10$.R10GF0CZ4w.uOQqShKC2.jAk6Kj8r76Xdl.gshJegef3GfC3mcWa','cf4e0ed9-2c30-4ca4-9f75-63877bfbc591',1,'A1111114','2026-05-05 16:03:22',0),(50,'Anthony','Davis','Anthony@lender.com','4081120234','$2a$10$js4RxtabBRqvY.rXANvi9uq1FQa.IeA399sjPdtlVLa.iOKZEWIVK','1d086a50-48fb-4963-9a98-851fd68c6f2f',1,'A1111115','2026-05-05 16:33:43',0);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -496,4 +515,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-05-02 13:00:46
+-- Dump completed on 2026-05-05 16:58:52
