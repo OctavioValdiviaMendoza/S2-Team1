@@ -11,11 +11,13 @@ import javax.servlet.http.HttpSession;
 
 import model.User;
 import service.UserService;
+import dao.LogDAO;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private UserService userService = new UserService();
+    private LogDAO logDAO = new LogDAO();
 
     public LoginServlet() {
         super();
@@ -47,7 +49,13 @@ public class LoginServlet extends HttpServlet {
         if (user != null) {
             HttpSession session = request.getSession();
             session.setAttribute("userId", user.getUserId());
-            response.sendRedirect(request.getContextPath() + "/BrowseServlet");
+            session.setAttribute("isAdmin", user.getIsAdmin());
+            
+            if (user.getIsAdmin()) {
+                response.sendRedirect(request.getContextPath() +"/AdminServlet");
+            } else {
+            	response.sendRedirect(request.getContextPath() + "/BrowseServlet");
+            }
         } else {
         		request.setAttribute("errorMessage", "User Credentials Do Not Exist. Try again or Sign up.");
         		request.getRequestDispatcher("/views/Login.jsp").forward(request, response);

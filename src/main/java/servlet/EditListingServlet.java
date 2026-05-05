@@ -17,12 +17,14 @@ import model.User;
 import service.ListingService;
 import service.UserService;
 import service.CategoryService;
+import dao.LogDAO;
 
 @WebServlet("/EditListingServlet")
 public class EditListingServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private ListingService listingService = new ListingService();
     private CategoryService categoryService = new CategoryService();
+    private LogDAO logDAO = new LogDAO();
 
     private final UserService userService = new UserService();
 
@@ -193,6 +195,8 @@ public class EditListingServlet extends HttpServlet {
             request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
             return;
         }
+        
+        logDAO.addLog(userId, "EDIT_LISTING", "Edited Listing ID:" + listingId);
 
         response.sendRedirect(request.getContextPath() + "/ListingDetailServlet?listingId=" + listingId + "&message=Listing updated");
     }

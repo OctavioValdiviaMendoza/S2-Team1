@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import dao.LogDAO;
 
 @WebServlet("/CreateListingServlet")
 public class CreateListingServlet extends HttpServlet {
@@ -28,6 +29,7 @@ public class CreateListingServlet extends HttpServlet {
     private final CategoryService categoryService = new CategoryService();
     private final AddressService addressService = new AddressService();
     private final ListingService listingService = new ListingService();
+    private LogDAO logDAO = new LogDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -286,6 +288,7 @@ public class CreateListingServlet extends HttpServlet {
             return;
         }
 
+        logDAO.addLog(userId, "CREATE_LISTING", "Created listing ID: " + listingId);
         response.sendRedirect(request.getContextPath() + "/ListingDetailServlet?listingId=" + listingId);
     }
 

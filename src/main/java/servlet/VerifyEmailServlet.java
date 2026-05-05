@@ -10,12 +10,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import dao.UserDAO;
 import model.User;
+import dao.LogDAO;
 
 @WebServlet("/VerifyEmailServlet")
 public class VerifyEmailServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private UserDAO userDAO = new UserDAO();
+    private LogDAO logDAO = new LogDAO();
 
     public VerifyEmailServlet() {
         super();
@@ -50,6 +52,7 @@ public class VerifyEmailServlet extends HttpServlet {
         boolean verified = userDAO.verifyUser(token);
 
         if (verified) {
+        		logDAO.addLog(user.getUserId(), "EMAIL_VERIFIED", "Status changed in database");
             request.setAttribute("successMessage", "Email verified successfully. You can now log in.");
         } else {
             request.setAttribute("errorMessage", "Verification failed. Please try again.");

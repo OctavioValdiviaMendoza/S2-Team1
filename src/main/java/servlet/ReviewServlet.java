@@ -12,12 +12,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import service.ReviewService;
+import dao.LogDAO;
 
 @WebServlet("/ReviewServlet")
 public class ReviewServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private final ReviewService reviewService = new ReviewService();
+    private LogDAO logDAO = new LogDAO();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -40,6 +42,7 @@ public class ReviewServlet extends HttpServlet {
 
             boolean created = reviewService.createReview(listingId, userId, rating, comment);
             if (created) {
+            		logDAO.addLog(userId, "CREATE_REVIEW", "Reviewed listing ID: " + listingId);
                 redirectToListing(response, request, listingId, "Review submitted");
             } else {
                 redirectToListing(response, request, listingId,

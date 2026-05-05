@@ -39,8 +39,9 @@
     List<Listing> listings = (List<Listing>) request.getAttribute("listings");
 
 	Integer  userId = (Integer) session.getAttribute("userId");
-	boolean isLoggedIn = userId != null;
 	User loggedInUser = (User) request.getAttribute("currentUser");
+	
+	boolean isLoggedIn = userId != null && loggedInUser != null;
 	
     String firstName = isLoggedIn && loggedInUser.getFirstName() != null && !loggedInUser.getFirstName().trim().isEmpty()
         ? loggedInUser.getFirstName()

@@ -12,7 +12,7 @@ public class UserDAO {
 	
 	private static final String SELECT_USER_BY_EMAIL_SQL =
 			"SELECT user_id, first_name, last_name, email, phone_number, password_hash, " +
-			"verification_token, verified, gov_id, created_at " +
+			"verification_token, verified, gov_id, created_at, is_admin " +
 			"FROM users WHERE email = ?";
 			
 
@@ -61,6 +61,7 @@ public class UserDAO {
 	                    user.setVerifiedStatus(rs.getBoolean("verified"));
 	                    user.setGovId(rs.getString("gov_id"));
 	                    user.setCreatedAt(rs.getTimestamp("created_at"));
+	                    user.setIsAdmin(rs.getBoolean("is_admin"));
 	                }
 	            }
 
@@ -93,8 +94,9 @@ public class UserDAO {
 	                    rs.getString("verification_token"),
 	                    rs.getBoolean("verified"),
 	                    rs.getString("gov_id"),
-	                    rs.getTimestamp("created_at")
-	                );
+	                    rs.getTimestamp("created_at"),
+	                    rs.getBoolean("is_admin")
+	                    );
 	            }
 
 	            rs.close();
@@ -128,6 +130,7 @@ public class UserDAO {
 	                user.setVerifiedStatus(rs.getBoolean("verified"));
 	                user.setGovId(rs.getString("gov_id"));
 	                user.setCreatedAt(rs.getTimestamp("created_at"));
+	                user.setIsAdmin(rs.getBoolean("is_admin"));
 	                return user;
 	            }
 

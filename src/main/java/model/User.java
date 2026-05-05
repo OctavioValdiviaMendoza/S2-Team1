@@ -12,12 +12,13 @@ public class User{
 	private Boolean verifiedStatus;
 	private String govId;
 	private Timestamp createdAt;
+	private boolean isAdmin;
 	
 	public User() {}
 	
 	public User(int userId, String Fname,String Lname, String email, String phoneNumber,
             String passwordHash, String verificationToken,
-            boolean verifiedStatus, String govId, Timestamp createdAt) {
+            boolean verifiedStatus, String govId, Timestamp createdAt, boolean isAdmin) {
 		this.userId = userId;
 		this.firstName = Fname;
 		this.lastName = Lname;
@@ -109,4 +110,12 @@ public class User{
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
+
+	public boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+	public void setIsAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
 }

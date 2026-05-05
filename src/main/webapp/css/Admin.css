@@ -1,0 +1,119 @@
+@charset "UTF-8";
+.page-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px;
+    font-family: Arial, sans-serif;
+}
+
+/* ===== HEADER ===== */
+.admin-header {
+    margin-bottom: 25px;
+}
+
+.admin-title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.admin-subtitle {
+    color: #666;
+    font-size: 16px;
+}
+
+/* ===== TABLE CONTAINER ===== */
+.logs-container {
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    overflow-x: auto;
+}
+
+/* ===== TABLE ===== */
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* HEADER */
+.logs-table-header th {
+    background-color: #f4f6f8;
+    text-align: left;
+    padding: 12px;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+}
+
+/* ROWS */
+.log-row td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+/* HOVER EFFECT */
+.log-row:hover {
+    background-color: #fafafa;
+}
+
+/* ===== COLUMN STYLES ===== */
+.log-id {
+    color: #999;
+    font-size: 13px;
+}
+
+.log-user {
+    font-weight: bold;
+}
+
+.log-action {
+    font-weight: bold;
+    color: #2c7be5;
+}
+
+/* OPTIONAL: color-coded actions */
+.log-action:contains("CREATE") {
+    color: #28a745;
+}
+
+.log-action:contains("BOOKING") {
+    color: #17a2b8;
+}
+
+.log-action:contains("PAYMENT") {
+    color: #ffc107;
+}
+
+.log-details {
+    color: #555;
+}
+
+.log-time {
+    color: #888;
+    font-size: 13px;
+}
+
+/* ===== EMPTY STATE ===== */
+.no-logs-message {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+}
+
+/* ===== FOOTER ===== */
+.admin-footer {
+    margin-top: 20px;
+}
+
+.back-link {
+    text-decoration: none;
+    color: #2c7be5;
+    font-weight: bold;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}

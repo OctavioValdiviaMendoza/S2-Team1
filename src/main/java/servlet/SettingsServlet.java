@@ -14,12 +14,14 @@ import model.Listing;
 import model.Booking;
 import service.UserService;
 import service.ListingService;
+import dao.LogDAO;
 
 @WebServlet("/SettingsServlet")
 public class SettingsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private UserService userService = new UserService();
     private ListingService listingService = new ListingService();
+    private LogDAO logDAO = new LogDAO();
 
     public SettingsServlet() {
         super();
@@ -174,6 +176,7 @@ public class SettingsServlet extends HttpServlet {
         boolean success = userService.changePassword(userId, currentPassword, newPassword);
 
         if (success) {
+        		logDAO.addLog(userId, "UPDATED_PASSWORD", "password has been changed");
             request.setAttribute("message", "Password changed successfully");
         } else {
             request.setAttribute("error", "Current password is incorrect");
@@ -193,6 +196,7 @@ public class SettingsServlet extends HttpServlet {
             return;
         }
 
+        logDAO.addLog(userId, "DELETED_ACCOUNT", "Account has been removed from Database");
         boolean success = UserService.deleteAccount(userId);
 
         if (success) {

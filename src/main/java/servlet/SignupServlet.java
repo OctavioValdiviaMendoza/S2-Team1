@@ -12,6 +12,7 @@ import service.UserService;
 import model.User;
 import dao.UserDAO;
 import service.EmailService;
+import dao.LogDAO;
 
 @WebServlet("/SignupServlet")
 public class SignupServlet extends HttpServlet{
@@ -20,6 +21,8 @@ public class SignupServlet extends HttpServlet{
 	private UserService userService = new UserService();
 	private UserDAO userDAO = new UserDAO();
 	private EmailService emailService = new EmailService();
+	private LogDAO logDAO = new LogDAO();
+	
 	public SignupServlet() {
 		super();
 	}
@@ -97,6 +100,9 @@ public class SignupServlet extends HttpServlet{
             request.getRequestDispatcher("/views/Login.jsp").forward(request, response);
             return;
         }
+        
+        int userId = userDAO.getUserByEmail(email).getUserId();
+        logDAO.addLog(userId, "ACCOUNT_CREATED", "New account " + userId + " added to database");
         
         request.setAttribute("successMessage",
                 "Account created successfully. Please check your email to verify your account.");
