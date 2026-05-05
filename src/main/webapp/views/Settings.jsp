@@ -4,6 +4,7 @@
 <%@ page import="model.User" %>
 <%@ page import="model.Listing" %>
 <%@ page import="model.Booking" %>
+<%@ page import="service.EmailService" %>
 <%
     String contextPath = request.getContextPath();
 
@@ -140,6 +141,7 @@
                         <span class="profile-info-label">Account Created:</span>
                         <span class="profile-info-value"><%= createdAtText %></span>
                     </div>
+                  	<button  type="button" id="emailBtn" class="btn btn-primary" style ="margin-top: 20px;">Resend Verification Link</button>
                 </div>
 
                 <h3>Change Password</h3>
@@ -314,24 +316,46 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const tabButtons = document.querySelectorAll('.tab-btn');
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+    const emailButton = document.getElementById("emailBtn");
 
-            tabButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    const href = button.getAttribute('data-href');
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
-            });
+    if (emailButton) {
+        emailButton.addEventListener("click", function () {
+	        	fetch("<%= contextPath %>/ResendVerificationServlet", {
+	        	    method: "POST"
+	        	})
+	        	.then(response => response.text().then(text => {
+	        	    if (!response.ok) {
+	        	        throw new Error(text);
+	        	    }
+	        	    return text;
+	        	}))
+	        	.then(data => {
+	        	    alert("Please check your email for a new verification link.");
+	        	})
+	        	.catch(error => {
+	        	    alert(error.message);
+	        	});
         });
+    }
 
-        function confirmDeleteAccount() {
-            return confirm('Are you sure you want to permanently delete your account? This action cannot be undone.');
-        }
-    </script>
+    const tabButtons = document.querySelectorAll('.tab-btn');
+
+    tabButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            const href = button.getAttribute('data-href');
+            if (href) {
+                window.location.href = href;
+            }
+        });
+    });
+	});
+
+	function confirmDeleteAccount() {
+   		return confirm('Are you sure you want to permanently delete your account? This action cannot be undone.');
+	}
+</script>
 </body>
 </html>
 
