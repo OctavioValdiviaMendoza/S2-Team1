@@ -5,6 +5,11 @@
 <%@ page import="model.Address" %>
 <%
     String contextPath = request.getContextPath();
+
+	Boolean editModeObj = (Boolean) request.getAttribute("editMode");
+	boolean editMode = editModeObj != null && editModeObj;
+	String listingIdValue = request.getAttribute("listingIdValue") != null ? (String) request.getAttribute("listingIdValue") : "";
+
     List<Category> categories = (List<Category>) request.getAttribute("categories");
     List<String> errorMessages = (List<String>) request.getAttribute("errorMessages");
     User currentUser = (User) request.getAttribute("currentUser");
@@ -51,7 +56,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create a Listing - Lendr</title>
+    <title><%= editMode ? "Edit Listing" : "Create a Listing" %> - Lendr</title>
     <link rel="stylesheet" href="<%= contextPath %>/css/create-listing.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -75,7 +80,7 @@
     <main class="listing-shell">
         <section class="listing-intro">
             <span class="eyebrow">Lister View</span>
-            <h1>Create a listing that is ready to rent</h1>
+            <h1><%= editMode ? "Edit your listing" : "Create a listing that is ready to rent" %></h1>
             <p>Add the item details, your rate, payment methods, contact info, photos, and pickup address.</p>
         </section>
 
@@ -88,7 +93,11 @@
                 </div>
             <% } %>
 
-            <form id="create-listing-form" action="<%= contextPath %>/CreateListingServlet" method="post">
+            <form id="create-listing-form" action="<%= contextPath %>/<%= editMode ? "EditListingServlet" : "CreateListingServlet" %>" method="post">
+            <% if (editMode) { %>
+    				<input type="hidden" name="listingId" value="<%= listingIdValue %>">
+			<% } %>
+				
                 <div class="form-grid two-col">
                     <div class="form-group">
                         <label for="title">Listing Title</label>
@@ -277,8 +286,13 @@
                 </div>
 
                 <div class="form-footer">
-                    <p class="helper-text">Your listing will be added to the marketplace immediately after submission.</p>
-					<button type="submit" id="submit-btn" class="primary-btn">Create Listing</button>                </div>
+                    <p class="helper-text">
+   						 <%= editMode ? "Your changes will update this marketplace listing." : "Your listing will be added to the marketplace immediately after submission." %>
+					</p>
+					<button type="submit" id="submit-btn" class="primary-btn">
+   						<%= editMode ? "Update Listing" : "Create Listing" %>
+					</button>               
+				</div>
             </form>
         </section>
     </main>

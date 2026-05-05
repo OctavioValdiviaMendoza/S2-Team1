@@ -16,8 +16,10 @@ import model.Listing;
 import model.User;
 import service.ListingService;
 import service.UserService;
+import service.AddressService;
 import service.CategoryService;
 import dao.LogDAO;
+
 
 @WebServlet("/EditListingServlet")
 public class EditListingServlet extends HttpServlet {
@@ -25,6 +27,7 @@ public class EditListingServlet extends HttpServlet {
     private ListingService listingService = new ListingService();
     private CategoryService categoryService = new CategoryService();
     private LogDAO logDAO = new LogDAO();
+    private AddressService addressService = new AddressService();
 
     private final UserService userService = new UserService();
 
@@ -55,6 +58,7 @@ public class EditListingServlet extends HttpServlet {
         	
         loadFormData(request, session);
         populateFormValues(request, listing, listingService.getImageUrlsByListingId(listingId));
+        request.setAttribute("addressIdValue", String.valueOf(listing.getAddressId()));
         request.setAttribute("editMode", true);
         request.setAttribute("listingIdValue", String.valueOf(listingId));
         request.setAttribute("googleMapsApiKey", googleMapsApiKey);
@@ -178,6 +182,7 @@ public class EditListingServlet extends HttpServlet {
         Listing listing = new Listing();
         listing.setListingId(listingId);
         listing.setUserId(userId);
+        listing.setAddressId(existingListing.getAddressId());
         listing.setCategoryId(parsedCategoryId);
         listing.setTitle(title);
         listing.setDescription(description);
@@ -212,6 +217,10 @@ public class EditListingServlet extends HttpServlet {
             user = userService.getUserById(userId);
         }
         request.setAttribute("currentUser", user);
+
+        if (userId != null) {
+            request.setAttribute("userAddresses", addressService.getAddressesByUserId(userId));
+        }
     }
 
     private void populateFormValues(HttpServletRequest request, Listing listing, List<String> imageUrls) {
