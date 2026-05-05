@@ -41,6 +41,12 @@ public class CreateListingServlet extends HttpServlet {
             return;
         }
 
+        int userId = (Integer) session.getAttribute("userId");
+        if (!isUserVerified(userId)) {
+            response.sendRedirect(request.getContextPath() + "/SettingsServlet?action=profile&error=Verify your email before creating a listing.");
+            return;
+        }
+
         loadFormData(request, session);
         
         String googleMapsApiKey = System.getenv("GOOGLE_MAPS_API_KEY");
@@ -60,6 +66,10 @@ public class CreateListingServlet extends HttpServlet {
         }
 
         int userId = (Integer) session.getAttribute("userId");
+        if (!isUserVerified(userId)) {
+            response.sendRedirect(request.getContextPath() + "/SettingsServlet?action=profile&error=Verify your email before creating a listing.");
+            return;
+        }
 
         String title = trim(request.getParameter("title"));
         String description = trim(request.getParameter("description"));
@@ -309,6 +319,11 @@ public class CreateListingServlet extends HttpServlet {
         if (userId != null) {
             request.setAttribute("userAddresses", addressService.getAddressesByUserId(userId));
         }
+    }
+
+    private boolean isUserVerified(int userId) {
+        User currentUser = userService.getUserById(userId);
+        return currentUser != null && currentUser.isVerifiedStatus();
     }
 
     private List<String> parseImageLinks(String raw) {

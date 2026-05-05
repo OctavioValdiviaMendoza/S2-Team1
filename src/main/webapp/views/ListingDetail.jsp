@@ -241,6 +241,14 @@
                                href="<%= request.getContextPath() %>/EditListingServlet?listingId=<%= listing.getListingId() %>">
                                 Edit Listing
                             </a>
+                        <% } else if (isLoggedIn && !loggedInUser.isVerifiedStatus()) { %>
+                            <a class="btn btn-primary disabled" style="pointer-events: none; opacity: 0.65;">
+                                Verify Email to Book
+                            </a>
+                            <a class="btn btn-secondary"
+                               href="<%= request.getContextPath() %>/SettingsServlet?action=profile">
+                                Verify Email
+                            </a>
                         <% } else { %>
                             <a class="btn btn-primary"
                                href="<%= request.getContextPath() %>/CheckoutServlet?listingId=<%= listing.getListingId() %>">
