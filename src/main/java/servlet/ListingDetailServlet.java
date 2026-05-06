@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import model.Address;
 import model.Listing;
@@ -55,13 +56,11 @@ public class ListingDetailServlet extends HttpServlet {
             List<String> imageUrls = listingService.getImageUrlsByListingId(listingId);
             List<Review> reviews = reviewService.getReviewsByListingId(listingId);
 
-            Integer currentUserId = null;
-            if (request.getSession(false) != null
-                    && request.getSession(false).getAttribute("userId") != null) {
-                currentUserId = (Integer) request.getSession(false).getAttribute("userId");
-            }
+            HttpSession session = request.getSession(false);
+            Integer currentUserId = session != null ? (Integer) session.getAttribute("userId") : null;
+            boolean loggedIn = currentUserId != null;
             
-            User currentUser = null; 
+            User currentUser = null; 	
             
             if(currentUserId != null) {
             		currentUser = userService.getUserById(currentUserId);
@@ -94,6 +93,7 @@ public class ListingDetailServlet extends HttpServlet {
             request.setAttribute("canReview", canReview);
             request.setAttribute("hasReviewed", hasReviewed);
             request.setAttribute("currentUser", currentUser);
+            request.setAttribute("loggedIn", loggedIn);
 
             request.getRequestDispatcher("/views/ListingDetail.jsp").forward(request, response);
 

@@ -18,10 +18,15 @@
     Boolean canReview = (Boolean) request.getAttribute("canReview");
     Boolean hasReviewed = (Boolean) request.getAttribute("hasReviewed");
 
-    Integer  currentUserId = (Integer) session.getAttribute("userId");
-	User loggedInUser = (User) request.getAttribute("currentUser");
-	
-	boolean isLoggedIn = currentUserId != null && loggedInUser != null;
+    Integer currentUserId = (Integer) session.getAttribute("userId");
+    User loggedInUser = (User) request.getAttribute("currentUser");
+
+    Boolean loggedInAttr = (Boolean) request.getAttribute("loggedIn");
+    boolean isLoggedIn = Boolean.TRUE.equals(loggedInAttr) && loggedInUser != null;
+
+    String firstName = isLoggedIn && loggedInUser.getFirstName() != null && !loggedInUser.getFirstName().trim().isEmpty()
+        ? loggedInUser.getFirstName()
+        : "User";
 
     boolean ownerViewing = currentUserId != null && currentUserId.intValue() == listing.getUserId();
     boolean showReviewForm = Boolean.TRUE.equals(canReview);
@@ -109,9 +114,7 @@
         <% if (isLoggedIn) { %>
             <div class="profile-menu">
                 <span class="welcome-text">
-                    Hello <%= loggedInUser.getFirstName() != null && !loggedInUser.getFirstName().trim().isEmpty()
-                            ? loggedInUser.getFirstName()
-                            : "User" %>
+                    Hi, <%= firstName %>
                 </span>
 
                 <button type="button" class="profile-trigger" onclick="toggleProfileDropdown(event)">
@@ -119,9 +122,10 @@
                 </button>
 
                 <div id="profileDropdown" class="profile-dropdown">
-                    <a class="dropdown-item" href="<%= request.getContextPath() %>/BrowseServlet">Browse</a>
-                    <a class="dropdown-item" href="<%= request.getContextPath() %>/SettingsServlet">Settings</a>
-                    <a class="dropdown-item logout-item" href="<%= request.getContextPath() %>/LogoutServlet">Logout</a>
+                    <a href="<%= request.getContextPath() %>/BrowseServlet?view=mine" class="dropdown-item">My Listings</a>
+					<a href="<%= request.getContextPath() %>/SettingsServlet?action=rentings" class="dropdown-item">My Rentings</a>
+					<a href="<%= request.getContextPath() %>/SettingsServlet" class="dropdown-item">Account Settings</a>
+					<a href="<%= request.getContextPath() %>/LogoutServlet" class="dropdown-item logout-item">Log Out</a>
                 </div>
             </div>
         <% } else { %>
