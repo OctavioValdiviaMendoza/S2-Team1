@@ -12,7 +12,8 @@
     List<Listing> listings = (List<Listing>) request.getAttribute("listings");
     List<Booking> pendingRequests = (List<Booking>) request.getAttribute("pendingRequests");
     List<Booking> processedRequests = (List<Booking>) request.getAttribute("processedRequests");
-
+    List<Booking> renterBookings = (List<Booking>) request.getAttribute("renterBookings");
+    
     String paymentMethod = (String) request.getAttribute("paymentMethod");
     String verificationStatus = (String) request.getAttribute("verificationStatus");
     String activeTab = (String) request.getAttribute("activeTab");
@@ -62,6 +63,7 @@
     int listingCount = listings != null ? listings.size() : 0;
     int pendingCount = pendingRequests != null ? pendingRequests.size() : 0;
     int processedCount = processedRequests != null ? processedRequests.size() : 0;
+    int renterBookingCount = renterBookings != null ? renterBookings.size() : 0;
 %>
 <!DOCTYPE html>
 <html>
@@ -109,6 +111,10 @@
                         data-href="<%= contextPath %>/SettingsServlet?action=requests">
                     Rental Requests
                 </button>
+                <button class="tab-btn <%= "rentings".equals(activeTab) ? "active" : "" %>" type="button"
+				        data-href="<%= contextPath %>/SettingsServlet?action=rentings">
+				    My Rentings
+				</button>
             </div>
 
             <div id="profile" class="tab-content <%= "profile".equals(activeTab) ? "active" : "" %>">
@@ -313,6 +319,57 @@
                     </div>
                 <% } %>
             </div>
+            
+            <div id="rentings" class="tab-content <%= "rentings".equals(activeTab) ? "active" : "" %>">
+			    <h3>My Rentings</h3>
+			
+			    <p style="margin-bottom: 20px;">
+			        You currently have <strong><%= renterBookingCount %></strong> booking request(s).
+			    </p>
+			
+			    <% if (renterBookings != null && !renterBookings.isEmpty()) { %>
+			        <% for (Booking booking : renterBookings) { %>
+			            <div class="booking-card">
+			                <h4><%= booking.getListingTitle() != null ? booking.getListingTitle() : "Listing" %></h4>
+			
+			                <div class="booking-meta">
+			                    <p>Owner: <%= booking.getOwnerName() != null && !booking.getOwnerName().trim().isEmpty()
+			                            ? booking.getOwnerName()
+			                            : "Unknown owner" %></p>
+			
+			                    <p>Dates:
+			                        <%= booking.getStartTime() != null ? dateTimeFormat.format(booking.getStartTime()) : "N/A" %>
+			                        to
+			                        <%= booking.getEndTime() != null ? dateTimeFormat.format(booking.getEndTime()) : "N/A" %>
+			                    </p>
+			
+			                    <p>Payment Method: <%= booking.getPaymentMethod() != null ? booking.getPaymentMethod() : "Not provided" %></p>
+			                    <p>Rate: $<%= String.format("%.2f", booking.getRentPrice()) %></p>
+			
+			                    <p>Status:
+			                        <span class="status-badge <%= statusClass(booking.getStatus()) %>">
+			                            <%= booking.getStatus() != null ? booking.getStatus() : "Unknown" %>
+			                        </span>
+			                    </p>
+			                </div>
+			
+			                <div class="booking-actions">
+			                    <a class="btn btn-primary"
+			                       href="<%= contextPath %>/ListingDetailServlet?listingId=<%= booking.getListingId() %>">
+			                        View Listing
+			                    </a>
+			                </div>
+			            </div>
+			        <% } %>
+			    <% } else { %>
+			        <div class="empty-state">
+			            <div class="empty-state-icon">🧾</div>
+			            <h4>No Rentings Yet</h4>
+			            <p>Your booking requests and rental statuses will appear here.</p>
+			            <a class="btn btn-primary" href="<%= contextPath %>/BrowseServlet">Browse Listings</a>
+			        </div>
+			    <% } %>
+			</div>
         </div>
     </div>
 

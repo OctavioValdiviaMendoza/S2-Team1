@@ -37,7 +37,9 @@ public class SignupServlet extends HttpServlet{
         String govId = request.getParameter("govId");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
-        
+        request.getParameterMap().forEach((key, value) ->
+	        System.out.println(key + " = " + java.util.Arrays.toString(value))
+	    );
         
         //For Demo purposes fake id will be used and it is in the form of letter and 7 digits
         	//For example Y1234567
@@ -47,12 +49,17 @@ public class SignupServlet extends HttpServlet{
             return;
         }
         
-        if (!password.equals(confirmPassword)) {
+        if (password == null || confirmPassword == null || !password.equals(confirmPassword)) {
             request.setAttribute("errorMessage", "Passwords do not match.");
             request.getRequestDispatcher("/views/SignUp.jsp").forward(request, response);
             return;
         }
         
+        if (phoneNumber == null) {
+            request.setAttribute("errorMessage", "Phone number is required");
+            request.getRequestDispatcher("/views/SignUp.jsp").forward(request, response);
+            return;
+        }
         
         phoneNumber = phoneNumber.replaceAll("\\D", "");
         if (phoneNumber.length() != 10) {
@@ -76,6 +83,12 @@ public class SignupServlet extends HttpServlet{
         user.setVerifiedStatus(false);
         
         user.setPasswordHash(hashedPassword);
+        
+        if (userDAO.emailExists(email)) {
+            request.setAttribute("errorMessage", "An account with this email already exists.");
+            request.getRequestDispatcher("/views/SignUp.jsp").forward(request, response);
+            return;
+        }
         
         boolean inserted = userDAO.insertUser(user);
         

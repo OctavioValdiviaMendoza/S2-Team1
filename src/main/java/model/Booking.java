@@ -14,6 +14,7 @@ public class Booking {
     private Timestamp createdAt;
     private String paymentMethod;
     private double rentPrice;
+    private String ownerName;
 
     public Booking() {}
 
@@ -116,4 +117,13 @@ public class Booking {
     public void setRentPrice(double rentPrice) {
         this.rentPrice = rentPrice;
     }
+    
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+    
 }

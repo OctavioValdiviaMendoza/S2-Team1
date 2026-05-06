@@ -89,10 +89,10 @@
 
                     <div class="profile-dropdown" id="profileDropdown">
                         <a href="javascript:void(0);" class="dropdown-item" id="myListingsLink">My Listings</a>
-                        <a href="javascript:void(0);" class="dropdown-item">My Rentings</a>
+                        <a href="<%= contextPath %>/SettingsServlet?action=rentings" class="dropdown-item">My Rentings</a>
                         <a href="<%= contextPath %>/SettingsServlet" class="dropdown-item">Account Settings</a>
                         <a href="<%= contextPath %>/LogoutServlet" class="dropdown-item logout-item">Log Out</a>
-                    </div>
+					</div>
                 </div>
             <% } %>
         </div>

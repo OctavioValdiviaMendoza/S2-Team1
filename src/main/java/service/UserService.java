@@ -20,6 +20,7 @@ public class UserService {
 		return user;
 		
 	}
+	
     public static String getPaymentMethod(int userId) {
         String paymentMethod = null;
         try {
@@ -219,6 +220,136 @@ public class UserService {
         }
 
         return null;
+    }
+    
+    // Email Look up
+    public static Booking getBookingById(int bookingId) {
+        Booking booking = null;
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String sql =
+                "SELECT b.*, l.title AS listing_title, l.price, " +
+                "u.first_name, u.last_name, u.email, " +
+                "(SELECT payment_method FROM payments WHERE booking_id = b.booking_id LIMIT 1) AS payment_method " +
+                "FROM bookings b " +
+                "JOIN listings l ON b.listing_id = l.listing_id " +
+                "JOIN users u ON b.user_id = u.user_id " +
+                "WHERE b.booking_id = ?";
+
+            PreparedStatement pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, bookingId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                booking = new Booking(
+                    rs.getInt("booking_id"),
+                    rs.getInt("listing_id"),
+                    rs.getInt("user_id"),
+                    rs.getTimestamp("start_time"),
+                    rs.getTimestamp("end_time"),
+                    rs.getString("status"),
+                    rs.getTimestamp("created_at")
+                );
+
+                booking.setListingTitle(rs.getString("listing_title"));
+                booking.setRentPrice(rs.getDouble("price"));
+                booking.setPaymentMethod(rs.getString("payment_method"));
+
+                String first = rs.getString("first_name");
+                String last = rs.getString("last_name");
+                String email = rs.getString("email");
+
+                String renterName = "";
+
+                if (first != null && !first.trim().isEmpty()) {
+                    renterName += first.trim();
+                }
+
+                if (last != null && !last.trim().isEmpty()) {
+                    renterName += (renterName.isEmpty() ? "" : " ") + last.trim();
+                }
+
+                booking.setRenterName(renterName);
+            }
+
+            rs.close();
+            pstmt.close();
+            con.close();
+
+        } catch (Exception e) {
+            System.out.println("Error fetching booking: " + e);
+        }
+
+        return booking;
+    }
+    
+    public static List<Booking> getRenterBookings(int userId) {
+        List<Booking> bookings = new ArrayList<>();
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String sql =
+                "SELECT b.*, l.title AS listing_title, l.price, " +
+                "owner.first_name, owner.last_name, " +
+                "(SELECT payment_method FROM payments WHERE booking_id = b.booking_id LIMIT 1) AS payment_method " +
+                "FROM bookings b " +
+                "JOIN listings l ON b.listing_id = l.listing_id " +
+                "JOIN users owner ON l.user_id = owner.user_id " +
+                "WHERE b.user_id = ? " +
+                "ORDER BY b.created_at DESC";
+
+            PreparedStatement pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, userId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Booking booking = new Booking(
+                    rs.getInt("booking_id"),
+                    rs.getInt("listing_id"),
+                    rs.getInt("user_id"),
+                    rs.getTimestamp("start_time"),
+                    rs.getTimestamp("end_time"),
+                    rs.getString("status"),
+                    rs.getTimestamp("created_at")
+                );
+
+                booking.setListingTitle(rs.getString("listing_title"));
+                booking.setRentPrice(rs.getDouble("price"));
+                booking.setPaymentMethod(rs.getString("payment_method"));
+
+                // Build owner name (same style as your getBookingById)
+                String first = rs.getString("first_name");
+                String last = rs.getString("last_name");
+
+                String ownerName = "";
+
+                if (first != null && !first.trim().isEmpty()) {
+                    ownerName += first.trim();
+                }
+
+                if (last != null && !last.trim().isEmpty()) {
+                    ownerName += (ownerName.isEmpty() ? "" : " ") + last.trim();
+                }
+
+                booking.setOwnerName(ownerName);
+
+                bookings.add(booking);
+            }
+
+            rs.close();
+            pstmt.close();
+            con.close();
+
+        } catch (Exception e) {
+            System.out.println("Error fetching renter bookings: " + e);
+        }
+
+        return bookings;
     }
     
 }

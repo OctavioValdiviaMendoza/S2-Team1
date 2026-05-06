@@ -2,6 +2,7 @@ package servlet;
 
 import java.io.IOException;
 import java.util.List;
+
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,20 +13,23 @@ import javax.servlet.http.HttpSession;
 import model.User;
 import model.Listing;
 import model.Booking;
+
 import service.UserService;
 import service.ListingService;
+import service.EmailService;
+import service.BookingService;
 import dao.LogDAO;
+
 
 @WebServlet("/SettingsServlet")
 public class SettingsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+
     private UserService userService = new UserService();
     private ListingService listingService = new ListingService();
     private LogDAO logDAO = new LogDAO();
-
-    public SettingsServlet() {
-        super();
-    }
+    private EmailService emailService = new EmailService();
+    private BookingService bookingService = new BookingService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -55,6 +59,9 @@ public class SettingsServlet extends HttpServlet {
                     break;
                 case "requests":
                     loadRentalRequests(userId, request, response);
+                    break;
+                case "rentings":
+                    loadUserRentings(userId, request, response);
                     break;
                 default:
                     loadProfileSettings(userId, request, response);
@@ -114,7 +121,8 @@ public class SettingsServlet extends HttpServlet {
         List<Listing> listings = listingService.getListingsByUserId(userId);
         List<Booking> pendingRequests = UserService.getPendingRentalRequests(userId);
         List<Booking> processedRequests = UserService.getProcessedRentalRequests(userId);
-
+        List<Booking> renterBookings = UserService.getRenterBookings(userId);
+        
         request.setAttribute("user", user);
         request.setAttribute("paymentMethod", paymentMethod);
         request.setAttribute("verificationStatus",
@@ -122,6 +130,7 @@ public class SettingsServlet extends HttpServlet {
         request.setAttribute("listings", listings);
         request.setAttribute("pendingRequests", pendingRequests);
         request.setAttribute("processedRequests", processedRequests);
+        request.setAttribute("renterBookings", renterBookings);
     }
 
     private void loadProfileSettings(int userId, HttpServletRequest request, HttpServletResponse response)
@@ -137,14 +146,22 @@ public class SettingsServlet extends HttpServlet {
         request.setAttribute("activeTab", "listings");
         request.getRequestDispatcher("views/Settings.jsp").forward(request, response);
     }
-
+    
+    private void loadUserRentings(int userId, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        loadCommonSettingsData(userId, request);
+        request.setAttribute("activeTab", "rentings");
+        request.getRequestDispatcher("views/Settings.jsp").forward(request, response);
+    }
+    
     private void loadRentalRequests(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         loadCommonSettingsData(userId, request);
         request.setAttribute("activeTab", "requests");
         request.getRequestDispatcher("views/Settings.jsp").forward(request, response);
     }
-
+    
+    
     private void handleChangePassword(int userId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -223,13 +240,48 @@ public class SettingsServlet extends HttpServlet {
 
         try {
             int bookingId = Integer.parseInt(bookingIdStr);
+
+            Booking booking = UserService.getBookingById(bookingId);
+
+            if (booking == null) {
+                response.sendRedirect("SettingsServlet?action=requests&error=Booking not found");
+                return;
+            }
+
+            if (bookingService.hasOverlappingConfirmedBooking(booking)) {
+                response.sendRedirect("SettingsServlet?action=requests&error=Another booking is already confirmed for those dates");
+                return;
+            }
+
             boolean success = UserService.updateBookingStatus(bookingId, userId, "confirmed");
 
             if (success) {
-                response.sendRedirect("SettingsServlet?action=requests&message=Rental request accepted");
+                List<Integer> deniedBookingIds = bookingService.getOverlappingPendingBookingIds(booking);
+                bookingService.denyBookingsByIds(deniedBookingIds);
+
+                User acceptedRenter = userService.getUserById(booking.getUserId());
+
+                if (acceptedRenter != null && acceptedRenter.getEmail() != null) {
+                    emailService.sendBookingDecisionEmail(acceptedRenter, booking, "confirmed");
+                }
+
+                for (Integer deniedBookingId : deniedBookingIds) {
+                    Booking deniedBooking = UserService.getBookingById(deniedBookingId);
+
+                    if (deniedBooking != null) {
+                        User deniedRenter = userService.getUserById(deniedBooking.getUserId());
+
+                        if (deniedRenter != null && deniedRenter.getEmail() != null) {
+                            emailService.sendBookingDecisionEmail(deniedRenter, deniedBooking, "denied");
+                        }
+                    }
+                }
+
+                response.sendRedirect("SettingsServlet?action=requests&message=Rental request accepted. Overlapping pending requests were denied.");
             } else {
                 response.sendRedirect("SettingsServlet?action=requests&error=Failed to accept request");
             }
+
         } catch (NumberFormatException e) {
             response.sendRedirect("SettingsServlet?action=requests&error=Invalid booking ID");
         }
@@ -250,6 +302,16 @@ public class SettingsServlet extends HttpServlet {
             boolean success = UserService.updateBookingStatus(bookingId, userId, "denied");
 
             if (success) {
+                Booking booking = UserService.getBookingById(bookingId);
+
+                if (booking != null) {
+                    User renter = userService.getUserById(booking.getUserId());
+
+                    if (renter != null && renter.getEmail() != null) {
+                        emailService.sendBookingDecisionEmail(renter, booking, "denied");
+                    }
+                }
+                
                 response.sendRedirect("SettingsServlet?action=requests&message=Rental request denied");
             } else {
                 response.sendRedirect("SettingsServlet?action=requests&error=Failed to deny request");
