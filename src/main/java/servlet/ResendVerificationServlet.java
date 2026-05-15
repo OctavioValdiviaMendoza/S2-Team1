@@ -12,12 +12,14 @@ import javax.servlet.http.HttpSession;
 import model.User;
 import service.EmailService;
 import service.UserService;
+import dao.LogDAO;
 
 @WebServlet("/ResendVerificationServlet")
 public class ResendVerificationServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private UserService userService = new UserService();
     private EmailService emailService = new EmailService();
+    private LogDAO logDAO = new LogDAO();
 
     public ResendVerificationServlet() {
         super();
@@ -79,9 +81,12 @@ public class ResendVerificationServlet extends HttpServlet {
         );
 
         if (emailSent) {
+        		logDAO.addLog(userId, "VERIFICATION_LINK_SENT", "User requested a verification email");
             response.getWriter().write("success");
         } else {
+        		logDAO.addLog(userId, "VERIFICATION_LINK_NOT_SENT", "FAILED: user requested verifiation email");
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            
             response.getWriter().write("Failed to send verification email.");
         }
     }

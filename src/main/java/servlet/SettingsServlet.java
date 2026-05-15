@@ -263,6 +263,7 @@ public class SettingsServlet extends HttpServlet {
 
                 if (acceptedRenter != null && acceptedRenter.getEmail() != null) {
                     emailService.sendBookingDecisionEmail(acceptedRenter, booking, "confirmed");
+                    logDAO.addLog(userId, "BOOKING_ACCEPTED", "Booking " + bookingId + " has been accepted");
                 }
 
                 for (Integer deniedBookingId : deniedBookingIds) {
@@ -273,6 +274,7 @@ public class SettingsServlet extends HttpServlet {
 
                         if (deniedRenter != null && deniedRenter.getEmail() != null) {
                             emailService.sendBookingDecisionEmail(deniedRenter, deniedBooking, "denied");
+                            logDAO.addLog(userId, "BOOKING_ACCEPTED", "Booking " + bookingId + " has been rejected");
                         }
                     }
                 }

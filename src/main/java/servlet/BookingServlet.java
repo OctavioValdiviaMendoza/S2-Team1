@@ -19,6 +19,7 @@ import service.BookingService;
 import service.EmailService;
 import service.ListingService;
 import service.UserService;
+import dao.LogDAO;
 
 @WebServlet("/BookingServlet")
 public class BookingServlet extends HttpServlet {
@@ -28,6 +29,7 @@ public class BookingServlet extends HttpServlet {
     private final ListingService listingService = new ListingService();
     private final UserService userService = new UserService();
     private final EmailService emailService = new EmailService();
+    private LogDAO logDAO = new LogDAO();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -94,10 +96,12 @@ public class BookingServlet extends HttpServlet {
         int bookingId = bookingService.createBookingRequest(listingId, renterUserId, startTime, endTime);
 
         if (bookingId <= 0) {
+            logDAO.addLog(renterUserId, "FAILED_BOOKING", "Requested Booking for Item: " + listingId + "failed");
             redirectToListing(response, request, listingId, "Booking request could not be created.");
             return;
         }
-
+        logDAO.addLog(renterUserId, "CREATE_BOOKING", "Requested Booking for Item: " + listingId);
+        
         User owner = userService.getUserById(listing.getUserId());
         User renter = userService.getUserById(renterUserId);
 
