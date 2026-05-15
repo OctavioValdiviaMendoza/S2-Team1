@@ -135,12 +135,11 @@
                         <select id="pricingUnit" name="pricingUnit" required>
                             <option value="">Choose one</option>
                             <option value="day" <%= "day".equals(pricingUnitValue) ? "selected" : "" %>>Per day</option>
-                            <option value="hour" <%= "hour".equals(pricingUnitValue) ? "selected" : "" %>>Per hour</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="fulfillmentMethod">Pickup / Drop-off</label>
+                        <label for="fulfillmentMethod">Method of Delivery</label>
                         <select id="fulfillmentMethod" name="fulfillmentMethod" required>
                             <option value="">Choose one</option>
                             <option value="pickup" <%= "pickup".equals(fulfillmentMethodValue) ? "selected" : "" %>>Pickup only</option>
@@ -258,9 +257,7 @@
                         <select id="contactMethod" name="contactMethod" required data-default-email="<%= defaultEmail %>" data-default-phone="<%= defaultPhone %>">
                             <option value="">Choose one</option>
                             <option value="email" <%= "email".equals(contactMethodValue) ? "selected" : "" %>>Email</option>
-                            <option value="phone" <%= "phone".equals(contactMethodValue) ? "selected" : "" %>>Phone</option>
-                            <option value="text" <%= "text".equals(contactMethodValue) ? "selected" : "" %>>Text</option>
-                        </select>
+                            <option value="phone" <%= "phone".equals(contactMethodValue) ? "selected" : "" %>>Phone</option>                        </select>
                     </div>
 
                     <div class="form-group">
