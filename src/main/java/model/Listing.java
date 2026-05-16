@@ -15,10 +15,6 @@ public class Listing {
     private String imageUrl; // Primary image URL
     private String location; // From addresses table
     private String pricingUnit;
-    private String acceptedPaymentMethods;
-    private String contactMethod;
-    private String contactInfo;
-    private String fulfillmentMethod;
     private int addressId;
 
 
@@ -131,38 +127,6 @@ public class Listing {
 
     public void setPricingUnit(String pricingUnit) {
         this.pricingUnit = pricingUnit;
-    }
-
-    public String getAcceptedPaymentMethods() {
-        return acceptedPaymentMethods;
-    }
-
-    public void setAcceptedPaymentMethods(String acceptedPaymentMethods) {
-        this.acceptedPaymentMethods = acceptedPaymentMethods;
-    }
-
-    public String getContactMethod() {
-        return contactMethod;
-    }
-
-    public void setContactMethod(String contactMethod) {
-        this.contactMethod = contactMethod;
-    }
-
-    public String getContactInfo() {
-        return contactInfo;
-    }
-
-    public void setContactInfo(String contactInfo) {
-        this.contactInfo = contactInfo;
-    }
-
-    public String getFulfillmentMethod() {
-        return fulfillmentMethod;
-    }
-
-    public void setFulfillmentMethod(String fulfillmentMethod) {
-        this.fulfillmentMethod = fulfillmentMethod;
     }
     
     public int getAddressId() {

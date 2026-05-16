@@ -8,6 +8,8 @@ import service.AddressService;
 import service.CategoryService;
 import service.ListingService;
 import service.UserService;
+import model.ListingPreference;
+import service.ListingPreferenceService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -29,6 +31,7 @@ public class CreateListingServlet extends HttpServlet {
     private final CategoryService categoryService = new CategoryService();
     private final AddressService addressService = new AddressService();
     private final ListingService listingService = new ListingService();
+    private final ListingPreferenceService listingPreferenceService = new ListingPreferenceService();
     private LogDAO logDAO = new LogDAO();
 
     @Override
@@ -257,11 +260,6 @@ public class CreateListingServlet extends HttpServlet {
         listing.setPrice(price);
         listing.setAvailability(true);
         listing.setPricingUnit(pricingUnit);
-        listing.setAcceptedPaymentMethods(String.join(", ", paymentMethods));
-        listing.setContactMethod(contactMethod);
-        listing.setContactInfo(contactInfo);
-        listing.setFulfillmentMethod(fulfillmentMethod);
-
         int listingId;
 
         if (usingNewAddress) {
@@ -294,6 +292,22 @@ public class CreateListingServlet extends HttpServlet {
         if (listingId <= 0) {
             request.setAttribute("errorMessages",
                     Arrays.asList("The listing could not be created. Please try again."));
+            request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
+            return;
+        }
+        
+        ListingPreference preference = new ListingPreference();
+
+        preference.setListingId(listingId);
+        preference.setContactMethod(contactMethod);
+        preference.setContactInfo(contactInfo);
+        preference.setPaymentMethods(Arrays.asList(paymentMethods));
+
+        boolean preferenceSaved = listingPreferenceService.createListingPreference(preference);
+
+        if (!preferenceSaved) {
+            request.setAttribute("errorMessages",
+                    Arrays.asList("The listing was created, but preferences could not be saved."));
             request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
             return;
         }

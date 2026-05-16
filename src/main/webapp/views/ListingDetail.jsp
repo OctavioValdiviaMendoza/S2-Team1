@@ -4,6 +4,7 @@
 <%@ page import="model.Review" %>
 <%@ page import="model.User" %>
 <%@ page import="model.Address" %>
+<%@ page import="model.ListingPreference" %>
 <%
     Listing listing = (Listing) request.getAttribute("listing");
     if (listing == null) {
@@ -12,6 +13,19 @@
     }
 
     List<String> imageUrls = (List<String>) request.getAttribute("imageUrls");
+    
+    ListingPreference listingPreference = (ListingPreference) request.getAttribute("listingPreference");
+
+    List<String> paymentMethods = listingPreference != null
+            ? listingPreference.getPaymentMethods()
+            : null;
+
+    String acceptedPaymentsText = "Not specified";
+
+    if (paymentMethods != null && !paymentMethods.isEmpty()) {
+        acceptedPaymentsText = String.join(", ", paymentMethods);
+    }
+    
     List<Review> reviews = (List<Review>) request.getAttribute("reviews");
     Integer reviewCount = (Integer) request.getAttribute("reviewCount");
     Double averageRating = (Double) request.getAttribute("averageRating");
@@ -343,30 +357,34 @@
 
             <section class="detail-section">
                 <h2>Rental Preferences</h2>
-                <p>
-                    <strong>Accepted payments:</strong>
-                    <%= listing.getAcceptedPaymentMethods() != null && !listing.getAcceptedPaymentMethods().trim().isEmpty()
-                            ? listing.getAcceptedPaymentMethods()
-                            : "Not specified" %>
-                </p>
-                <p>
-                    <strong>Contact method:</strong>
-                    <%= listing.getContactMethod() != null && !listing.getContactMethod().trim().isEmpty()
-                            ? listing.getContactMethod()
-                            : "Not specified" %>
-                </p>
-                <p>
-                    <strong>Contact info:</strong>
-                    <%= listing.getContactInfo() != null && !listing.getContactInfo().trim().isEmpty()
-                            ? listing.getContactInfo()
-                            : "Not specified" %>
-                </p>
-                <p>
-                    <strong>Pickup / drop-off:</strong>
-                    <%= listing.getFulfillmentMethod() != null && !listing.getFulfillmentMethod().trim().isEmpty()
-                            ? listing.getFulfillmentMethod()
-                            : "Not specified" %>
-                </p>
+                <div class = info-placeholder>
+	                <p>
+	        				<strong>Accepted payments:</strong>
+	        				<%= acceptedPaymentsText %>
+				    </p>
+				
+				    <p>
+				        <strong>Contact method:</strong>
+				        <%= listingPreference != null
+				                && listingPreference.getContactMethod() != null
+				                && !listingPreference.getContactMethod().trim().isEmpty()
+				                    ? listingPreference.getContactMethod()
+				                    : "Not specified" %>
+				    </p>
+				
+				    <p>
+				        <strong>Contact info:</strong>
+				        <%= listingPreference != null
+				                && listingPreference.getContactInfo() != null
+				                && !listingPreference.getContactInfo().trim().isEmpty()
+				                    ? listingPreference.getContactInfo()
+				                    : "Not specified" %>
+				    </p>
+				
+				    <p>
+				        <strong>Pickup only</strong>
+				    </p>
+			    </div>
             </section>
 
             <section class="detail-section">
@@ -398,24 +416,6 @@
         <p>Map location is not available for this listing yet.</p>
     <% } %>
 </section>
-            </section>
-
-            <section class="detail-section">
-                <h2>Owner Contact</h2>
-                <div class="info-placeholder">
-                    Reach out by
-                    <strong>
-                        <%= listing.getContactMethod() != null && !listing.getContactMethod().trim().isEmpty()
-                                ? listing.getContactMethod()
-                                : "the listed contact method" %>
-                    </strong>
-                    at
-                    <strong>
-                        <%= listing.getContactInfo() != null && !listing.getContactInfo().trim().isEmpty()
-                                ? listing.getContactInfo()
-                                : "the contact details above" %>
-                    </strong>.
-                </div>
             </section>
         </div>
     </main>

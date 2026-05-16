@@ -3,6 +3,7 @@ package servlet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,6 +20,8 @@ import service.UserService;
 import service.AddressService;
 import service.CategoryService;
 import dao.LogDAO;
+import model.ListingPreference;
+import service.ListingPreferenceService;
 
 
 @WebServlet("/EditListingServlet")
@@ -30,6 +33,7 @@ public class EditListingServlet extends HttpServlet {
     private AddressService addressService = new AddressService();
 
     private final UserService userService = new UserService();
+    private final ListingPreferenceService listingPreferenceService = new ListingPreferenceService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -58,6 +62,18 @@ public class EditListingServlet extends HttpServlet {
         	
         loadFormData(request, session);
         populateFormValues(request, listing, listingService.getImageUrlsByListingId(listingId));
+        ListingPreference preference =
+                listingPreferenceService.getListingPreferenceByListingId(listingId);
+
+        if (preference != null) {
+            request.setAttribute("contactMethodValue", preference.getContactMethod());
+            request.setAttribute("contactInfoValue", preference.getContactInfo());
+
+            if (preference.getPaymentMethods() != null) {
+                request.setAttribute("selectedPaymentMethods",
+                        preference.getPaymentMethods().toArray(new String[0]));
+            }
+        }
         request.setAttribute("addressIdValue", String.valueOf(listing.getAddressId()));
         request.setAttribute("editMode", true);
         request.setAttribute("listingIdValue", String.valueOf(listingId));
@@ -97,7 +113,6 @@ public class EditListingServlet extends HttpServlet {
         String[] paymentMethods = request.getParameterValues("paymentMethods");
         String contactMethod = trim(request.getParameter("contactMethod"));
         String contactInfo = trim(request.getParameter("contactInfo"));
-        String fulfillmentMethod = trim(request.getParameter("fulfillmentMethod"));
         String imageLinksInput = trim(request.getParameter("imageLinks"));
 
         request.setAttribute("editMode", true);
@@ -109,7 +124,6 @@ public class EditListingServlet extends HttpServlet {
         request.setAttribute("pricingUnitValue", pricingUnit);
         request.setAttribute("contactMethodValue", contactMethod);
         request.setAttribute("contactInfoValue", contactInfo);
-        request.setAttribute("fulfillmentMethodValue", fulfillmentMethod);
         request.setAttribute("imageLinksValue", imageLinksInput);
         request.setAttribute("selectedPaymentMethods", paymentMethods != null ? paymentMethods : new String[0]);
 
@@ -159,9 +173,6 @@ public class EditListingServlet extends HttpServlet {
         if (contactInfo.isEmpty()) {
             validationErrors.add("Contact info is required.");
         }
-        if (fulfillmentMethod.isEmpty()) {
-            validationErrors.add("Select pickup, drop-off, or either.");
-        }
         if (imageLinks.isEmpty()) {
             validationErrors.add("Add at least one image link.");
         }
@@ -189,14 +200,26 @@ public class EditListingServlet extends HttpServlet {
         listing.setPrice(parsedPrice);
         listing.setAvailability(existingListing.isAvailability());
         listing.setPricingUnit(pricingUnit);
-        listing.setAcceptedPaymentMethods(String.join(", ", paymentMethods));
-        listing.setContactMethod(contactMethod);
-        listing.setContactInfo(contactInfo);
-        listing.setFulfillmentMethod(fulfillmentMethod);
 
         boolean updated = listingService.updateListing(listing, imageLinks);
         if (!updated) {
             request.setAttribute("errorMessages", java.util.Arrays.asList("The listing could not be updated. Please try again."));
+            request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
+            return;
+        }
+        
+        ListingPreference preference = new ListingPreference();
+
+        preference.setListingId(listingId);
+        preference.setContactMethod(contactMethod);
+        preference.setContactInfo(contactInfo);
+        preference.setPaymentMethods(Arrays.asList(paymentMethods));
+
+        boolean preferenceUpdated = listingPreferenceService.updateListingPreference(preference);
+
+        if (!preferenceUpdated) {
+            request.setAttribute("errorMessages",
+                    Arrays.asList("The listing was updated, but preferences could not be updated."));
             request.getRequestDispatcher("/views/CreateListing.jsp").forward(request, response);
             return;
         }
@@ -229,22 +252,7 @@ public class EditListingServlet extends HttpServlet {
         request.setAttribute("categoryIdValue", String.valueOf(listing.getCategoryId()));
         request.setAttribute("priceValue", String.valueOf(listing.getPrice()));
         request.setAttribute("pricingUnitValue", listing.getPricingUnit() != null ? listing.getPricingUnit() : "");
-        request.setAttribute("contactMethodValue", listing.getContactMethod() != null ? listing.getContactMethod() : "");
-        request.setAttribute("contactInfoValue", listing.getContactInfo() != null ? listing.getContactInfo() : "");
-        request.setAttribute("fulfillmentMethodValue", listing.getFulfillmentMethod() != null ? listing.getFulfillmentMethod() : "");
         request.setAttribute("imageLinksValue", String.join("\n", imageUrls));
-        request.setAttribute("selectedPaymentMethods", parsePaymentMethods(listing.getAcceptedPaymentMethods()));
-    }
-
-    private String[] parsePaymentMethods(String paymentMethods) {
-        if (paymentMethods == null || paymentMethods.trim().isEmpty()) {
-            return new String[0];
-        }
-        String[] parts = paymentMethods.split("\\s*,\\s*");
-        for (int i = 0; i < parts.length; i++) {
-            parts[i] = parts[i].trim().toLowerCase();
-        }
-        return parts;
     }
 
     private List<String> parseImageLinks(String imageLinksInput) {

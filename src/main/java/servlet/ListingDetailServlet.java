@@ -18,6 +18,8 @@ import service.UserService;
 import service.AddressService;
 import service.ListingService;
 import service.ReviewService;
+import model.ListingPreference;
+import service.ListingPreferenceService;
 
 @WebServlet("/ListingDetailServlet")
 public class ListingDetailServlet extends HttpServlet {
@@ -27,6 +29,7 @@ public class ListingDetailServlet extends HttpServlet {
     private final AddressService addressService = new AddressService();
     private final ReviewService reviewService = new ReviewService();
     private UserService userService = new UserService();
+    private final ListingPreferenceService listingPreferenceService = new ListingPreferenceService();
 
     public ListingDetailServlet() {
         super();
@@ -54,6 +57,7 @@ public class ListingDetailServlet extends HttpServlet {
             }
 
             List<String> imageUrls = listingService.getImageUrlsByListingId(listingId);
+            ListingPreference listingPreference = listingPreferenceService.getListingPreferenceByListingId(listingId);
             List<Review> reviews = reviewService.getReviewsByListingId(listingId);
 
             HttpSession session = request.getSession(false);
@@ -83,6 +87,7 @@ public class ListingDetailServlet extends HttpServlet {
 
             request.setAttribute("listing", listing);
             request.setAttribute("imageUrls", imageUrls);
+            request.setAttribute("listingPreference", listingPreference);
 
             request.setAttribute("pickupAddress", pickupAddress);
             request.setAttribute("googleMapsApiKey", googleMapsApiKey);
