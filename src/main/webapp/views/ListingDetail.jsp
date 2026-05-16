@@ -417,14 +417,6 @@
                     </strong>.
                 </div>
             </section>
-
-            <section class="detail-section">
-                <h2>Related Listings</h2>
-                <div class="info-placeholder">
-                    Placeholder for future related listings.
-                </div>
-            </section>
-
         </div>
     </main>
 

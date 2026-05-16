@@ -532,15 +532,12 @@
             });
 
             contactMethod.addEventListener('change', function () {
-                if (contactInfo.value.trim()) {
-                    updateSubmitState();
-                    return;
-                }
-
                 if (this.value === 'email') {
                     contactInfo.value = this.dataset.defaultEmail || '';
-                } else if (this.value === 'phone' || this.value === 'text') {
+                } else if (this.value === 'phone') {
                     contactInfo.value = this.dataset.defaultPhone || '';
+                } else {
+                    contactInfo.value = '';
                 }
 
                 updateSubmitState();
